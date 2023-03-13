@@ -197,7 +197,7 @@ function RC_CheckExitCode([int] $rcExit, [string] $rcError) {
     # 8  - Retry limit was exceeded.
     # 16 - Fatal error occurred.
     if( $rcExit -ge 8 ) {
-        Write-Error -Message "-E- robocopy.exe returned error code $rcExit and the following error message(s): $rcError";
+        Write-Error -Message "-E- robocopy.exe returned error code $rcExit and message(s): $rcError";
         exit 1;
     }
 }
@@ -227,20 +227,26 @@ function RC_GetSmartScale([long] $valueInBytes) {
     };
 }
 
-function RC_SmartScaleBytes([long] $valueInBytes, [int] $unitScale, [string] $unitString = "") {
+function RC_SmartScaleBytes {
+    param (
+        [long] $valueInBytes,
+         [int] $unitScale, 
+         [string] $unitString = "", 
+         [int] $decimalPlaces = 3
+    )
     if ($unitScale -eq 0) { 
         return "${valueInBytes}${unitString}"; 
     }
     else {
         [double] $value = [double] $valueInBytes; 
         while( $unitScale-- -gt 0 ) { $value /= 1024.0; }
-        return "{0:n3}${unitString}" -f $value;
+        return $value.ToString("n${decimalPlaces}") + $unitString;
     }
 }
 
-function RC_SmartBytes([long] $valueInBytes) {
+function RC_SmartBytes([long] $valueInBytes, [int] $decimalPlaces = 3) {
     $units = RC_GetSmartScale $valueInBytes;
-    return RC_SmartScaleBytes $valueInBytes @units;
+    return RC_SmartScaleBytes $valueInBytes @units $decimalPlaces;
 }
 
 # Returns a representation of a progress pair of byte values
