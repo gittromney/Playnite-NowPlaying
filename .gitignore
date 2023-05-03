@@ -1,0 +1,15 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/NowPlaying/bin
+/NowPlaying/.vs/NowPlaying
+/NowPlaying/packages
+/NowPlaying/obj
+/NowPlaying/Properties
+/NowPlaying/Logo2.png
+/NowPlaying/Logo1.png
+/NowPlaying/icon_playnite.png
+/NowPlaying/icon.png
+/Robo_Copy.ps1
+/CoD install error log.zip
