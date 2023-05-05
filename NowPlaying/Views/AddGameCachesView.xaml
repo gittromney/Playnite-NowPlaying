@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="NowPlaying.Views.AddGameCachesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NowPlaying.Views"
+             xmlns:util="clr-namespace:Wpf.Util"
+             Width="700" Height="400">
+    <Grid Margin="20,0,20,20">
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Enable games for NowPlaying game caching"
+                       Foreground="DeepSkyBlue"
+                       FontSize="20"/>
+            </StackPanel>
+
+            <TextBlock Margin="20"
+                       Text="** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **"
+                       Foreground="OrangeRed" FontSize="16" TextWrapping="Wrap"
+                       Visibility="{Binding NoEligibleGamesVisibility}"/>
+            
+            <StackPanel Orientation="Horizontal" Visibility="{Binding EligibleGamesVisibility}" Margin="0,0,0,10">
+                <Label Content="🔎" Margin="0,0,5,0"/>
+                <TextBox Width="200" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     ToolTip="Show only games matching your search text entered here."
+                     ToolTipService.InitialShowDelay="150"
+                     ToolTipService.BetweenShowDelay="0"
+                     Margin="0,0,15,0"/>
+                <Button Content="Select All" Margin="0,0,15,0" Command="{Binding SelectAllCommand}"/>
+                <Button Content="Select None" Command="{Binding SelectNoneCommand}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Visibility="{Binding EligibleGamesVisibility}">
+                <ListView Name="EligibleGames"
+                      ItemsSource="{Binding EligibleGames}"
+                      IsSynchronizedWithCurrentItem="True"
+                      MouseUp="EligibleGames_OnMouseUp"
+                      SelectionMode="Extended"
+                      MaxHeight="400"
+                      util:GridViewSort.AutoSort="True"
+                      util:GridViewSort.SortGlyphAscending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-down.png"
+                      util:GridViewSort.SortGlyphDescending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-up.png">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="350" Header="Title" DisplayMemberBinding="{Binding Path=Title}"/>
+                            <GridViewColumn Width="90" Header="Install Size" DisplayMemberBinding="{Binding Path=InstallSize}"/>
+                            <GridViewColumn Width="220" Header="Genre(s)" DisplayMemberBinding="{Binding Path=Genres}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel VerticalAlignment="Bottom" Margin="30">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Label Content="Cache to:" Margin="0,0,10,0"
+                   Visibility="{Binding EligibleGamesVisibility}"/>
+                <ComboBox SelectedIndex="0" 
+                      ItemsSource="{Binding CacheRoots}"
+                      SelectedItem="{Binding SelectedCacheRoot}"
+                      Visibility="{Binding EligibleGamesVisibility}"
+                      Width="200" Margin="0,0,15,0"/>
+                <Button Content="Enable selected games" Margin="0,0,10,0"
+                    Visibility="{Binding EligibleGamesVisibility}"
+                    Command="{Binding EnableSelectedGamesCommand}"/>
+                <Button Content="Close" Command="{Binding CloseCommand}"/>
+            </StackPanel>
+        </StackPanel>
+        
+    </Grid>
+</UserControl>

@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="NowPlaying.Views.NowPlayingSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600">
+    <StackPanel Margin="20">
+
+        <StackPanel Orientation="Horizontal" Margin="5">
+            <TextBlock Text="NowPlaying Game Cacher Settings" Foreground="DeepSkyBlue" FontSize="18"/>
+        </StackPanel>
+
+        <StackPanel Margin="5">
+            <TextBlock Text="Source game hiding options:" FontSize="14" Foreground="DeepSkyBlue" Margin="0,0,0,5"/>
+            <RadioButton Content="Hide source game when enabled for game caching."
+                         IsChecked="{Binding Settings.HideSource_Enabled}"
+                         Foreground="White"/>
+            <RadioButton Content="Hide source game when enabled for game caching and cache is installed."
+                         IsChecked="{Binding Settings.HideSource_Installed}"
+                         Foreground="White"/>
+            <RadioButton Content="Don't hide source game."
+                         IsChecked="{Binding Settings.HideSource_Never}"
+                         Foreground="White"/>
+        </StackPanel>
+
+        <TextBlock Text="Game cache uninstall options:" FontSize="14" Foreground="DeepSkyBlue" Margin="5"/>
+        <CheckBox Content="Require confirmation when a game cache is uninstalled."
+                  Foreground="White"
+                  Margin="5,0,0,5"
+                  IsChecked="{Binding Settings.ConfirmUninstall}"/>
+
+        <!--<Comment>TODO: Change write-back option to three write-back states as radio buttons: always/never/ask </Comment>-->
+        <CheckBox Content='Ask before writing back a "dirty" game cache, which has updated files due to saved games, settings, etc.'
+                  Foreground="White"
+                  Margin="5,0,0,5"
+                  IsChecked="{Binding Settings.AskDirtyWriteBack}"/>
+
+        <!--<StackPanel Orientation="Horizontal">
+            <TextBlock Text="Suffix added to NowPlaying enabled game titles:" 
+                       Foreground="DeepSkyBlue"
+                       Margin="5,0,0,0"
+                       VerticalAlignment="Center"/>
+            <TextBox Text="{Binding Settings.NowPlayingTitleTag}"
+                     Width="200"
+                     Foreground="White"
+                     Margin="5"/>
+        </StackPanel>-->
+
+    </StackPanel>
+</UserControl>

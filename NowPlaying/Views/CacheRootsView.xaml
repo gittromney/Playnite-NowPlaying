@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="NowPlaying.Views.CacheRootsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NowPlaying.Views">
+
+    <StackPanel Margin="0,0,0,15">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+            <TextBlock Text="NowPlaying Cache Roots" Foreground="DeepSkyBlue" FontSize="18"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="** Add at least one cache root device/directory where games caches can be installed **" 
+                       Foreground="OrangeRed"
+                       FontFamily="Trebuchet MS"
+                       FontSize="16"
+                       Visibility="{Binding EmptyRootsVisible}"
+                       Margin="0,10,0,10"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+            <ListView Name="CacheRoots"
+                      ItemsSource="{Binding CacheRoots}"
+                      SelectionMode="Single"
+                      SelectedItem="{Binding SelectedCacheRoot}"
+                      Visibility="{Binding NonEmptyRootsVisible}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="70" DisplayMemberBinding="{Binding Path=Device}">
+                            <GridViewColumnHeader Content="Device" 
+                                                  ToolTip="Root device where games will be cached"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                        <GridViewColumn Width="250" DisplayMemberBinding="{Binding Path=Directory}">
+                            <GridViewColumnHeader Content="Directory" 
+                                                  ToolTip="Directory on root device where game caches will be installed"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                        <GridViewColumn Width="120" DisplayMemberBinding="{Binding Path=SpaceAvailableForCaches}">
+                            <GridViewColumnHeader Content="Space available" 
+                                                  ToolTip="Space available for game caches on the root device"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                        <GridViewColumn Width="70" DisplayMemberBinding="{Binding Path=GamesEnabled}">
+                            <GridViewColumnHeader Content="Games"
+                                                  ToolTip="Number of games enabled for caching to the root device"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                        <GridViewColumn Width="120" DisplayMemberBinding="{Binding Path=CachesInstalled}">
+                            <GridViewColumnHeader Content="Installed"
+                                                  ToolTip="Number (and size) of game caches installed to the root device"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                        <GridViewColumn Width="220" DisplayMemberBinding="{Binding Path=MaxFillReserved}">
+                            <GridViewColumnHeader Content="Max fill level" 
+                                                  ToolTip="Allowed percentage of the root device to fill with game caches"
+                                                  ToolTipService.InitialShowDelay="150"
+                                                  ToolTipService.BetweenShowDelay="0"/>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+                
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Refresh" Command="{Binding RefreshRootsCommand}"/>
+                        <MenuItem Header="Remove" Command="{Binding RemoveCacheRootCommand}"
+                                  Visibility="{Binding RemoveCacheRootVisibility}"/>
+                        <MenuItem Header="Edit max fill level" Command="{Binding EditMaxFillCommand}"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+
+            </ListView>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+            <Button Content="⟳" Width="28" Height="28" Padding="0,0,0,3" FontSize="20" Focusable="False"
+                    ToolTip="Refresh cache roots list"  
+                    ToolTipService.InitialShowDelay="150"
+                    ToolTipService.BetweenShowDelay="0"
+                    Command="{Binding RefreshRootsCommand}"/>
+            <Button Content="➕" Width="28" Height="28" Padding="0,0,0,0" FontSize="12" Focusable="False"
+                    ToolTip="Add new cache root, where game caches can be installed"
+                    ToolTipService.InitialShowDelay="150"
+                    ToolTipService.BetweenShowDelay="0"
+                    Command="{Binding AddCacheRootCommand}"/>
+            <Button Content="➖" Width="28" Height="28" Padding="0,0,0,0" FontSize="12" Focusable="False"
+                    ToolTip="Delete selected cache root"
+                    ToolTipService.InitialShowDelay="150"
+                    ToolTipService.BetweenShowDelay="0"
+                    Command="{Binding RemoveCacheRootCommand}"/>
+            <Button Content="🖉" Width="28" Height="28" Padding="0,0,0,0" FontSize="18" Focusable="False"
+                    ToolTip="Edit selected cache root's max fill level"
+                    ToolTipService.InitialShowDelay="150"
+                    ToolTipService.BetweenShowDelay="0"
+                    Command="{Binding EditMaxFillCommand}"/>
+        </StackPanel>
+
+    </StackPanel>
+</UserControl>
