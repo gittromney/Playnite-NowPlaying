@@ -165,8 +165,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\sort-down.png" />
-    <Content Include="Resources\Images\sort-up.png" />
+    <EmbeddedResource Include="Resources\Images\sort-down.png" />
+    <EmbeddedResource Include="Resources\Images\sort-up.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

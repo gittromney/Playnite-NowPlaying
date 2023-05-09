@@ -44,8 +44,8 @@
             MouseUp="EligibleGames_OnMouseUp"
             SelectionMode="Extended"
             core:GridViewSort.AutoSort="True"
-            core:GridViewSort.SortGlyphAscending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-down.png"
-            core:GridViewSort.SortGlyphDescending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-up.png">
+            core:GridViewSort.SortGlyphAscending="\Resources\Images\sort-down.png"
+            core:GridViewSort.SortGlyphDescending="\Resources\Images\sort-up.png">
             
             <ListView.View>
                 <GridView>
