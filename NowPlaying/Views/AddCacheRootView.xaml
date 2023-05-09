@@ -4,21 +4,43 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NowPlaying.Views"
-             Width="600" Height="400">
-    
-    <StackPanel Orientation="Vertical" Margin="20,0,20,20">
-        <TextBlock Text="Add NowPlaying Cache Root" 
-               FontSize="18" 
-               Foreground="DeepSkyBlue"
-               Margin="0,0,0,20"/>
-        <TextBlock Text="Choose a directory (on a fast device such as an SSD) to create game caches under. Note, only one cache root is allowed per device."
-                       Foreground="White"
-                       TextWrapping="Wrap"
-                       Margin="0,0,0,10"/>
-        <TextBlock Text="Also set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  This can be used to reserve a portion of the device's total capacity for non-game cache use.  It's recommended to set the maximum fill level to 75-85% (or so) for a cache root on your system disk (C:). If the cache root is on a device used solely for gaming, it can be set as high as 100%."
-                       Foreground="White"
-                       TextWrapping="Wrap"
-                       Margin="0,0,0,20"/>
+             MinWidth="650" MaxWidth="1000" MinHeight="460" MaxHeight="460">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="WhiteSmoke"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="HeaderText">
+            <Setter Property="Foreground" Value="DeepSkyBlue"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="ValueText">
+            <Setter Property="Foreground" Value="WhiteSmoke"/>
+            <Setter Property="FontFamily" Value="Trebuchet MS"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Orientation="Vertical" Margin="30,0,30,0">
+
+        <TextBlock Text="Add NowPlaying Cache Root"
+                   Style="{StaticResource HeaderText}"/>
+
+        <TextBlock Margin="0,0,0,10">
+            Choose a directory (on a fast device such as an SSD) to create game caches under. 
+            Note, only one cache root is allowed per device.
+        </TextBlock>
+        
+        <TextBlock Margin="0,0,0,20">
+            Also set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
+            This can be used to reserve a portion of the device's total capacity for non-game cache use.  
+            It's recommended to set the maximum fill level to 75-85% (or so) for a cache root on your system disk (C:).  
+            If the cache root is on a device used solely for gaming, it can be set as high as 100%."
+        </TextBlock>
 
         <Grid Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
@@ -31,108 +53,57 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0"
-                       Text="Cache root directory:"
-                       VerticalAlignment="Center"
-                       Foreground="White" 
-                       Margin="0,0,10,0"/>
+            <TextBlock Text="Cache root directory:" 
+                       Grid.Row="0" Grid.Column="0" Margin="0,0,10,0"/>
+            
+            <TextBox Text="{Binding RootDirectory, UpdateSourceTrigger=PropertyChanged}" 
+                     Grid.Row="0" Grid.Column="1" 
+                     FontFamily="Trebuchet MS" FontSize="14" Foreground="DeepSkyBlue" Margin="0,0,10,0"/>
 
-            <TextBox Grid.Row="0" Grid.Column="1"
-                     Text="{Binding RootDirectory, UpdateSourceTrigger=PropertyChanged}"
-                     Foreground="DeepSkyBlue"
-                     VerticalContentAlignment="Center"
-                     Margin="0,0,10,0"/>
+            <Button Content="Browse" 
+                    Grid.Row="0" Grid.Column="2" Command="{Binding SelectFolderCommand}"/>
 
-            <Button Grid.Row="0" Grid.Column="2" 
-                    Content="Browse" 
-                    Foreground="White" 
-                    Command="{Binding SelectFolderCommand}"/>
-
-            <TextBlock Grid.Row="1" Grid.Column="1"
-                       Text="{Binding RootStatus}" 
-                       TextWrapping="Wrap"
-                       Foreground="OrangeRed"/>
+            <TextBlock Text="{Binding RootStatus}"
+                       Grid.Row="1" Grid.Column="1" Foreground="OrangeRed"/>
         </Grid>
 
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            
-            <TextBlock Text="Cache root device:"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           Margin="0,0,10,0"/>
+            <TextBlock Text="Cache root device:" Margin="0,0,10,0"/>
+            <TextBlock Text="{Binding DeviceName}" Style="{StaticResource ValueText}" Foreground="DeepSkyBlue" Margin="0,0,35,0"/>
 
-            <TextBlock Text="{Binding DeviceName}"
-                       Foreground="White"
-                       VerticalAlignment="Center"
-                       Margin="0,0,35,0"/>
-            
-            <TextBlock Text="Device capacity:"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           Margin="0,0,10,0"/>
+            <TextBlock Text="Device capacity:" Margin="0,0,10,0"/>
+            <TextBlock Text="{Binding DeviceCapacity}" Style="{StaticResource ValueText}" Margin="0,0,35,0"/>
 
-            <TextBlock Text="{Binding DeviceCapacity}"
-                       Foreground="White"
-                       VerticalAlignment="Center"
-                       Margin="0,0,35,0"/>
-
-            <TextBlock Text="Space available:"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           Margin="0,0,10,0"/>
-
-            <TextBlock Text="{Binding SpaceAvailable}"
-                       Foreground="White"
-                       VerticalAlignment="Center"
-                       Margin="0,0,10,0"/>
-
+            <TextBlock Text="Space available:" Margin="0,0,10,0"/>
+            <TextBlock Text="{Binding SpaceAvailable}" Style="{StaticResource ValueText}"/>
         </StackPanel>
-        
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            
-            <TextBlock Text="Maximum fill level allowed:"
-                           VerticalAlignment="Center"
-                           Foreground="White" 
-                           Margin="0,0,10,0"/>
 
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Maximum fill level allowed:" Margin="0,0,10,0"/>
             <TextBox Text="{Binding MaximumFillLevel, UpdateSourceTrigger=PropertyChanged, Delay=500}"
-                     Foreground="DeepSkyBlue"
+                     FontFamily="Trebuchet MS" FontSize="14" Foreground="DeepSkyBlue"
                      HorizontalContentAlignment="Right"
                      Width="50"/>
 
-            <TextBlock Text="%" 
-                       Foreground="White"
-                       VerticalAlignment="Center" Margin="0,0,15,0"/>
-
-            <TextBlock Text="{Binding SpaceToReserve}"
-                       Foreground="White"
-                       VerticalAlignment="Center"
-                       Margin="0,0,15,0"/>
-
+            <TextBlock Text="%" Margin="0,0,15,0"/>
+            <TextBlock Text="{Binding SpaceToReserve}" FontFamily="Trebuchet MS" FontSize="14"/>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-            <TextBlock Text="Space available for game caches:"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           Margin="0,0,10,0"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+            <TextBlock Text="Space available for game caches:" Margin="0,0,10,0"/>
 
             <Grid Margin="0,0,15,0">
-                <TextBlock Text="{Binding SpaceAvailableForCaches}"
-                           Visibility="{Binding SpaceAvailableVisibility}"
-                           Foreground="White"
-                           VerticalAlignment="Center"/>
-                
+                <TextBlock Text="{Binding SpaceAvailableForCaches}" 
+                           Style="{StaticResource ValueText}"
+                           Visibility="{Binding SpaceAvailableVisibility}"/>
+
                 <TextBlock Text="** no space available **"
                            Visibility="{Binding NoSpaceAvailableVisibility}"
-                           Foreground="OrangeRed"
-                           VerticalAlignment="Center"/>
+                           Foreground="OrangeRed"/>
             </Grid>
-
-
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Add" Command="{Binding AddCommand}"/>
             <Button Content="Cancel" Command="{Binding CancelCommand}"/>
         </StackPanel>

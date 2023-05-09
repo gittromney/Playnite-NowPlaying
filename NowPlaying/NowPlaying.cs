@@ -16,6 +16,7 @@ using NowPlaying.Core;
 using NowPlaying.Models;
 using System.IO;
 using System.Diagnostics;
+using System.Data;
 
 namespace NowPlaying
 {
@@ -122,7 +123,7 @@ namespace NowPlaying
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             cacheManager.LoadCacheRootsFromJson();
-            cacheRootsViewModel.RefreshRootsList();
+            cacheRootsViewModel.RefreshCacheRoots();
             cacheManager.LoadInstallAverageBpsFromJson();
 
             try
@@ -136,17 +137,17 @@ namespace NowPlaying
                 foreach (var nowPlayingGame in nowPlayingGames)
                 {
                     string cacheId = nowPlayingGame.Id.ToString();
-                    RecreateMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                    RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
                 }
                 cacheManager.SaveGameCacheEntriesToJson();
             }
 
-            CheckForOrphanedGameCaches();
+            CheckForOrphanedCacheDirectories();
             CheckForBrokenNowPlayingGames();
-            cacheRootsViewModel.RefreshRootsList();
+            cacheRootsViewModel.RefreshCacheRoots();
         }
-
-        public void CheckForOrphanedGameCaches()
+        
+        public void CheckForOrphanedCacheDirectories()
         {
             foreach (var root in cacheManager.CacheRoots)
             {
@@ -177,7 +178,7 @@ namespace NowPlaying
                 if (!cacheManager.GameCacheExists(game.Id.ToString())) 
                 {
                     // . NowPlaying game is missing the supporting game cache... attempt to recreate it
-                    if (!RecreateMissingGameCacheIfPossible(game.Id.ToString(), game))
+                    if (!RestoreMissingGameCacheIfPossible(game.Id.ToString(), game))
                     {
                         NotifyWarning($"NowPlaying game cache information missing; disabling game caching for '{game.Name}'.");
                         DisableNowPlayingGameCaching(game);
@@ -221,23 +222,30 @@ namespace NowPlaying
 
             if (!cacheManager.GameCacheExists(cacheId))
             {
-                RecreateMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
             }
 
             if (cacheManager.GameCacheExists(cacheId))
             {
-                if (!CacheHasInstallerQueued(cacheId))
+                var gameCache = cacheManager.FindGameCache(cacheId);
+                if (gameCache.CacheWillFit && !CacheHasInstallerQueued(cacheId))
                 {
                     return new List<InstallController> { new NowPlayingInstallController(this, nowPlayingGame, cacheManager.FindGameCache(cacheId)) };
                 }
                 else
                 {
+                    if (!gameCache.CacheWillFit)
+                    {
+                        string message = $"Not enough space to install game cache to '{gameCache.CacheDir}'";
+                        message += Environment.NewLine + "(Click on the NowPlaying sidebar for more details.)";
+                        PopupError(message);
+                    }
                     return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
                 }
             }
             else
             {
-                PopupError($"Unable to find (or recreate) NowPlaying Game Cache entry for '{args.Game.Name}'");
+                PopupError($"Unable to find or restore NowPlaying game cache entry for '{args.Game.Name}'");
                 return null;
             }
         }
@@ -246,6 +254,11 @@ namespace NowPlaying
         {
             public DummyUninstaller(Game game) : base(game) { }
             public override void Uninstall(UninstallActionArgs args) { } 
+        }
+
+        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args)
+        {
+            base.OnLibraryUpdated(args);
         }
 
         public override IEnumerable<UninstallController> GetUninstallActions(GetUninstallActionsArgs args)
@@ -257,7 +270,7 @@ namespace NowPlaying
 
             if (!cacheManager.GameCacheExists(cacheId))
             {
-                RecreateMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
             }
 
             if (cacheManager.GameCacheExists(cacheId))
@@ -273,12 +286,12 @@ namespace NowPlaying
             }
             else
             {
-                PopupError($"Unable to find (or recreate) NowPlaying Game Cache entry for '{args.Game.Name}'");
+                PopupError($"Unable to find or restore NowPlaying game cache entry for '{args.Game.Name}'");
                 return null;
             }
         }
 
-        public bool RecreateMissingGameCacheIfPossible(string cacheId, Game nowPlayingGame)
+        public bool RestoreMissingGameCacheIfPossible(string cacheId, Game nowPlayingGame)
         {
             string title = nowPlayingGame.Name;
             string installDir = GetPreviewPlayAction(nowPlayingGame)?.WorkingDir;
@@ -292,143 +305,103 @@ namespace NowPlaying
             {
                 cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
 
-                NotifyWarning($"Recreated NowPlaying game cache entry for '{title}'");
+                NotifyWarning($"Restored NowPlaying game cache entry for '{title}'");
                 return true;
             }
             return false;
         }
 
+        public class SelectedGamesContext
+        {
+            private readonly NowPlaying plugin;
+            public bool allEligible;
+            public bool allEnabled;
+            public bool allEnabledAndEmpty;
+            public int count;
+
+            public SelectedGamesContext(NowPlaying plugin, List<Game> games)
+            {
+                this.plugin = plugin;
+                UpdateContext(games);
+            }
+
+            private void ResetContext()
+            {
+                allEligible = true;
+                allEnabled = true;
+                allEnabledAndEmpty = true;
+                count = 0;
+            }
+
+            public void UpdateContext(List<Game> games)
+            {
+                ResetContext();
+                foreach (var game in games)
+                {
+                    bool isEnabled = plugin.IsGameNowPlayingEnabled(game);
+                    bool isEligible = !isEnabled && plugin.IsGameNowPlayingEligible(game);
+                    bool isEnabledAndEmpty = isEnabled && plugin.cacheManager.FindGameCache(game.Id.ToString())?.CacheSize == 0;
+                    allEligible &= isEligible;
+                    allEnabled &= isEnabled;
+                    allEnabledAndEmpty &= isEnabledAndEmpty;
+                    count++;
+                }
+            }
+        }
+    
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
         {
             var gameMenuItems = new List<GameMenuItem>();
-            int gameCount = args.Games.Count;
-            string plural = gameCount > 1 ? "s" : "";
 
-            bool allNowPlaying = args.Games.Where(a => a.PluginId == this.Id).Count() == gameCount;
+            // . get selected games context
+            var context = new SelectedGamesContext(this, args.Games);
+            string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
 
-            if (allNowPlaying)
+            // . Enable game caching menu
+            if (context.allEligible)
             {
-                bool allNowPlayingEmpty = args.Games.Where(a => IsEmptyNowPlayingGame(a)).Count() == gameCount;
-
-                //if (allNowPlayingEmpty)
-                //{
-                //    gameMenuItems.Add(new GameMenuItem
-                //    {
-                //        Description = $"Remove selected NowPlaying game{plural}", 
-                //        Action = (nowPlayingGame) => RemoveEmptyNowPlayingGames(args.Games)
-                //    });
-                //    if (GameCacheRoots.Count > 1) 
-                //    {
-                //        foreach (var cacheRoot in GameCacheRoots)
-                //        {
-                //            gameMenuItems.Add(new GameMenuItem
-                //            {
-                //                MenuSection = $"Change NowPlaying installDevice for selected game{plural}",
-                //                Description = $"To {cacheRoot}",
-                //                Action = (nowPlayingGame) => EnableNowPlayingWithRoot(args.Games, cacheRoot)
-                //            });
-                //        }
-                //    }
-
-                //}
-                //else
-                //{
-                //    gameMenuItems.Add(new GameMenuItem
-                //    {
-                //        Description = $"Uninstall and remove selected NowPlaying game{plural}",
-                //        Action = (nowPlayingGame) =>
-                //        {
-                //            UninstallNowPlayingGames(args.Games);
-                //            RemoveEmptyNowPlayingGames(args.Games);
-                //        }
-                //    });
-                //}
-            }
-
-            // There are multiple Game Cache RootDir directory choices...
-            else if (cacheManager.CacheRoots.Count > 1)
-            {
-                // . If one or more of the selected games is NowPlaying enabled and Installed/Installing...
-                //   -> Don't allow these selected games to be enabled/or have their Game Cache RootDir changed.
-                int enabledNonemptyCount = args.Games.Where(a => IsGameEnabledAndNonempty(a)).Count();
-
-                if (enabledNonemptyCount > 0)
-                {
-                    string descr;
-                    if (enabledNonemptyCount == gameCount)
-                    {
-                        descr = $"(Selected game{plural} are NowPlaying enabled and installed)";
-                    }
-                    else
-                    {
-                        descr = $"(*Some* of the selected games are NowPlaying enabled and installed)";
-                    }
-                    gameMenuItems.Add(new GameMenuItem
-                    {
-                        Description = descr
-                    });
-                }
-
-                // . If all of the selected games are eligible to have NowPlaying enabled, which includes
-                //   games that are currently NowPlaying enabled but have an empty Game Cache...
-                //   -> Allow selected games to be NowPlaying enabled
-                //   -> Allow selected NowPlaying enabled games to have their Cache RootDir cacheRoot changed.
-                //
-                else if (AreAllGamesNowPlayingEnabledOrEligible(args.Games))
+                if (cacheManager.CacheRoots.Count > 1)
                 {
                     foreach (var cacheRoot in cacheManager.CacheRoots)
                     {
                         gameMenuItems.Add(new GameMenuItem
                         {
-                            MenuSection = $"Activate NowPlaying caching for selected game{plural}",
+                            MenuSection = "Enable NowPlaying caching for selected game" + gameCount,
                             Description = $"To {cacheRoot.Directory}",
                             Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
                         });
                     }
                 }
-            }
-
-            // Single Game Cache RootDir directory...
-            else if (cacheManager.CacheRoots.Count == 1)
-            {
-                if (AreAllGamesNowPlayingEnabled(args.Games))
-                {
-                    gameMenuItems.Add(new GameMenuItem
-                    {
-                        Description = string.Format("(Selected game{0} NowPlaying enabled)", gameCount > 1 ? "s are" : " is")
-                    });
-                }
-                else if (AreAllGamesNowPlayingEnabledOrEligible(args.Games))
+                else
                 {
                     var cacheRoot = cacheManager.CacheRoots.First();
                     gameMenuItems.Add(new GameMenuItem
                     {
-                        Description = $"Activate NowPlaying caching for selected game{plural}",
+                        Description = "Enable NowPlaying caching for selected game" + gameCount,
                         Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
                     });
                 }
             }
 
-            return gameMenuItems;
-        }
-
-        private void UninstallNowPlayingGames(List<Game> games)
-        {
-            foreach (var game in games)
+            // . Disable game caching menu
+            else if (context.allEnabledAndEmpty)
             {
-                string cacheId = game.Id.ToString();
-                if (cacheManager.GameCacheExists(cacheId))
+                gameMenuItems.Add(new GameMenuItem
                 {
-                    var controller = new NowPlayingUninstallController(this, game, cacheManager.FindGameCache(cacheId));
-                    controller.Uninstall(new UninstallActionArgs());
-                }
+                    Description = "Disable NowPlaying caching for selected game" + gameCount,
+                    Action = (a) => 
+                    { 
+                        foreach (var game in args.Games) 
+                        { 
+                            DisableNowPlayingGameCaching(game);
+                            cacheManager.RemoveGameCache(game.Id.ToString());
+                            NotifyInfo($"Game caching disabled for '{game.Name}'");
+                        } 
+                    }
+                });
             }
-        }
 
-        private bool IsEmptyNowPlayingGame(Game nowPlayingGame)
-        {
-            string cacheId = nowPlayingGame.SourceId.ToString();
-            return nowPlayingGame.PluginId == this.Id && cacheManager.GameCacheIsUninstalled(cacheId);
+            return gameMenuItems;
         }
 
         public override IEnumerable<SidebarItem> GetSidebarItems()
@@ -460,24 +433,9 @@ namespace NowPlaying
             return eligible;
         }
 
-        private bool IsGameNowPlayingEnabled(Game game)
+        public bool IsGameNowPlayingEnabled(Game game)
         {
             return game.PluginId == this.Id && cacheManager.GameCacheExists(game.Id.ToString());
-        }
-
-        private bool AreAllGamesNowPlayingEnabled(List<Game> games)
-        {
-            return games.Where(a => IsGameNowPlayingEnabled(a)).Count() == games.Count();
-        }
-
-        private bool IsGameEnabledAndNonempty(Game game)
-        {
-            return IsGameNowPlayingEnabled(game) && cacheManager.FindGameCache(game.Id.ToString()).CacheSize > 0;
-        }
-
-        private bool AreAllGamesNowPlayingEnabledOrEligible(List<Game> games)
-        {
-            return games.Where(a => IsGameNowPlayingEnabled(a) || IsGameNowPlayingEligible(a)).Count() == games.Count();
         }
 
         public void EnableNowPlayingWithRoot(Game game, CacheRootViewModel cacheRoot)
@@ -523,11 +481,9 @@ namespace NowPlaying
                 }
             }
 
-            // . Source game (NowPlaying eligible)
-            //   -> Activate game for NowPlaying game caching
-            //
             else
             {
+                // . Enable source game for NowPlaying game caching
                 (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
             }
         }
@@ -603,9 +559,7 @@ namespace NowPlaying
                     }
                 };
 
-                // . Re-add the game (rather than just update) in order for library change to register
-                PlayniteApi.Database.Games.Remove(game);
-                PlayniteApi.Database.Games.Add(game);
+                PlayniteApi.Database.Games.Update(game);
                 return true;
             }
             else
@@ -682,7 +636,6 @@ namespace NowPlaying
                 return null;
             }
         }
-
 
         public string GetInstallQueueStatus(NowPlayingInstallController controller)
         {
@@ -764,6 +717,23 @@ namespace NowPlaying
             return false;
         }
 
+        public void CancelQueuedInstaller(string cacheId)
+        {
+            if (CacheHasInstallerQueued(cacheId))
+            {
+                // . remove entry from installer queue
+                var controller = cacheInstallQueue.Where(c => c.gameCache.Id == cacheId).First();
+                cacheInstallQueue = new Queue<NowPlayingInstallController>(cacheInstallQueue.Where(c => c != controller));
+
+                // . update game cache state
+                var gameCache = cacheManager.FindGameCache(cacheId);
+                gameCache.UpdateInstallQueueStatus(null);
+                UpdateInstallQueueStatuses();
+                topPanelViewModel.CancelledFromInstallQueue(gameCache.InstallSize, gameCache.InstallEtaTimeSpan);
+                panelViewModel.RefreshGameCaches();
+            }
+        }
+
         public void DequeueInstallerAndInvokeNext(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
@@ -787,7 +757,7 @@ namespace NowPlaying
 
         public void DequeueUninstallerAndInvokeNext(string cacheId)
         {
-            // Dequeue the installer (and sanity check it was ours)
+            // Dequeue the controller (and sanity check it was ours)
             var activeId = cacheUninstallQueue.Dequeue().gameCache.Id;
             Debug.Assert(activeId == cacheId, $"Unexpected uninstall controller cacheId at head of the Queue ({activeId})");
 
@@ -795,7 +765,7 @@ namespace NowPlaying
             UpdateUninstallQueueStatuses();
             topPanelViewModel.UninstallDoneOrCancelled();
 
-            // Invoke next in queue's installer, if applicable.
+            // Invoke next in queue's controller, if applicable.
             if (cacheUninstallQueue.Count > 0)
             {
                 cacheUninstallQueue.First().NowPlayingUninstall();
@@ -828,7 +798,8 @@ namespace NowPlaying
             if (!string.IsNullOrEmpty(selectableMessage))
             {
                 NowPlaying.logger.Error(message + selectableMessage);
-                PlayniteApi.Dialogs.ShowSelectableString(message, "NowPlaying Error:", selectableMessage);
+                //PlayniteApi.Dialogs.ShowSelectableString(message, "NowPlaying Error:", selectableMessage);
+                PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:" + selectableMessage);
             }
             else
             {

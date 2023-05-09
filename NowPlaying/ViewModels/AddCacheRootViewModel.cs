@@ -40,7 +40,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public string DeviceName => RootIsValid ? "'" + Directory.GetDirectoryRoot(RootDirectory) + "'" : "-";
+        public string DeviceName => RootIsValid ? Directory.GetDirectoryRoot(RootDirectory) : "-";
         public string DeviceCapacity => RootIsValid ? SmartUnits.Bytes(DirectoryUtils.GetRootDeviceCapacity(RootDirectory)) : "-";
         public string SpaceAvailable => RootIsValid ? SmartUnits.Bytes(DirectoryUtils.GetAvailableFreeSpace(RootDirectory)) : "-";
 
@@ -108,7 +108,7 @@ namespace NowPlaying.ViewModels
             this.AddCommand = new RelayCommand(() =>
                 {
                     cacheManager.AddCacheRoot(RootDirectory, MaximumFillLevel);
-                    plugin.cacheRootsViewModel.RefreshRootsList();
+                    plugin.cacheRootsViewModel.RefreshCacheRoots();
                     CloseWindow();
                 },
                 () => RootIsValid && HasSpaceForCaches
@@ -116,7 +116,7 @@ namespace NowPlaying.ViewModels
 
             this.CancelCommand = new RelayCommand(() =>
             {
-                plugin.cacheRootsViewModel.RefreshRootsList();
+                plugin.cacheRootsViewModel.RefreshCacheRoots();
                 CloseWindow();
             });
 

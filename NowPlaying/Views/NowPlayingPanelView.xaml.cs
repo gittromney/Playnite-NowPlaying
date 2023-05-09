@@ -32,6 +32,27 @@ namespace NowPlaying.Views
             viewModel.SelectedGameCaches = new List<GameCacheViewModel>();
         }
 
+        public void GameCaches_AutoResizeTitleColumn()
+        {
+            var view = GameCaches.View as GridView;
+            if (view != null && view.Columns.Count > 0)
+            {
+                foreach (var column in view.Columns)
+                {
+                    var header = column.Header as GridViewColumnHeader;
+                    if (header != null)
+                    {
+                        var content = header.Content as string;
+                        if (content != null && content == "Title")
+                        {
+                            if (double.IsNaN(column.Width)) column.Width = 1;
+                            column.Width = double.NaN;
+                        }
+                    }
+                }
+            }
+        }
+
         public void Reroot_ButtonClick(object sender, RoutedEventArgs e)
         {
             if (sender != null)

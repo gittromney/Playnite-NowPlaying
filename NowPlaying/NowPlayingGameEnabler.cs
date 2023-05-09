@@ -92,14 +92,8 @@ namespace NowPlaying
                 }
             };
 
-            // . Re-add the game (rather than just update) in order for library change to register
-            PlayniteApi.Database.Games.Remove(game);
-            PlayniteApi.Database.Games.Add(game);
-
+            PlayniteApi.Database.Games.Update(game);
             plugin.NotifyInfo($"Enabled '{title}' for game caching.");
-
-            // this causes deadlock
-            //plugin.panelViewModel.RefreshGameCaches();
 
             plugin.DequeueEnablerAndInvokeNext(Id);
         }

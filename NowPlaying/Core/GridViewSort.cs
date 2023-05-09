@@ -1,5 +1,6 @@
 ﻿//
 // CODE SOURCE: https://thomaslevesque.com/2009/08/04/wpf-automatically-sort-a-gridview-continued/
+// -> Added modifications to support custom sorting of designated column(s)
 //
 using System.ComponentModel;
 using System.Windows;
@@ -8,8 +9,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Documents;
 using System.Windows.Data;
+using System.Collections;
+using System.Diagnostics.Eventing.Reader;
+using System.Collections.Generic;
 
-namespace Wpf.Util
+namespace NowPlaying.Core
 {
     public class GridViewSort
     {
@@ -114,6 +118,26 @@ namespace Wpf.Util
                 new UIPropertyMetadata(null)
             );
 
+
+        public static IComparer GetCustomSort(DependencyObject obj)
+        {
+            return (IComparer)obj.GetValue(CustomSortProperty);
+        }
+
+        public static void SetCustomSort(DependencyObject obj, IComparer value)
+        {
+            obj.SetValue(CustomSortProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for CustomSort.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CustomSortProperty =
+            DependencyProperty.RegisterAttached(
+                "CustomSort",
+                typeof(IComparer),
+                typeof(GridViewSort),
+                new UIPropertyMetadata(null)
+            );
+
         public static bool GetShowSortGlyph(DependencyObject obj)
         {
             return (bool)obj.GetValue(ShowSortGlyphProperty);
@@ -174,38 +198,23 @@ namespace Wpf.Util
         private static readonly DependencyProperty SortedColumnHeaderProperty =
             DependencyProperty.RegisterAttached("SortedColumnHeader", typeof(GridViewColumnHeader), typeof(GridViewSort), new UIPropertyMetadata(null));
 
+        private static ListSortDirection GetSortDirection(DependencyObject obj)
+        {
+            return (ListSortDirection)obj.GetValue(SortDirectionProperty);
+        }
+
+        private static void SetSortDirection(DependencyObject obj, ListSortDirection value)
+        {
+            obj.SetValue(SortDirectionProperty, value);
+        }
+
+        // Using a DependencyProperty as the backing store for SortedColumn.  This enables animation, styling, binding, etc...
+        private static readonly DependencyProperty SortDirectionProperty =
+            DependencyProperty.RegisterAttached("SortDirectionProperty", typeof(ListSortDirection), typeof(GridViewSort), new UIPropertyMetadata(null));
+
         #endregion
 
         #region Column header click event handler
-
-        //private static void ColumnHeader_Click(object sender, RoutedEventArgs e)
-        //{
-        //    GridViewColumnHeader headerClicked = e.OriginalSource as GridViewColumnHeader;
-        //    if (headerClicked != null && headerClicked.Column != null)
-        //    {
-        //        string propertyName = GetPropertyName(headerClicked.Column);
-        //        if (!string.IsNullOrEmpty(propertyName))
-        //        {
-        //            ListView listView = GetAncestor<ListView>(headerClicked);
-        //            if (listView != null)
-        //            {
-        //                ICommand command = GetCommand(listView);
-        //                if (command != null)
-        //                {
-        //                    if (command.CanExecute(propertyName))
-        //                    {
-        //                        command.Execute(propertyName);
-        //                    }
-        //                }
-        //                else if (GetAutoSort(listView))
-        //                {
-        //                    ApplySort(listView.Items, propertyName, listView, headerClicked);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
 
         // MODIFIED CODE SOURCE: author=marcibme, via comments (see url at head of file)
         //
@@ -236,8 +245,8 @@ namespace Wpf.Util
                             }
                         }
                         else if (GetAutoSort(listView))
-                        {
-                            ApplySort(listView.Items, propertyName, listView, headerClicked);
+                        {                
+                            ApplySort(listView.Items, propertyName, listView, headerClicked, GetCustomSort(headerClicked.Column));
                         }
                     }
                 }
@@ -271,36 +280,55 @@ namespace Wpf.Util
                 return null;
         }
 
-        public static void ApplySort(ICollectionView view, string propertyName, ListView listView, GridViewColumnHeader sortedColumnHeader)
+        public static void ApplySort
+            (
+                ICollectionView view, 
+                string propertyName, 
+                ListView listView, 
+                GridViewColumnHeader sortedColumnHeader,
+                IComparer customSort = null
+            )
         {
-            ListSortDirection direction = ListSortDirection.Ascending;
-            if (view.SortDescriptions.Count > 0)
+            var currentSortedColumnHeader = GetSortedColumnHeader(listView);
+            if (currentSortedColumnHeader != null)
             {
-                SortDescription currentSort = view.SortDescriptions[0];
-                if (currentSort.PropertyName == propertyName)
-                {
-                    if (currentSort.Direction == ListSortDirection.Ascending)
-                        direction = ListSortDirection.Descending;
-                    else
-                        direction = ListSortDirection.Ascending;
-                }
-                view.SortDescriptions.Clear();
-
-                GridViewColumnHeader currentSortedColumnHeader = GetSortedColumnHeader(listView);
-                if (currentSortedColumnHeader != null)
-                {
-                    RemoveSortGlyph(currentSortedColumnHeader);
-                }
+                RemoveSortGlyph(currentSortedColumnHeader);
             }
+
+            ListSortDirection direction = ListSortDirection.Ascending;
+            if (sortedColumnHeader == currentSortedColumnHeader)
+            {
+                direction = GetSortDirection(listView) == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+            }
+
             if (!string.IsNullOrEmpty(propertyName))
             {
-                view.SortDescriptions.Add(new SortDescription(propertyName, direction));
+                if (customSort != null)
+                {
+                    // . apply property-specified custom sorter to selected column
+                    var lcView = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);
+                    if (direction == ListSortDirection.Descending)
+                    {
+                        lcView.CustomSort = Comparer<object>.Create((x, y) => customSort.Compare(y, x));
+                    }
+                    else
+                    {
+                        lcView.CustomSort = customSort;
+                    }
+                }
+                else
+                {
+                    // . apply default sorter to selected column
+                    view.SortDescriptions.Clear();
+                    view.SortDescriptions.Add(new SortDescription(propertyName, direction));
+                }
                 if (GetShowSortGlyph(listView))
                     AddSortGlyph(
                         sortedColumnHeader,
                         direction,
                         direction == ListSortDirection.Ascending ? GetSortGlyphAscending(listView) : GetSortGlyphDescending(listView));
                 SetSortedColumnHeader(listView, sortedColumnHeader);
+                SetSortDirection(listView, direction);
             }
         }
 

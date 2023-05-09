@@ -18,7 +18,7 @@ namespace NowPlaying.ViewModels
         public string RootDirectory => cacheRoot.Directory;
 
         public bool HasSpaceForCaches { get; private set; }
-        public string DeviceName => "'" + Directory.GetDirectoryRoot(RootDirectory) + "'";
+        public string DeviceName => Directory.GetDirectoryRoot(RootDirectory);
         public string DeviceCapacity => SmartUnits.Bytes(DirectoryUtils.GetRootDeviceCapacity(RootDirectory));
         public string SpaceAvailable => SmartUnits.Bytes(DirectoryUtils.GetAvailableFreeSpace(RootDirectory));
         public string SpaceAvailableVisibility => HasSpaceForCaches ? "Visible" : "Hidden";
@@ -60,7 +60,7 @@ namespace NowPlaying.ViewModels
                 () => {
                     cacheRoot.SetMaxFillLevel(MaximumFillLevel);
                     plugin.cacheManager.SaveCacheRootsToJson();
-                    plugin.cacheRootsViewModel.RefreshRootsList();
+                    plugin.cacheRootsViewModel.RefreshCacheRoots();
                     CloseWindow();
                 },
                 // CanExecute
@@ -68,7 +68,7 @@ namespace NowPlaying.ViewModels
             );
             this.CancelCommand = new RelayCommand(() =>
             {
-                plugin.cacheRootsViewModel.RefreshRootsList();
+                plugin.cacheRootsViewModel.RefreshCacheRoots();
                 CloseWindow();
             });
 

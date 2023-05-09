@@ -175,7 +175,7 @@ namespace NowPlaying.ViewModels
             UpdateStatus();
         }
 
-        public void CancelledFromInstallQueue()
+        public void CancelledFromUninstallQueue()
         {
             cachesToUninstall--;
             UpdateStatus();

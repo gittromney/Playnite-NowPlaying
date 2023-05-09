@@ -4,168 +4,221 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NowPlaying.Views"
-             xmlns:util="clr-namespace:Wpf.Util">
-    <Grid>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,9.5,125,0">
-                <UserControl Content="{Binding TopPanelView}"/>
+             xmlns:core="clr-namespace:NowPlaying.Core">
+
+    <UserControl.Resources>
+        <Style x:Key="TopPanelButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="150"/>
+            <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
+        </Style>
+       <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="150"/>
+            <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
+        </Style>
+        <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+            <Setter Property="ToolTipService.InitialShowDelay" Value="150"/>
+            <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <ScrollViewer>
+        <Grid Width="auto" Height="auto">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,9.5,100,0">
+                    <UserControl Content="{Binding TopPanelView}"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
-        
-        <StackPanel Margin="30">
-            
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                <Button Content="🔧" Width="34" Height="34" Padding="0,0,0,0" FontSize="16" Focusable="False"
+
+            <StackPanel Margin="30">
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                    <Button Content="🔧" FontSize="16"
                         Command="{Binding ToggleShowSettings}"
                         ToolTip="{Binding ShowSettingsToolTip}"
-                        ToolTipService.InitialShowDelay="150"
-                        ToolTipService.BetweenShowDelay="0"/>
+                        Style="{StaticResource TopPanelButton}"/>
 
-                <Button Content="R" Width="34" Height="34" Padding="0,0,0,0" FontSize="20" Focusable="False"
+                    <Button Content="R" FontSize="20"
                         Command="{Binding ToggleShowCacheRoots}"
                         ToolTip="{Binding ShowCacheRootsToolTip}"
-                        ToolTipService.InitialShowDelay="150"
-                        ToolTipService.BetweenShowDelay="0"/>
-            </StackPanel>
+                        Style="{StaticResource TopPanelButton}"/>
+                </StackPanel>
 
-            <UserControl Content="{Binding SettingsView}" Margin="-25,-25,0,-15"/>
-            <StackPanel Orientation="Horizontal" Visibility="{Binding SettingsVisibility}" Margin="0,0,0,25">
-                <Button Content="Save" Command="{Binding SaveSettingsCommand}"/>
-                <Button Content="Cancel" Command="{Binding CancelSettingsCommand}"/>
-            </StackPanel>
+                <UserControl Content="{Binding SettingsView}" Margin="-25,-25,0,-15"/>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding SettingsVisibility}" Margin="0,0,0,25">
+                    <Button Content="Save" Command="{Binding SaveSettingsCommand}"/>
+                    <Button Content="Cancel" Command="{Binding CancelSettingsCommand}"/>
+                </StackPanel>
 
-            <UserControl Content="{Binding CacheRootsView}"/>
+                <UserControl Content="{Binding CacheRootsView}"/>
 
-            <StackPanel Visibility="{Binding GameCachesVisibility}">
-                <TextBlock Text="NowPlaying Game Caches" FontSize="18" Foreground="DeepSkyBlue" Margin="0,0,0,5"/>
+                <StackPanel Visibility="{Binding GameCachesVisibility}">
+                    <TextBlock Text="NowPlaying Game Caches" FontSize="18" Foreground="DeepSkyBlue" Margin="0,0,0,5"/>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                    <ListView Name="GameCaches"
-                          ItemsSource="{Binding GameCaches}"
-                          IsSynchronizedWithCurrentItem="True"
-                          MouseUp="GameCaches_OnMouseUp"
-                          SelectionMode="Extended"
-                          MaxHeight="400"
-                          util:GridViewSort.AutoSort="True"
-                          util:GridViewSort.SortGlyphAscending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-down.png"
-                          util:GridViewSort.SortGlyphDescending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-up.png">
-
+                    <ListView 
+                        Name="GameCaches" Margin="0,0,0,5"
+                        ItemsSource="{Binding GameCaches}"
+                        IsSynchronizedWithCurrentItem="True"
+                        MouseUp="GameCaches_OnMouseUp"
+                        SelectionMode="Extended"
+                        core:GridViewSort.AutoSort="True"
+                        core:GridViewSort.SortGlyphAscending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-down.png"
+                        core:GridViewSort.SortGlyphDescending="C:\Dev\Playnite Extensions\NowPlaying\Resources\Images\sort-up.png">
+                        
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Width="320" DisplayMemberBinding="{Binding Path=Title}">
-                                    <GridViewColumnHeader Content="Title" 
-                                                          ToolTip="Name of the game. Nuff said."
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+                                <GridViewColumn Width="{Binding TitleWidth}" DisplayMemberBinding="{Binding Path=Title}">
+                                    <GridViewColumnHeader Content="Title" ToolTip="Playnite game, enabled for caching."/>
                                 </GridViewColumn>
-                                <GridViewColumn Width="185" DisplayMemberBinding="{Binding Path=Status}">
-                                    <GridViewColumnHeader Content="Status" 
-                                                          ToolTip="Current game cache status or activity"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+                                
+                                <GridViewColumn Width="185" core:GridViewSort.PropertyName="Status">
+                                    <GridViewColumnHeader Content="Status" ToolTip="Current game cache status or activity"/>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock 
+                                                Text="{Binding Path=Status}" 
+                                                Foreground="{Binding Path=StatusColor}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Width="95" DisplayMemberBinding="{Binding Path=CanInstallCache}">
-                                    <GridViewColumnHeader Content="Can Install?" 
-                                                          ToolTip="Is there enough space available to install the game cache?"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+                                
+                                <GridViewColumn Width="95" core:GridViewSort.PropertyName="CanInstallCache">
+                                    <GridViewColumnHeader Content="Can Install?" ToolTip="Is there enough space available to install the game cache?"/>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock 
+                                                Text="{Binding Path=CanInstallCache}" 
+                                                Foreground="{Binding Path=CanInstallCacheColor}"/>
+                                        </DataTemplate>        
+                                    </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Width="90" DisplayMemberBinding="{Binding Path=InstallEta}">
-                                    <GridViewColumnHeader Content="Install ETA"
-                                                          ToolTip="Estimated time to install the game cache"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+
+                                <GridViewColumn 
+                                    Width="90" 
+                                    DisplayMemberBinding="{Binding Path=InstallEta}" 
+                                    core:GridViewSort.CustomSort="{Binding CustomEtaSort}">
+                                    <GridViewColumnHeader 
+                                        Content="Install ETA" 
+                                        ToolTip="Estimated time to install the game cache"/>
                                 </GridViewColumn>
-                                <GridViewColumn Width="125" DisplayMemberBinding="{Binding Path=CacheInstalledSize}">
-                                    <GridViewColumnHeader Content="Size"
-                                                          ToolTip="Current size of the game cache"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+
+                                <GridViewColumn 
+                                    Width="125" 
+                                    core:GridViewSort.PropertyName="CacheInstalledSize" 
+                                    core:GridViewSort.CustomSort="{Binding CustomSizeSort}">
+                                    <GridViewColumnHeader 
+                                        Content="Size" 
+                                        ToolTip="Current size of the game cache (or space needed to install)."/>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock 
+                                                Text="{Binding Path=CacheInstalledSize}" 
+                                                Foreground="{Binding Path=CacheInstalledSizeColor}"
+                                                Opacity="1"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Path=Device}" 
-                                                Width="{Binding GameCachesRootColumnWidth}">
-                                    <GridViewColumnHeader Content="Root"
-                                                          ToolTip="Root device to where this game cache is/will be"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+                                
+                                <GridViewColumn Width="{Binding GameCachesRootColumnWidth}" DisplayMemberBinding="{Binding Path=Device}">
+                                    <GridViewColumnHeader Content="Root" ToolTip="Root device to where this game cache is/will be"/>
                                 </GridViewColumn>
-                                <GridViewColumn Width="120" DisplayMemberBinding="{Binding Path=CacheRootSpaceAvailable}">
-                                    <GridViewColumnHeader Content="Space available"
-                                                          ToolTip="Space available for game caches on the root device"
-                                                          ToolTipService.InitialShowDelay="150"
-                                                          ToolTipService.BetweenShowDelay="0"/>
+                                
+                                <GridViewColumn 
+                                    Width="140" 
+                                    DisplayMemberBinding="{Binding Path=CacheRootSpaceAvailable}"
+                                    core:GridViewSort.CustomSort="{Binding CustomSpaceAvailableSort}">
+                                    <GridViewColumnHeader 
+                                        Content="Space available" 
+                                        ToolTip="Space available for game caches on the root device"/>
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
                         <ListView.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Refresh" Command="{Binding RefreshCachesCommand}"/>
-                                <MenuItem Header="{Binding InstallCachesMenu}" 
-                                          Command="{Binding InstallCachesCommand}" 
-                                          Visibility="{Binding InstallCachesVisibility}"/>
-                                <MenuItem Header="{Binding UninstallCachesMenu}" 
-                                          Command="{Binding UninstallCachesCommand}" 
-                                          Visibility="{Binding UninstallCachesVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding InstallCachesMenu}" 
+                                    Command="{Binding InstallCachesCommand}" 
+                                    Visibility="{Binding InstallCachesVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding UninstallCachesMenu}" 
+                                    Command="{Binding UninstallCachesCommand}" 
+                                    Visibility="{Binding UninstallCachesVisibility}"/>
                                 <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
-                                <MenuItem Header="{Binding RerootCachesMenu}"
-                                          ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
-                                          Visibility="{Binding RerootCachesVisibility}"/>
-                                <MenuItem Header="{Binding DisableCachesMenu}"
-                                          Command="{Binding DisableCachesCommand}"
-                                          Visibility="{Binding DisableCachesVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding RerootCachesMenu}"
+                                    ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
+                                    Visibility="{Binding RerootCachesVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding DisableCachesMenu}"
+                                    Command="{Binding DisableCachesCommand}"
+                                    Visibility="{Binding DisableCachesVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding CancelQueuedInstallsMenu}"
+                                    Command="{Binding CancelQueuedInstallsCommand}"
+                                    Visibility="{Binding CancelQueuedInstallsVisibility}"/>
                             </ContextMenu>
                         </ListView.ContextMenu>
                     </ListView>
-                </StackPanel>
-                
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button Content="⟳" Width="28" Height="28" Padding="0,0,0,3" FontSize="20" Focusable="False"
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Button
+                            Content="⟳" Padding="0,0,0,3" FontSize="20"
                             ToolTip="Refresh game caches list"  
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding RefreshCachesCommand}"/>
-                    <Button Content="➕" Width="28" Height="28" Padding="0,0,0,0" FontSize="12" Focusable="False"
+                        <Button 
+                            Content="➕" FontSize="12"
                             ToolTip="Enable game caching for additional games"
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding AddGameCachesCommand}"/>
-                    <Button Content="➖" Width="28" Height="28" Padding="0,0,0,0" FontSize="12" Focusable="False"
+                        <Button 
+                            Content="➖" FontSize="12"
                             ToolTip="{Binding DisableCachesMenu}"
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding DisableCachesCommand}"/>
-                    <Button Content="🖉" Width="28" Height="28" Padding="0,0,0,0" FontSize="18" Focusable="False"
+                        <Button 
+                            Content="🖉" FontSize="18"
                             ToolTip="{Binding RerootCachesMenu}"
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding RerootClickCanExecute}"
                             Click="Reroot_ButtonClick"
                             Visibility="{Binding MultipleRootsVisibility}">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
-                                <MenuItem Header="{Binding RerootCachesMenu, Mode=OneWay}"
-                                          ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
+                                    <MenuItem 
+                                        Header="{Binding RerootCachesMenu, Mode=OneWay}"
+                                        ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
 
-                    <Button Margin="15,0,0,0"
-                            Content="⭳" Width="28" Height="28" Padding="0,0,0,0" FontSize="20" Focusable="False"
+                        <Button
+                            Margin="15,0,0,0"
+                            Content="⭳" FontSize="20"
                             ToolTip="{Binding InstallCachesMenu}"
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding InstallCachesCommand}"/>
-                    <Button Content="⏏" Width="28" Height="28" Padding="0,0,0,0" Focusable="False"
+                        <Button 
+                            Content="⏏" FontSize="16"
                             ToolTip="{Binding UninstallCachesMenu}"
-                            ToolTipService.InitialShowDelay="150"
-                            ToolTipService.BetweenShowDelay="0"
+                            Style="{StaticResource SmallButton}"
                             Command="{Binding UninstallCachesCommand}"/>
+
+                    </StackPanel>
                 </StackPanel>
+
+                <UserControl Content="{Binding InstallProgressView}"/>
+
             </StackPanel>
-
-            <UserControl Content="{Binding InstallProgressView}"/>
-
-        </StackPanel>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

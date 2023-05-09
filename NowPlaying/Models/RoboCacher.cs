@@ -2,11 +2,9 @@
 using NowPlaying.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Markup.Localizer;
 
 namespace NowPlaying.Models
 {

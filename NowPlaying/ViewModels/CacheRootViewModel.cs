@@ -21,6 +21,8 @@ namespace NowPlaying.ViewModels
         public string CachesInstalled { get; private set; }
         public long BytesAvailableForCaches { get; private set; }
         public string SpaceAvailableForCaches { get; private set; }
+
+        private long bytesReservedOnDevice;
         public string ReservedSpaceOnDevice { get; private set; }
 
         public CacheRootViewModel(GameCacheManagerViewModel manager, CacheRoot root)
@@ -28,6 +30,7 @@ namespace NowPlaying.ViewModels
             this.manager = manager;
             this.root = root;
 
+            SetMaxFillLevel(root.MaxFillLevel);
             UpdateGameCaches();
         }
 
@@ -64,25 +67,15 @@ namespace NowPlaying.ViewModels
 
         public void UpdateSpaceAvailableForCaches()
         {
-            BytesAvailableForCaches = GetAvailableSpaceForCaches(Directory, MaxFillLevel);
+            BytesAvailableForCaches = DirectoryUtils.GetAvailableFreeSpace(Directory) - bytesReservedOnDevice;
             OnPropertyChanged(nameof(BytesAvailableForCaches));
-
-            foreach (var gc in GameCaches)
+            if (GameCaches != null)
             {
-                gc.UpdateCacheSpaceWillFit();
+                foreach (var gc in GameCaches)
+                {
+                    gc.UpdateCacheSpaceWillFit();
+                }
             }
-
-            if (MaxFillLevel < 100)
-            {
-                ReservedSpaceOnDevice = "  (leave "+ SmartUnits.Bytes(GetReservedSpaceOnDevice(Directory, MaxFillLevel)) +" unused)"; 
-            }
-            else
-            {
-                ReservedSpaceOnDevice = "";
-            }
-            OnPropertyChanged(nameof(ReservedSpaceOnDevice));
-            OnPropertyChanged(nameof(MaxFillReserved));
-
             SpaceAvailableForCaches = SmartUnits.Bytes(BytesAvailableForCaches);
             OnPropertyChanged(nameof(SpaceAvailableForCaches));
         }
@@ -108,6 +101,20 @@ namespace NowPlaying.ViewModels
         {
             root.MaxFillLevel = maximumFillLevel;
             OnPropertyChanged(nameof(MaxFillLevel));
+
+            bytesReservedOnDevice = GetReservedSpaceOnDevice(Directory, MaxFillLevel);
+
+            if (MaxFillLevel < 100)
+            {
+                ReservedSpaceOnDevice = "  (leave " + SmartUnits.Bytes(bytesReservedOnDevice) + " unused)";
+            }
+            else
+            {
+                ReservedSpaceOnDevice = "";
+            }
+            OnPropertyChanged(nameof(ReservedSpaceOnDevice));
+            OnPropertyChanged(nameof(MaxFillReserved));
+
             UpdateSpaceAvailableForCaches();
         }
     }

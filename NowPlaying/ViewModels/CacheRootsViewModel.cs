@@ -1,6 +1,7 @@
 ﻿using NowPlaying.Views;
 using Playnite.SDK;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Input;
 
 namespace NowPlaying.ViewModels
@@ -37,16 +38,14 @@ namespace NowPlaying.ViewModels
                 var view = new AddCacheRootView(viewModel);
                 popup.Content = view;
 
-                // setup up fixed sized popup and center within the current application window
-                popup.Width = view.Width;
-                popup.MinWidth = view.Width;
-                popup.MaxWidth = view.Width;
-                popup.Height = view.Height;
-                popup.MinHeight = view.Height;
-                popup.MaxHeight = view.Height;
+                // setup up popup and center within the current application window
+                popup.Width = view.MinWidth;
+                popup.MinWidth = view.MinWidth;
+                popup.Height = view.MinHeight;
+                popup.MinHeight = view.MinHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
-                popup.Show();
+                popup.ShowDialog();
             });
 
             EditMaxFillCommand = new RelayCommand(
@@ -62,16 +61,14 @@ namespace NowPlaying.ViewModels
                     var view = new EditMaxFillView(viewModel);
                     popup.Content = view;
 
-                    // setup up fixed sized popup and center within the current application window
-                    popup.Width = view.Width;
-                    popup.MinWidth = view.Width;
-                    popup.MaxWidth = view.Width;
-                    popup.Height = view.Height;
-                    popup.MinHeight = view.Height;
-                    popup.MaxHeight = view.Height;
+                    // setup up popup and center within the current application window
+                    popup.Width = view.MinWidth;
+                    popup.MinWidth = view.MinWidth;
+                    popup.Height = view.MinHeight;
+                    popup.MinHeight = view.MinHeight;
                     popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                     popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
-                    popup.Show();
+                    popup.ShowDialog();
                 },
                 // CanExecute
                 () => SelectedCacheRoot != null
@@ -80,16 +77,25 @@ namespace NowPlaying.ViewModels
             RemoveCacheRootCommand = new RelayCommand(
                 () => {
                     plugin.cacheManager.RemoveCacheRoot(SelectedCacheRoot.Directory);
-                    RefreshRootsList();
+                    RefreshCacheRoots();
                 },
                 // canExecute
                 () => SelectedCacheRoot?.GameCaches.Count == 0
             );
 
-            RefreshRootsCommand = new RelayCommand(() => RefreshRootsList());
+            RefreshRootsCommand = new RelayCommand(() => RefreshCacheRoots());
+
+            // . track cache roots list changes, in order to auto-adjust directory column width 
+            this.CacheRoots.CollectionChanged += CacheRoots_CollectionChanged;
         }
 
-        public void RefreshRootsList()
+        private void CacheRoots_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            plugin.cacheRootsView.UnselectCacheRoots();
+            plugin.cacheRootsView.CacheRoots_AutoResizeDirectoryColumn();
+        }
+
+        public void RefreshCacheRoots()
         {
             foreach (var root in CacheRoots)
             {

@@ -35,12 +35,15 @@ namespace NowPlaying.ViewModels
         public bool NowInstalling => nowInstalling;
         public bool NowUninstalling => nowUninstalling;
         public string Status => GetStatus(entry.State, installQueueStatus, uninstallQueueStatus, nowInstalling, nowUninstalling);
+        public string StatusColor => State == GameCacheState.Invalid ? "OrangeRed" : Status == "Uninstalled" ? "SteelBlue" : "WhiteSmoke";
 
         private string cacheInstalledSize;
         public string CacheInstalledSize => cacheInstalledSize;
+        public string CacheInstalledSizeColor => CanInstallCache == "No" ? "OrangeRed" : State == GameCacheState.Empty ? "SteelBlue" : "WhiteSmoke";
 
         public bool CacheWillFit { get; private set; }
         public string CanInstallCache => entry.State==GameCacheState.Empty || entry.State==GameCacheState.InProgress ? (CacheWillFit ? "Yes" : "No") : "-";
+        public string CanInstallCacheColor => CanInstallCache == "No" ? "OrangeRed" : "WhiteSmoke";
 
         public TimeSpan InstallEtaTimeSpan { get; private set; }
         public string InstallEta { get; private set; }
@@ -76,7 +79,10 @@ namespace NowPlaying.ViewModels
         public void UpdateStatus()
         {
             OnPropertyChanged(nameof(Status));
+            OnPropertyChanged(nameof(StatusColor));
             OnPropertyChanged(nameof(CanInstallCache));
+            OnPropertyChanged(nameof(CanInstallCacheColor));
+            OnPropertyChanged(nameof(CacheInstalledSizeColor));
             cacheRoot.UpdateGameCaches();
         }
 
@@ -87,6 +93,7 @@ namespace NowPlaying.ViewModels
                 installQueueStatus = value;
                 OnPropertyChanged(nameof(InstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(StatusColor));
             }
         }
 
@@ -97,6 +104,7 @@ namespace NowPlaying.ViewModels
                 uninstallQueueStatus = value;
                 OnPropertyChanged(nameof(UninstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(StatusColor));
             }
         }
 
@@ -110,6 +118,10 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(NowInstalling));
                 OnPropertyChanged(nameof(NowUninstalling));
                 OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(StatusColor));
+                OnPropertyChanged(nameof(CanInstallCache));
+                OnPropertyChanged(nameof(CanInstallCacheColor));
+                OnPropertyChanged(nameof(CacheInstalledSizeColor));
             }
         }
 
@@ -123,6 +135,10 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(NowInstalling));
                 OnPropertyChanged(nameof(NowUninstalling));
                 OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(StatusColor));
+                OnPropertyChanged(nameof(CanInstallCache));
+                OnPropertyChanged(nameof(CanInstallCacheColor));
+                OnPropertyChanged(nameof(CacheInstalledSizeColor));
             }
         }
 
@@ -135,6 +151,7 @@ namespace NowPlaying.ViewModels
             {
                 cacheInstalledSize = value;
                 OnPropertyChanged(nameof(CacheInstalledSize));
+                OnPropertyChanged(nameof(CacheInstalledSizeColor));
                 cacheRoot.UpdateCachesInstalled();
                 cacheRoot.UpdateSpaceAvailableForCaches();
             }
@@ -142,12 +159,21 @@ namespace NowPlaying.ViewModels
 
         public void UpdateCacheSpaceWillFit()
         {
-            CacheWillFit = cacheRoot.BytesAvailableForCaches > (InstallSize - CacheSize);
-            OnPropertyChanged(nameof(CacheWillFit));
-            OnPropertyChanged(nameof(CanInstallCache));
-
-            CacheRootSpaceAvailable = SmartUnits.Bytes(cacheRoot.BytesAvailableForCaches);
-            OnPropertyChanged(nameof(CacheRootSpaceAvailable));
+            bool bval = cacheRoot.BytesAvailableForCaches > (InstallSize - CacheSize);
+            if (CacheWillFit != bval)
+            {
+                CacheWillFit = bval;
+                OnPropertyChanged(nameof(CacheWillFit));
+                OnPropertyChanged(nameof(CanInstallCache));
+                OnPropertyChanged(nameof(CanInstallCacheColor));
+                OnPropertyChanged(nameof(CacheInstalledSizeColor));
+            }
+            string sval = SmartUnits.Bytes(cacheRoot.BytesAvailableForCaches, decimals: 1);
+            if (CacheRootSpaceAvailable != sval)
+            {
+                CacheRootSpaceAvailable = sval;
+                OnPropertyChanged(nameof(CacheRootSpaceAvailable));
+            }
         }
 
         public void UpdateInstallEta(TimeSpan? value = null)
@@ -196,9 +222,9 @@ namespace NowPlaying.ViewModels
             switch (entry.State)
             {
                 case GameCacheState.Played:
-                case GameCacheState.Populated: return SmartUnits.Bytes(entry.CacheSize, decimals: 2);
-                case GameCacheState.InProgress: return SmartUnits.BytesOfBytes(entry.CacheSize, entry.InstallSize, decimals: 2);
-                case GameCacheState.Empty: return "- of " + SmartUnits.Bytes(entry.InstallSize, decimals: 2);
+                case GameCacheState.Populated: return SmartUnits.Bytes(entry.CacheSize, decimals:1);
+                case GameCacheState.InProgress: return SmartUnits.BytesOfBytes(entry.CacheSize, entry.InstallSize, decimals:1);
+                case GameCacheState.Empty: return "(needs " + SmartUnits.Bytes(entry.InstallSize, decimals:1) + ")";
                 default: return "-";
             }
         }

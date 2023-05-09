@@ -29,9 +29,10 @@ namespace NowPlaying.Models
             set
             {
                 cacheRoot = value;
-                if (cacheRoot != null && cacheSubDir != null)
+                if (cacheRoot != null)
                 {
-                    cacheDir = Path.Combine(cacheRoot, cacheSubDir);
+                    // . When cacheSubDir==null, use file-safe game title as the sub dir name 
+                    cacheDir = Path.Combine(cacheRoot, CacheSubDir ?? DirectoryUtils.ToSafeFileName(Title));
                 }
                 else
                 {
@@ -45,9 +46,10 @@ namespace NowPlaying.Models
             set
             {
                 cacheSubDir = value;
-                if (cacheRoot != null && cacheSubDir != null)
+                if (cacheRoot != null)
                 {
-                    cacheDir = Path.Combine(cacheRoot, cacheSubDir);
+                    // . When cacheSubDir==null, use file-safe game title as the sub dir name 
+                    cacheDir = Path.Combine(cacheRoot, cacheSubDir ?? DirectoryUtils.ToSafeFileName(Title));
                 }
                 else
                 {

@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
@@ -40,6 +39,11 @@ namespace NowPlaying.ViewModels
             CacheRoots = new ObservableCollection<CacheRootViewModel>();
             GameCaches = new ObservableCollection<GameCacheViewModel>();
             InstallAverageBps = new Dictionary<string,long>();
+        }
+
+        public void UpdateGameCaches()
+        {
+            OnPropertyChanged(nameof(GameCaches));
         }
 
         public void AddCacheRoot(string rootDirectory, double maximumFillLevel)
@@ -97,6 +101,12 @@ namespace NowPlaying.ViewModels
         {
             if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir))
             {
+                // . re-encode cacheSubDir as 'null' if it represents the file-safe game title.
+                if (cacheSubDir?.Equals(DirectoryUtils.ToSafeFileName(title)) == true)
+                {
+                    cacheSubDir = null;
+                }
+
                 // . create new game cache entry
                 gameCacheManager.AddGameCacheEntry(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
 
@@ -362,7 +372,7 @@ namespace NowPlaying.ViewModels
             return gameCache.CacheDir;
         }
 
-        internal bool IsGameCacheDirectory(string possibleCacheDir)
+        public bool IsGameCacheDirectory(string possibleCacheDir)
         {
             return gameCacheManager.IsGameCacheDirectory(possibleCacheDir);
         }
@@ -498,5 +508,6 @@ namespace NowPlaying.ViewModels
         {
             return gameCacheManager.CheckCacheDirty(cacheId);
         }
+
     }
 }

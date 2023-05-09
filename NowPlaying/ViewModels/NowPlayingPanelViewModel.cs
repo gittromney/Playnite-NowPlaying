@@ -1,16 +1,26 @@
-﻿using NowPlaying.Models;
+﻿using NowPlaying.Core;
+using NowPlaying.Models;
 using NowPlaying.Views;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.IO;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using MenuItem = System.Windows.Controls.MenuItem;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace NowPlaying.ViewModels
 {
+
+
     public class NowPlayingPanelViewModel : ViewModelBase
     {
         private readonly NowPlaying plugin;
@@ -18,6 +28,9 @@ namespace NowPlaying.ViewModels
         public NowPlayingPanelViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
+            this.CustomEtaSort = new CustomEtaSorter();
+            this.CustomSizeSort = new CustomSizeSorter();
+            this.CustomSpaceAvailableSort = new CustomSpaceAvailableSorter();
             this.isTopPanelVisible = false;
             this.showSettings = false;
             this.showCacheRoots = false;
@@ -30,6 +43,14 @@ namespace NowPlaying.ViewModels
             this.UninstallCachesCommand = new RelayCommand(() => UninstallSelectedCaches(SelectedGameCaches), () => UninstallCachesCanExecute);
             this.DisableCachesCommand = new RelayCommand(() => DisableSelectedCaches(SelectedGameCaches), () => DisableCachesCanExecute);
             this.RerootClickCanExecute = new RelayCommand(() => {}, () => RerootCachesCanExecute);
+
+            this.CancelQueuedInstallsCommand = new RelayCommand(() =>
+            {
+                foreach (var gc in SelectedGameCaches)
+                {
+                    plugin.CancelQueuedInstaller(gc.Id);
+                }
+            });
 
             this.ToggleShowCacheRoots = new RelayCommand(() => ShowCacheRoots = !ShowCacheRoots, () => AreCacheRootsNonEmpty);
             this.ToggleShowSettings = new RelayCommand(() =>
@@ -84,16 +105,63 @@ namespace NowPlaying.ViewModels
                 popup.Content = view;
 
                 // setup popup and center within the current application window
-                popup.Width = view.Width;
-                popup.MinWidth = view.Width;
-                popup.Height = view.Height;
-                popup.MinHeight = view.Height;
+                popup.Width = view.MinWidth;
+                popup.MinWidth = view.MinWidth;
+                popup.Height = view.MinHeight;
+                popup.MinHeight = view.MinHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
-                popup.Show();
-                viewModel.SelectNoGames();
+                popup.ContentRendered += (s, e) => viewModel.SelectNoGames();  // clear auto-selection of 1st item
+                popup.ShowDialog();
             });
+
+            // . track game cache list changes, in order to auto-adjust title column width 
+            this.GameCaches.CollectionChanged += GameCaches_CollectionChanged;
         }
+
+        private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            plugin.panelView.GameCaches_ClearSelected();
+            plugin.panelView.GameCaches_AutoResizeTitleColumn();
+        }
+
+        public class CustomEtaSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                double etaX = ((GameCacheViewModel)x).InstallEtaTimeSpan.TotalSeconds;
+                double etaY = ((GameCacheViewModel)y).InstallEtaTimeSpan.TotalSeconds;
+                return etaX.CompareTo(etaY);
+            }
+        }
+        public CustomEtaSorter CustomEtaSort { get; private set; }
+
+        public class CustomSizeSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                long cacheSizeX   = ((GameCacheViewModel)x).CacheSize;
+                long installSizeX = ((GameCacheViewModel)x).InstallSize;
+                long cacheSizeY   = ((GameCacheViewModel)y).CacheSize;
+                long installSizeY = ((GameCacheViewModel)y).InstallSize;
+                long sizeX = cacheSizeX > 0 ? cacheSizeX : -installSizeX;
+                long sizeY = cacheSizeY > 0 ? cacheSizeY : -installSizeY;
+                return sizeX.CompareTo(sizeY);
+            }
+        }
+        public CustomSizeSorter CustomSizeSort { get; private set; }
+
+        public class CustomSpaceAvailableSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                long spaceX = ((GameCacheViewModel)x).cacheRoot.BytesAvailableForCaches;
+                long spaceY = ((GameCacheViewModel)y).cacheRoot.BytesAvailableForCaches;
+                return spaceX.CompareTo(spaceY);
+            }
+        }
+        public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }
+
 
         public ICommand ToggleShowCacheRoots { get; private set; }
         public ICommand ToggleShowSettings { get; private set; }
@@ -106,9 +174,11 @@ namespace NowPlaying.ViewModels
         public ICommand UninstallCachesCommand { get; private set; }
         public ICommand DisableCachesCommand { get; private set; }
         public ICommand RerootClickCanExecute { get; private set; }
+        public ICommand CancelQueuedInstallsCommand { get; private set; }
 
         public ObservableCollection<GameCacheViewModel> GameCaches => plugin.cacheManager.GameCaches;
 
+        public string TitleWidth { get; private set; } = "NaN";
 
         public bool AreCacheRootsNonEmpty => plugin.cacheManager.CacheRoots.Count > 0;
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;
@@ -129,6 +199,8 @@ namespace NowPlaying.ViewModels
         public string DisableCachesMenu { get; private set; }
         public string DisableCachesVisibility { get; private set; }
         public bool DisableCachesCanExecute { get; private set; }
+        public string CancelQueuedInstallsMenu { get; private set; }
+        public string CancelQueuedInstallsVisibility { get; private set; }
 
 
         private SelectedCachesContext selectionContext;
@@ -149,7 +221,7 @@ namespace NowPlaying.ViewModels
             set
             {
                 selectedGameCaches = value;
-                SelectionContext = GetSelectedGamesContext(selectedGameCaches);
+                SelectionContext?.UpdateContext(selectedGameCaches);
 
                 InstallCachesMenu = GetInstallCachesMenu(SelectionContext);
                 InstallCachesVisibility = InstallCachesMenu != null ? "Visible" : "Collapsed";
@@ -184,6 +256,11 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(DisableCachesMenu));
                 OnPropertyChanged(nameof(DisableCachesVisibility));
                 OnPropertyChanged(nameof(DisableCachesCanExecute));
+
+                CancelQueuedInstallsMenu = GetCancelQueuedInstalls(SelectionContext);
+                CancelQueuedInstallsVisibility = CancelQueuedInstallsMenu != null ? "Visible" : "Collapsed";
+                OnPropertyChanged(nameof(CancelQueuedInstallsMenu));
+                OnPropertyChanged(nameof(CancelQueuedInstallsVisibility));
             }
         }
 
@@ -252,7 +329,7 @@ namespace NowPlaying.ViewModels
                     {
                         CacheRootsView = plugin.cacheRootsView;
                         plugin.cacheRootsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(CacheRootsView));
-                        plugin.cacheRootsViewModel.RefreshRootsList();
+                        plugin.cacheRootsViewModel.RefreshCacheRoots();
                     }
                     else
                     {
@@ -325,6 +402,7 @@ namespace NowPlaying.ViewModels
 
         public void RefreshGameCaches()
         {
+            plugin.cacheManager.UpdateGameCaches();
             OnPropertyChanged(nameof(GameCaches));
             plugin.panelView.GameCaches_ClearSelected();
         }
@@ -348,51 +426,61 @@ namespace NowPlaying.ViewModels
             public bool allInstalled;
             public bool allInstalling;
             public bool allEmptyOrPaused;
+            public bool allQueuedForInstall;
             public bool allInstalledOrPaused;
             public bool allInstalledPausedUnknownOrInvalid;
             public bool allWillFit;
             public int count;
+
             public SelectedCachesContext()
+            {
+                ResetContext();
+            }
+
+            private void ResetContext()
             {
                 allEmpty = true;
                 allPaused = true;
                 allInstalled = true;
                 allInstalling = true;
                 allEmptyOrPaused = true;
+                allQueuedForInstall = true;
                 allInstalledOrPaused = true;
                 allInstalledPausedUnknownOrInvalid = true;
                 allWillFit = true;
                 count = 0;
             }
-        }
 
-        private SelectedCachesContext GetSelectedGamesContext(List<GameCacheViewModel> gameCaches)
-        {
-            var context = new SelectedCachesContext();
-            foreach (var gc in gameCaches)
+            public void UpdateContext(List<GameCacheViewModel> gameCaches)
             {
-                bool isEmpty = gc.State == GameCacheState.Empty;
-                bool isPaused = gc.State == GameCacheState.InProgress && gc.NowInstalling == false;
-                bool isUnknown = gc.State == GameCacheState.Unknown;
-                bool isInvalid = gc.State == GameCacheState.Invalid;
-                bool isInstalled = gc.State == GameCacheState.Populated || gc.State == GameCacheState.Played;
-                bool isInstalling = gc.State == GameCacheState.InProgress && gc.NowInstalling == true;
-                context.allEmpty &= isEmpty;
-                context.allPaused &= isPaused;
-                context.allInstalled &= isInstalled;
-                context.allInstalling &= isInstalling;
-                context.allEmptyOrPaused &= isEmpty || isPaused;
-                context.allInstalledOrPaused &= isInstalled || isPaused;
-                context.allInstalledPausedUnknownOrInvalid &= isInstalled || isPaused || isUnknown || isInvalid;
-                context.allWillFit &= gc.CacheWillFit;
-                context.count++;
+                ResetContext();
+                foreach (var gc in gameCaches)
+                {
+                    bool isInstallingOrQueued = gc.NowInstalling == true || gc.InstallQueueStatus != null;
+                    bool isQueuedForInstall = gc.InstallQueueStatus != null;
+                    bool isEmpty = gc.State == GameCacheState.Empty && !isInstallingOrQueued;
+                    bool isPaused = gc.State == GameCacheState.InProgress && !isInstallingOrQueued;
+                    bool isUnknown = gc.State == GameCacheState.Unknown;
+                    bool isInvalid = gc.State == GameCacheState.Invalid;
+                    bool isInstalled = gc.State == GameCacheState.Populated || gc.State == GameCacheState.Played;
+                    bool isInstalling = gc.State == GameCacheState.InProgress && gc.NowInstalling == true;
+                    allEmpty &= isEmpty;
+                    allPaused &= isPaused;
+                    allInstalled &= isInstalled;
+                    allInstalling &= isInstalling;
+                    allEmptyOrPaused &= isEmpty || isPaused;
+                    allQueuedForInstall &= isQueuedForInstall;
+                    allInstalledOrPaused &= isInstalled || isPaused;
+                    allInstalledPausedUnknownOrInvalid &= isInstalled || isPaused || isUnknown || isInvalid;
+                    allWillFit &= gc.CacheWillFit;
+                    count++;
+                }
             }
-            return context;
         }
 
         private string GetInstallCachesMenu(SelectedCachesContext context)
         {
-            if (context.count > 0 && context.allWillFit)
+            if (context != null && context.count > 0 && context.allWillFit)
             {
                 string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
                 return 
@@ -411,7 +499,7 @@ namespace NowPlaying.ViewModels
 
         private string GetRerootCachesMenu(SelectedCachesContext context)
         {
-            if (MultipleCacheRoots && context.count > 0 && context.allEmpty)
+            if (MultipleCacheRoots && context != null && context.count > 0 && context.allEmpty)
             {
                 string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
                 return $"Change cache root of selected game{gameCount}";
@@ -438,7 +526,7 @@ namespace NowPlaying.ViewModels
 
         private string GetUninstallCachesMenu(SelectedCachesContext context)
         {
-            if (context.count > 0)
+            if (context != null && context.count > 0)
             {
                 string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
                 return context.allInstalledPausedUnknownOrInvalid ? "Uninstall selected game cache" + gameCount : null;
@@ -451,10 +539,23 @@ namespace NowPlaying.ViewModels
 
         private string GetDisableCachesMenu(SelectedCachesContext context)
         {
-            if (context.count > 0)
+            if (context != null && context.count > 0)
             {
                 string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
                 return context.allEmpty ? "Disable caching for selected game" + gameCount : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private string GetCancelQueuedInstalls(SelectedCachesContext context)
+        {
+            if (context != null && context.count > 0)
+            {
+                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
+                return context.allQueuedForInstall ? "Cancel queued install for selected game cache" + gameCount : null;
             }
             else
             {
@@ -482,6 +583,7 @@ namespace NowPlaying.ViewModels
 
         private void RerootSelectedCaches(List<GameCacheViewModel> gameCaches, CacheRootViewModel cacheRoot)
         {
+            bool saveNeeded = false;
             plugin.panelView.GameCaches_ClearSelected();
             foreach (var gameCache in gameCaches)
             {
@@ -489,13 +591,25 @@ namespace NowPlaying.ViewModels
                 if (nowPlayingGame != null)
                 {
                     plugin.EnableNowPlayingWithRoot(nowPlayingGame, cacheRoot);
+                    saveNeeded = true;
                 }
                 else
                 {
-                    plugin.PopupError($"Can't find NowPlaying enabled game '{gameCache.Title}'.");
+                    // NowPlaying game missing (removed from playnite)
+                    // . delete cache dir if it exists and disable game caching
+                    //
+                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    if (Directory.Exists(gameCache.CacheDir))
+                    {
+                        Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
+                    }
+                    plugin.cacheManager.RemoveGameCache(gameCache.Id);
                 }
             }
-            plugin.cacheManager.SaveGameCacheEntriesToJson();
+            if (saveNeeded)
+            {
+                plugin.cacheManager.SaveGameCacheEntriesToJson();
+            }
         }
 
         private void DisableSelectedCaches(List<GameCacheViewModel> gameCaches)
@@ -518,7 +632,26 @@ namespace NowPlaying.ViewModels
             }
             else
             {
-                plugin.PopupError($"Can't find NowPlaying Game for {gameCache.entry.Title}");
+                // NowPlaying game missing (removed from playnite)
+                // . delete cache if it exists and disable game caching
+                //
+                if (Directory.Exists(gameCache.CacheDir))
+                {
+                    if (gameCache.CacheSize > 0)
+                    {
+                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling and deleting game cache.");
+                    }
+                    else
+                    {
+                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    }
+                    Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
+                }
+                else
+                {
+                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                }
+                plugin.cacheManager.RemoveGameCache(gameCache.Id);
             }
         }
 
@@ -533,7 +666,26 @@ namespace NowPlaying.ViewModels
             }
             else
             {
-                plugin.PopupError($"Can't find NowPlaying Game for {gameCache.Title}");
+                // NowPlaying game missing (removed from playnite)
+                // . delete cache if it exists and disable game caching
+                //
+                if (Directory.Exists(gameCache.CacheDir))
+                {
+                    if (gameCache.CacheSize > 0)
+                    {
+                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling and deleting game cache.");
+                    }
+                    else
+                    {
+                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    }
+                    Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
+                }
+                else
+                {
+                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                }
+                plugin.cacheManager.RemoveGameCache(gameCache.Id);
             }
         }
 
@@ -543,14 +695,17 @@ namespace NowPlaying.ViewModels
             if (nowPlayingGame != null)
             {
                 plugin.DisableNowPlayingGameCaching(nowPlayingGame, gameCache.InstallDir, gameCache.ExePath);
-                plugin.cacheManager.RemoveGameCache(gameCache.Id);
-                plugin.NotifyInfo($"Game caching disabled for '{nowPlayingGame.Name}'");
             }
             else
             {
-                plugin.PopupError($"Can't find NowPlaying Game for {gameCache.Title}");
+                // . missing NowPlaying game; delete game cache dir on the way out.
+                if (Directory.Exists(gameCache.CacheDir))
+                {
+                    Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
+                }
             }
-
+            plugin.cacheManager.RemoveGameCache(gameCache.Id);
+            plugin.NotifyInfo($"Game caching disabled for '{gameCache.Title}'");
         }
 
     }

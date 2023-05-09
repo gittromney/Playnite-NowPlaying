@@ -96,16 +96,16 @@ namespace NowPlaying.Models
 
         private string GetUniqueCacheSubDir(string cacheRoot, string title, string cacheId)
         {
-            // . first choice for cache sub directory name is "[title]"
-            //   -> second choice is "[id] [title]"
+            // . first choice: cacheSubDir name is "[title]" (indicated by value=null)
+            //   -> second choice is cacheSubDir = "[id] [title]"
             //
-            string cacheSubDir = DirectoryUtils.ToSafeFileName(title);
-            string cacheDir = Path.Combine(cacheRoot, cacheSubDir);
+            string cacheSubDir = null;
+            string cacheDir = Path.Combine(cacheRoot, DirectoryUtils.ToSafeFileName(title));
 
             // . first choice is taken...
             if (uniqueCacheDirs.ContainsKey(cacheDir))
             {
-                cacheSubDir = cacheId + " " + cacheSubDir;
+                cacheSubDir = cacheId + " " + DirectoryUtils.ToSafeFileName(title);
                 cacheDir = Path.Combine(cacheRoot, cacheSubDir);
 
                 // . second choice already taken (shouldn't happen, assuming game ID is unique)
@@ -115,7 +115,7 @@ namespace NowPlaying.Models
                     throw new InvalidOperationException($"Game Cache CacheDir={cacheDir} already exists: {cacheEntries[ownerId]}");
                 }
             }
-            return cacheDir;
+            return cacheSubDir;
         }
 
         public GameCacheEntry GetGameCacheEntry(string id)
@@ -401,7 +401,7 @@ namespace NowPlaying.Models
             roboCacher.MarkCacheDirectoryState(cacheEntries[id].CacheDir, GameCacheState.Played);
         }
 
-        internal bool IsGameCacheDirectory(string possibleCacheDir)
+        public bool IsGameCacheDirectory(string possibleCacheDir)
         {
             return uniqueCacheDirs.ContainsKey(possibleCacheDir);
         }
