@@ -3,14 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NowPlayingPlugin", "NowPlayingPlugin.csproj", "{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{26DCC539-E67F-4CB5-970F-F02C1F5C6E00} = {26DCC539-E67F-4CB5-970F-F02C1F5C6E00}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NowPlaying", "NowPlaying.csproj", "{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NowPlaying", "..\..\NowPlaying\NowPlaying_WPF_NETFW\NowPlaying.csproj", "{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playnite.DesktopApp", "..\..\Playnite\source\Playnite.DesktopApp\Playnite.DesktopApp.csproj", "{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playnite.DesktopApp", "..\..\..\..\Playnite\source\Playnite.DesktopApp\Playnite.DesktopApp.csproj", "{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,30 +17,18 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|x64.Build.0 = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Debug|x86.Build.0 = Debug|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|x64.ActiveCfg = Release|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|x64.Build.0 = Release|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|x86.ActiveCfg = Release|Any CPU
-		{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}.Release|x86.Build.0 = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|x64.Build.0 = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Debug|x86.Build.0 = Debug|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|x64.ActiveCfg = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|x64.Build.0 = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|x86.ActiveCfg = Release|Any CPU
-		{8C4FC37F-8FB3-4062-8899-FCC9C356D31E}.Release|x86.Build.0 = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|x64.Build.0 = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}.Release|x86.Build.0 = Release|Any CPU
 		{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}.Debug|x64.ActiveCfg = Debug|x64
