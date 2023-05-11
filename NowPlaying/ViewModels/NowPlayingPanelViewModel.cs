@@ -4,23 +4,18 @@ using NowPlaying.Views;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 using MenuItem = System.Windows.Controls.MenuItem;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace NowPlaying.ViewModels
 {
-
-
     public class NowPlayingPanelViewModel : ViewModelBase
     {
         private readonly NowPlaying plugin;
@@ -42,7 +37,23 @@ namespace NowPlaying.ViewModels
             this.InstallCachesCommand = new RelayCommand(() => InstallSelectedCaches(SelectedGameCaches), () => InstallCachesCanExecute);
             this.UninstallCachesCommand = new RelayCommand(() => UninstallSelectedCaches(SelectedGameCaches), () => UninstallCachesCanExecute);
             this.DisableCachesCommand = new RelayCommand(() => DisableSelectedCaches(SelectedGameCaches), () => DisableCachesCanExecute);
-            this.RerootClickCanExecute = new RelayCommand(() => {}, () => RerootCachesCanExecute);
+            this.RerootClickCanExecute = new RelayCommand(() => { }, () => RerootCachesCanExecute);
+            this.PauseInstallCommand = new RelayCommand(() =>
+            {
+                if (InstallProgressView != null)
+                {
+                    var viewModel = installProgressView.DataContext as InstallProgressViewModel;
+                    viewModel.PauseInstallCommand.Execute();
+                }
+            });
+            this.CancelInstallCommand = new RelayCommand(() =>
+            {
+                if (InstallProgressView != null)
+                {
+                    var viewModel = installProgressView.DataContext as InstallProgressViewModel;
+                    viewModel.CancelInstallCommand.Execute();
+                }
+            });
 
             this.CancelQueuedInstallsCommand = new RelayCommand(() =>
             {
@@ -175,6 +186,8 @@ namespace NowPlaying.ViewModels
         public ICommand DisableCachesCommand { get; private set; }
         public ICommand RerootClickCanExecute { get; private set; }
         public ICommand CancelQueuedInstallsCommand { get; private set; }
+        public ICommand PauseInstallCommand { get; private set; }
+        public ICommand CancelInstallCommand { get; private set; }
 
         public ObservableCollection<GameCacheViewModel> GameCaches => plugin.cacheManager.GameCaches;
 
@@ -201,6 +214,10 @@ namespace NowPlaying.ViewModels
         public bool DisableCachesCanExecute { get; private set; }
         public string CancelQueuedInstallsMenu { get; private set; }
         public string CancelQueuedInstallsVisibility { get; private set; }
+        public string PauseInstallMenu { get; private set; }
+        public string PauseInstallVisibility { get; private set; }
+        public string CancelInstallMenu { get; private set; }
+        public string CancelInstallVisibility { get; private set; }
 
 
         private SelectedCachesContext selectionContext;
@@ -257,12 +274,23 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(DisableCachesVisibility));
                 OnPropertyChanged(nameof(DisableCachesCanExecute));
 
-                CancelQueuedInstallsMenu = GetCancelQueuedInstalls(SelectionContext);
+                CancelQueuedInstallsMenu = GetCancelQueuedInstallsMenu(SelectionContext);
                 CancelQueuedInstallsVisibility = CancelQueuedInstallsMenu != null ? "Visible" : "Collapsed";
                 OnPropertyChanged(nameof(CancelQueuedInstallsMenu));
                 OnPropertyChanged(nameof(CancelQueuedInstallsVisibility));
+
+                PauseInstallMenu = GetPauseInstallMenu(SelectionContext);
+                PauseInstallVisibility = PauseInstallMenu != null ? "Visible" : "Collapsed";
+                OnPropertyChanged(nameof(PauseInstallMenu));
+                OnPropertyChanged(nameof(PauseInstallVisibility));
+
+                CancelInstallMenu = GetCancelInstallMenu(SelectionContext);
+                CancelInstallVisibility = CancelInstallMenu != null ? "Visible" : "Collapsed";
+                OnPropertyChanged(nameof(CancelInstallMenu));
+                OnPropertyChanged(nameof(CancelInstallVisibility));
             }
         }
+
 
         private UserControl topPanelView;
         public UserControl TopPanelView
@@ -550,12 +578,38 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private string GetCancelQueuedInstalls(SelectedCachesContext context)
+        private string GetCancelQueuedInstallsMenu(SelectedCachesContext context)
         {
             if (context != null && context.count > 0)
             {
                 string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
                 return context.allQueuedForInstall ? "Cancel queued install for selected game cache" + gameCount : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private string GetPauseInstallMenu(SelectedCachesContext context)
+        {
+            if (context != null && context.count > 0)
+            {
+                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
+                return context.allInstalling ? "Pause install for selected game cache" + gameCount : null;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private string GetCancelInstallMenu(SelectedCachesContext context)
+        {
+            if (context != null && context.count > 0)
+            {
+                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
+                return context.allInstalling ? "Cancel install for selected game cache" + gameCount : null;
             }
             else
             {

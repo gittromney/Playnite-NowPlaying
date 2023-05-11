@@ -1,7 +1,7 @@
 ﻿using NowPlaying.Views;
 using Playnite.SDK;
-using Playnite.SDK.Data;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -43,6 +43,17 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        public class CustomInstallSizeSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                long sizeX = ((GameViewModel)x).InstallSizeBytes;
+                long sizeY = ((GameViewModel)y).InstallSizeBytes;
+                return sizeX.CompareTo(sizeY);
+            }
+        }
+        public CustomInstallSizeSorter CustomInstallSizeSort { get; private set; }
+
         public ICommand SelectAllCommand { get; private set; }
         public ICommand SelectNoneCommand { get; private set; }
         public ICommand CloseCommand { get; private set; }
@@ -73,6 +84,7 @@ namespace NowPlaying.ViewModels
         {
             this.plugin = plugin;
             this.popup = popup;
+            this.CustomInstallSizeSort = new CustomInstallSizeSorter();
             this.cacheRoots = plugin.cacheManager.CacheRoots.ToList();
             this.SelectedGames = new List<GameViewModel>();
 

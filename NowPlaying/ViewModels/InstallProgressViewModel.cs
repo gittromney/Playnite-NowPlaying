@@ -47,10 +47,6 @@ namespace NowPlaying.ViewModels
         public string CurrentFile => PreparingToInstall ? "" : $"Copying '{currentFile}'...";
         public string SpeedDurationEta => PreparingToInstall ? "" : $"Speed: {averageSpeed},   Time: {duration},   ETA: {timeRemaining}";
 
-        //public string Duration => PreparingToInstall ? "" : $"Duration: {duration}";
-        //public string TimeRemaining => PreparingToInstall ? "" : $"Estimated time remaining: {timeRemaining}";
-        //public string AverageSpeed => PreparingToInstall ? "" : $"Speed: {averageSpeed}";
-
         public InstallProgressViewModel(NowPlayingInstallController controller)
         {
             this.plugin = controller.plugin;

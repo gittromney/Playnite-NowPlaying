@@ -42,6 +42,8 @@ namespace NowPlaying
 
         public override void Install(InstallActionArgs args)
         {
+            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir)) return;
+
             // . Workaround: prevent (accidental) install while install|uninstall in progress
             //   -> Note, better solution requires a Playnite fix => Play CanExecute=false while IsInstalling=true||IsUninstalling=true
             //   -> Also, while we're at it: Playnite's Install/Uninstall CanExecute=false while IsInstalling=true||IsUninstalling=true

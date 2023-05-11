@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NowPlaying.Views"
+             xmlns:resx="clr-namespace:NowPlaying.Properties"
+             xmlns:draw="clr-namespace:System.Drawing;assembly=System.Drawing" 
              xmlns:core="clr-namespace:NowPlaying.Core">
 
     <UserControl.Resources>
@@ -40,15 +42,23 @@
             <StackPanel Margin="30">
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                    <Button Content="🔧" FontSize="16"
+                    <Button 
+                        Content="🔧" FontSize="17"
                         Command="{Binding ToggleShowSettings}"
                         ToolTip="{Binding ShowSettingsToolTip}"
                         Style="{StaticResource TopPanelButton}"/>
-
-                    <Button Content="R" FontSize="20"
+                    <Button
                         Command="{Binding ToggleShowCacheRoots}"
                         ToolTip="{Binding ShowCacheRootsToolTip}"
-                        Style="{StaticResource TopPanelButton}"/>
+                        Style="{StaticResource TopPanelButton}"
+                        MouseEnter="RootsButton_MouseEnter"
+                        MouseLeave="RootsButton_MouseLeave">
+                        <StackPanel Background="Transparent">
+                            <Image Name="RootsButtonImage" Width="28" Height="28">
+                                <!--Source set in code-behind-->
+                            </Image>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
                 <UserControl Content="{Binding SettingsView}" Margin="-25,-25,0,-15"/>
@@ -68,10 +78,8 @@
                         IsSynchronizedWithCurrentItem="True"
                         MouseUp="GameCaches_OnMouseUp"
                         SelectionMode="Extended"
-                        core:GridViewSort.AutoSort="True"
-                        core:GridViewSort.SortGlyphAscending="\Resources\Images\sort-down.png"
-                        core:GridViewSort.SortGlyphDescending="\Resources\Images\sort-up.png">
-                        
+                        core:GridViewSort.AutoSort="True">
+
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Width="{Binding TitleWidth}" DisplayMemberBinding="{Binding Path=Title}">
@@ -120,8 +128,7 @@
                                         <DataTemplate>
                                             <TextBlock 
                                                 Text="{Binding Path=CacheInstalledSize}" 
-                                                Foreground="{Binding Path=CacheInstalledSizeColor}"
-                                                Opacity="1"/>
+                                                Foreground="{Binding Path=CacheInstalledSizeColor}"/>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
@@ -151,7 +158,7 @@
                                     Header="{Binding UninstallCachesMenu}" 
                                     Command="{Binding UninstallCachesCommand}" 
                                     Visibility="{Binding UninstallCachesVisibility}"/>
-                                <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
+                                <!--NOTE: ItemsSource must use OneWay binding b/c the items are shared-->
                                 <MenuItem 
                                     Header="{Binding RerootCachesMenu}"
                                     ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
@@ -164,6 +171,14 @@
                                     Header="{Binding CancelQueuedInstallsMenu}"
                                     Command="{Binding CancelQueuedInstallsCommand}"
                                     Visibility="{Binding CancelQueuedInstallsVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding PauseInstallMenu}"
+                                    Command="{Binding PauseInstallCommand}"
+                                    Visibility="{Binding PauseInstallVisibility}"/>
+                                <MenuItem 
+                                    Header="{Binding CancelInstallMenu}"
+                                    Command="{Binding CancelInstallCommand}"
+                                    Visibility="{Binding CancelInstallVisibility}"/>
                             </ContextMenu>
                         </ListView.ContextMenu>
                     </ListView>

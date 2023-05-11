@@ -137,7 +137,7 @@ namespace NowPlaying
                 foreach (var nowPlayingGame in nowPlayingGames)
                 {
                     string cacheId = nowPlayingGame.Id.ToString();
-                    RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                    TryRestoreMissingGameCache(cacheId, nowPlayingGame);
                 }
                 cacheManager.SaveGameCacheEntriesToJson();
             }
@@ -178,7 +178,7 @@ namespace NowPlaying
                 if (!cacheManager.GameCacheExists(game.Id.ToString())) 
                 {
                     // . NowPlaying game is missing the supporting game cache... attempt to recreate it
-                    if (!RestoreMissingGameCacheIfPossible(game.Id.ToString(), game))
+                    if (!TryRestoreMissingGameCache(game.Id.ToString(), game))
                     {
                         NotifyWarning($"NowPlaying game cache information missing; disabling game caching for '{game.Name}'.");
                         DisableNowPlayingGameCaching(game);
@@ -220,9 +220,14 @@ namespace NowPlaying
             Game nowPlayingGame = args.Game;
             string cacheId = nowPlayingGame.Id.ToString();
 
+            if (!CheckIfGameInstallDirIsAccessible(nowPlayingGame.Name, nowPlayingGame.InstallDirectory))
+            {
+                return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
+            }
+
             if (!cacheManager.GameCacheExists(cacheId))
             {
-                RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                TryRestoreMissingGameCache(cacheId, nowPlayingGame);
             }
 
             if (cacheManager.GameCacheExists(cacheId))
@@ -246,7 +251,7 @@ namespace NowPlaying
             else
             {
                 PopupError($"Unable to find or restore NowPlaying game cache entry for '{args.Game.Name}'");
-                return null;
+                return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
             }
         }
 
@@ -270,7 +275,7 @@ namespace NowPlaying
 
             if (!cacheManager.GameCacheExists(cacheId))
             {
-                RestoreMissingGameCacheIfPossible(cacheId, nowPlayingGame);
+                TryRestoreMissingGameCache(cacheId, nowPlayingGame);
             }
 
             if (cacheManager.GameCacheExists(cacheId))
@@ -291,12 +296,14 @@ namespace NowPlaying
             }
         }
 
-        public bool RestoreMissingGameCacheIfPossible(string cacheId, Game nowPlayingGame)
+        public bool TryRestoreMissingGameCache(string cacheId, Game nowPlayingGame)
         {
             string title = nowPlayingGame.Name;
             string installDir = GetPreviewPlayAction(nowPlayingGame)?.WorkingDir;
             string exePath = GetIncrementalExePath(GetNowPlayingAction(nowPlayingGame)) ?? GetIncrementalExePath(GetPreviewPlayAction(nowPlayingGame));
             string xtraArgs = GetNowPlayingAction(nowPlayingGame)?.AdditionalArguments ?? GetPreviewPlayAction(nowPlayingGame)?.AdditionalArguments;
+
+            if (!CheckIfGameInstallDirIsAccessible(title, installDir)) return false;
 
             // . Separate cacheDir into its cacheRootDir and cacheSubDir components, assuming nowPlayingGame matching Cache RootDir exists.
             (string cacheRootDir, string cacheSubDir) = cacheManager.FindCacheRootAndSubDir(nowPlayingGame.InstallDirectory);
@@ -442,6 +449,8 @@ namespace NowPlaying
         {
             string cacheId = game.Id.ToString();
 
+            if (!CheckIfGameInstallDirIsAccessible(game.Name, game.InstallDirectory)) return;
+
             // . Already a NowPlaying enabled game
             //   -> change cache cacheRoot, if applicable
             //
@@ -486,6 +495,17 @@ namespace NowPlaying
                 // . Enable source game for NowPlaying game caching
                 (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
             }
+        }
+
+        // . Sanity check: make sure game's InstallDir is accessable (e.g. disk mounted, decrypted, etc?)
+        public bool CheckIfGameInstallDirIsAccessible(string title, string installDir)
+        {
+            if (!Directory.Exists(installDir))
+            {
+                PopupError($"{title}'s installation directory '{installDir}' not found; is the disk mounted and decrypted?");
+                return false;
+            }
+            return true;
         }
 
         public bool EnqueueGameEnablerIfUnique(NowPlayingGameEnabler enabler)

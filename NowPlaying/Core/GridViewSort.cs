@@ -10,7 +10,6 @@ using System.Windows.Media;
 using System.Windows.Documents;
 using System.Windows.Data;
 using System.Collections;
-using System.Diagnostics.Eventing.Reader;
 using System.Collections.Generic;
 
 namespace NowPlaying.Core
@@ -377,7 +376,7 @@ namespace NowPlaying.Core
 
             private Geometry GetDefaultGlyph()
             {
-                double x1 = _columnHeader.ActualWidth - 13;
+                double x1 = _columnHeader.ActualWidth - 15;
                 double x2 = x1 + 10;
                 double x3 = x1 + 5;
                 double y1 = _columnHeader.ActualHeight / 2 - 3;
@@ -419,7 +418,7 @@ namespace NowPlaying.Core
                 }
                 else
                 {
-                    drawingContext.DrawGeometry(Brushes.LightGray, new Pen(Brushes.Gray, 1.0), GetDefaultGlyph());
+                    drawingContext.DrawGeometry(Brushes.WhiteSmoke, new Pen(Brushes.WhiteSmoke, 1.0), GetDefaultGlyph());
                 }
             }
         }

@@ -43,14 +43,18 @@
             IsSynchronizedWithCurrentItem="True"
             MouseUp="EligibleGames_OnMouseUp"
             SelectionMode="Extended"
-            core:GridViewSort.AutoSort="True"
-            core:GridViewSort.SortGlyphAscending="\Resources\Images\sort-down.png"
-            core:GridViewSort.SortGlyphDescending="\Resources\Images\sort-up.png">
+            core:GridViewSort.AutoSort="True">
             
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Title}"/>
-                    <GridViewColumn Header="Install Size" DisplayMemberBinding="{Binding Path=InstallSize}"/>
+                    <GridViewColumn 
+                        Width="95" 
+                        DisplayMemberBinding="{Binding Path=InstallSize}"
+                        core:GridViewSort.CustomSort="{Binding CustomInstallSizeSort}">
+                        <GridViewColumnHeader Content="Install Size"/>
+                    </GridViewColumn>
+
                     <GridViewColumn Header="Genre(s)" DisplayMemberBinding="{Binding Path=Genres}"/>
                 </GridView>
             </ListView.View>

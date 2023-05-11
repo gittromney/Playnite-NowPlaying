@@ -99,7 +99,7 @@ namespace NowPlaying.ViewModels
                 string cacheSubDir = null
             )
         {
-            if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir))
+            if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir) && plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
             {
                 // . re-encode cacheSubDir as 'null' if it represents the file-safe game title.
                 if (cacheSubDir?.Equals(DirectoryUtils.ToSafeFileName(title)) == true)

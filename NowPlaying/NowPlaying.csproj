@@ -69,6 +69,11 @@
     <Compile Include="NowPlayingGameEnabler.cs" />
     <Compile Include="NowPlayingInstallController.cs" />
     <Compile Include="NowPlayingSettings.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\AddGameCachesViewModel.cs" />
     <Compile Include="ViewModels\EditMaxFillViewModel.cs" />
     <Compile Include="ViewModels\AddCacheRootViewModel.cs" />
@@ -165,9 +170,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Images\sort-down.png" />
-    <EmbeddedResource Include="Resources\Images\sort-up.png" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Images\roots-hover.png" />
+    <EmbeddedResource Include="Resources\Images\roots-icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
