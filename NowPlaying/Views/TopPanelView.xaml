@@ -17,8 +17,8 @@
             <ProgressBar 
                 Value="{Binding PercentDone, Mode=OneWay}"
                 IsIndeterminate="{Binding ProgressIsIndeterminate}"
-                Foreground="{core:ResourceBinding ProgressBarForeground}"
-                Background="{core:ResourceBinding ProgressBarBackground}"
+                Foreground="{core:DynamicResourceBinding ProgressBarForeground}"
+                Background="{core:DynamicResourceBinding ProgressBarBackground}"
                 Width="200" Height="20" Padding="0,0,0,0"
                 BorderBrush="Transparent">
                 

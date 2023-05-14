@@ -77,7 +77,7 @@
                                                 <TextBlock 
                                                     x:Name="NormalText"
                                                     Text="{Binding Status}" 
-                                                    Foreground="{core:ResourceBinding StatusColor}"/>
+                                                    Foreground="{core:DynamicResourceBinding StatusColor}"/>
                                             </Grid>
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
@@ -100,7 +100,7 @@
                                                 <TextBlock
                                                     x:Name="NormalText"
                                                     Text="{Binding CanInstallCache}" 
-                                                    Foreground="{core:ResourceBinding CanInstallCacheColor}"/>
+                                                    Foreground="{core:DynamicResourceBinding CanInstallCacheColor}"/>
                                             </Grid>
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
@@ -137,7 +137,7 @@
                                                 <TextBlock
                                                     x:Name="NormalText"
                                                     Text="{Binding CacheInstalledSize}"
-                                                    Foreground="{core:ResourceBinding CacheInstalledSizeColor}"/>
+                                                    Foreground="{core:DynamicResourceBinding CacheInstalledSizeColor}"/>
                                             </Grid>
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
