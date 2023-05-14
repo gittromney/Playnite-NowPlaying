@@ -12,7 +12,7 @@
         </StackPanel>
 
         <StackPanel Margin="5">
-            <TextBlock Text="Source game hiding options:" FontSize="14" Foreground="DeepSkyBlue" Margin="0,0,0,5"/>
+            <TextBlock Text="Source game hiding options:" FontSize="14" Foreground="{DynamicResource GlyphBrush}" Margin="0,0,0,5"/>
             <RadioButton Content="Hide source game when enabled for game caching."
                          IsChecked="{Binding Settings.HideSource_Enabled}"
                          Foreground="White"/>

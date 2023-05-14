@@ -35,15 +35,15 @@ namespace NowPlaying.ViewModels
         public bool NowInstalling => nowInstalling;
         public bool NowUninstalling => nowUninstalling;
         public string Status => GetStatus(entry.State, installQueueStatus, uninstallQueueStatus, nowInstalling, nowUninstalling);
-        public string StatusColor => State == GameCacheState.Invalid ? "OrangeRed" : Status == "Uninstalled" ? "SteelBlue" : "WhiteSmoke";
+        public string StatusColor => State == GameCacheState.Invalid ? "WarningBrush" : Status == "Uninstalled" ? "TextBrushDarker" : "TextBrush";
 
         private string cacheInstalledSize;
         public string CacheInstalledSize => cacheInstalledSize;
-        public string CacheInstalledSizeColor => CanInstallCache == "No" ? "OrangeRed" : State == GameCacheState.Empty ? "SteelBlue" : "WhiteSmoke";
+        public string CacheInstalledSizeColor => CanInstallCache == "No" ? "WarningBrush" : State == GameCacheState.Empty ? "TextBrushDarker" : "TextBrush";
 
         public bool CacheWillFit { get; private set; }
         public string CanInstallCache => entry.State==GameCacheState.Empty || entry.State==GameCacheState.InProgress ? (CacheWillFit ? "Yes" : "No") : "-";
-        public string CanInstallCacheColor => CanInstallCache == "No" ? "OrangeRed" : "WhiteSmoke";
+        public string CanInstallCacheColor => CanInstallCache == "No" ? "WarningBrush" : "TextBrush";
 
         public TimeSpan InstallEtaTimeSpan { get; private set; }
         public string InstallEta { get; private set; }

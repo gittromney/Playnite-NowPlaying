@@ -1,5 +1,7 @@
 ﻿using NowPlaying.Core;
+using Playnite.SDK.Plugins;
 using System;
+using System.Windows.Media;
 
 namespace NowPlaying.ViewModels
 {
@@ -28,8 +30,8 @@ namespace NowPlaying.ViewModels
         public string Status { get; private set; }
 
         public string ProgressIsIndeterminate => TopPanelMode==Mode.Install ? "False" : "True";
-        public string ProgressBarForeground => TopPanelMode==Mode.Enable ? "Lime" : TopPanelMode==Mode.Uninstall ? "OrangeRed" : "DeepSkyBlue";
-        public string ProgressBarBackground => TopPanelMode==Mode.Enable ? "LimeGreen" : TopPanelMode==Mode.Uninstall ? "Red" : "Black";
+        public string ProgressBarForeground => TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : "TopPanelInstallFgBrush";
+        public string ProgressBarBackground => TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" : "TopPanelInstallBgBrush";
 
         private Mode topPanelMode;
         public Mode TopPanelMode

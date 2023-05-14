@@ -38,14 +38,16 @@ namespace NowPlaying.Models
         /// <param name="destDir">Destination directory path name</param>
         /// <param name="listOnly">If true, run in list only mode - don't do any copying</param>
         /// <param name="showClass">If true, report file classifiers: extra/new/older/newer</param>
+        /// <param name="interPacketGap">Optional inter packet gap value, to limit network bandwidth used</param>
         /// <returns></returns>
-        private ProcessStartInfo RoboStartInfo(string srcDir, string destDir, bool listOnly=false, bool showClass=false)
+        private ProcessStartInfo RoboStartInfo(string srcDir, string destDir, bool listOnly=false, bool showClass=false, int interPacketGap=0)
         {
-            string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}",
+            string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}{5}",
                 srcDir, destDir,
                 "/E /NDL /BYTES /NJH /NJS",
                 showClass ? "" : " /NC",
-                listOnly ? " /L" : ""
+                listOnly ? " /L" : "",
+                interPacketGap > 0 ? $" /IPG:{interPacketGap}" : ""
             );
             return new ProcessStartInfo
             {
@@ -300,12 +302,13 @@ namespace NowPlaying.Models
             GameCacheEntry entry = job.entry;
             string cacheDir = entry.CacheDir;
             string installDir = entry.InstallDir;
+            int interPacketGap = job.interPacketGap; 
         
             // . make sure there's room for the Game Cache on disk...
             CheckAvailableSpaceForCache(cacheDir, entry.InstallSize - entry.CacheSize);
 
             // . run robocopy.exe as a background process...
-            ProcessStartInfo rcPsi = RoboStartInfo(installDir, cacheDir);
+            ProcessStartInfo rcPsi = RoboStartInfo(installDir, cacheDir, interPacketGap: interPacketGap);
             Console.WriteLine($"Starting robocopy.exe w/args '{rcPsi.Arguments}'...");
             try
             {

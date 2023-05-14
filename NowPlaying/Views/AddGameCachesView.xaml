@@ -1,11 +1,17 @@
 ﻿<UserControl x:Class="NowPlaying.Views.AddGameCachesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NowPlaying.Views"
              xmlns:core="clr-namespace:NowPlaying.Core"
              MinWidth="750" MaxWidth="1200" MinHeight="500" MaxHeight="1200">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid Margin="30,0,30,30">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -14,14 +20,18 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Enable games for NowPlaying game caching"
-                       Foreground="DeepSkyBlue"
-                       FontSize="18" Margin="0,0,0,15"/>
+            <TextBlock 
+                Text="Enable games for NowPlaying game caching"
+                Style="{DynamicResource HeadingText}"
+                Margin="0,0,0,15"/>
 
-            <TextBlock Margin="20"
-                       Foreground="OrangeRed" FontSize="16" TextWrapping="Wrap"
-                       Visibility="{Binding NoEligibleGamesVisibility}"
-                       Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"/>
+            <TextBlock 
+                Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
+                Foreground="{DynamicResource WarningBrush}" 
+                FontSize="{DynamicResource FontSizeLarge}" 
+                Visibility="{Binding NoEligibleGamesVisibility}"
+                TextWrapping="Wrap"
+                Margin="0,10,0,0"/>
 
             <StackPanel Orientation="Horizontal" Visibility="{Binding EligibleGamesVisibility}" Margin="0,0,0,10">
                 <Label Content="🔎" Margin="0,0,5,0"/>
@@ -44,7 +54,7 @@
             MouseUp="EligibleGames_OnMouseUp"
             SelectionMode="Extended"
             core:GridViewSort.AutoSort="True">
-            
+
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Title}"/>

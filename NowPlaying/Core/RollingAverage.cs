@@ -2,9 +2,9 @@
 
 namespace NowPlaying.Core
 {
-    public class RollingAverageLong : RollingAverage<long>
+    public class RollingAvgLong : RollingAverage<long>
     {
-        public RollingAverageLong(int depth, long initValue) : base(depth, initValue, (a, b) => a + b, (n, d) => n / d) {}
+        public RollingAvgLong(int depth, long initValue) : base(depth, initValue, (a, b) => a + b, (n, d) => n / d) {}
     }
 
     public class RollingAverage<T>

@@ -394,7 +394,13 @@ namespace NowPlaying.ViewModels
             private readonly Action<GameCacheJob> InstallDone;
             private readonly Action<GameCacheJob> InstallCancelled;
             private bool cancelOnMaxFill;
-            public InstallCallbacks(GameCacheManager manager, GameCacheViewModel gameCache, Action<GameCacheJob> installDone, Action<GameCacheJob> installCancelled)
+            public InstallCallbacks
+                (
+                    GameCacheManager manager, 
+                    GameCacheViewModel gameCache,
+                    Action<GameCacheJob> installDone, 
+                    Action<GameCacheJob> installCancelled
+                )
             {
                 this.manager = manager;
                 this.gameCache = gameCache;
@@ -443,14 +449,21 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void InstallGameCache(GameCacheViewModel gameCache, RoboStats jobStats, Action<GameCacheJob> installDone, Action<GameCacheJob> installCancelled)
+        public void InstallGameCache
+            (
+                GameCacheViewModel gameCache, 
+                RoboStats jobStats, 
+                Action<GameCacheJob> installDone, 
+                Action<GameCacheJob> installCancelled, 
+                int interPacketGap = 0
+            )
         {
             var callbacks = new InstallCallbacks(gameCacheManager, gameCache, installDone, installCancelled);
             gameCacheManager.eJobDone += callbacks.Done;
             gameCacheManager.eJobCancelled += callbacks.Cancelled;
             gameCacheManager.eJobStatsUpdated += callbacks.MaxFillLevelCanceller;
 
-            gameCacheManager.StartPopulateGameCacheJob(gameCache.Id, jobStats);
+            gameCacheManager.StartPopulateGameCacheJob(gameCache.Id, jobStats, interPacketGap);
         }
 
         public void CancelInstall(string cacheId)
@@ -465,7 +478,13 @@ namespace NowPlaying.ViewModels
             private readonly Action<GameCacheJob> UninstallDone;
             private readonly Action<GameCacheJob> UninstallCancelled;
 
-            public UninstallCallbacks(GameCacheManager manager, GameCacheViewModel gameCache, Action<GameCacheJob> uninstallDone, Action<GameCacheJob> uninstallCancelled)
+            public UninstallCallbacks
+                (
+                    GameCacheManager manager, 
+                    GameCacheViewModel gameCache, 
+                    Action<GameCacheJob> uninstallDone, 
+                    Action<GameCacheJob> uninstallCancelled
+                )
             {
                 this.manager = manager;
                 this.gameCache = gameCache;
@@ -495,7 +514,13 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void UninstallGameCache(GameCacheViewModel gameCache, bool cacheWriteBackOption, Action<GameCacheJob> uninstallDone, Action<GameCacheJob> uninstallCancelled)
+        public void UninstallGameCache
+            (
+                GameCacheViewModel gameCache, 
+                bool cacheWriteBackOption, 
+                Action<GameCacheJob> uninstallDone, 
+                Action<GameCacheJob> uninstallCancelled
+            )
         {
             var callbacks = new UninstallCallbacks(gameCacheManager, gameCache, uninstallDone, uninstallCancelled);
             gameCacheManager.eJobDone += callbacks.Done;

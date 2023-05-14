@@ -1,7 +1,6 @@
 ﻿using Playnite.SDK;
 using Playnite.SDK.Data;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace NowPlaying.ViewModels
 {
@@ -52,29 +51,32 @@ namespace NowPlaying.ViewModels
 
         public bool VerifySettings(out List<string> errors)
         {
-            string titleTag = Settings.NowPlayingTitleTag;
+            //string titleTag = Settings.NowPlayingTitleTag;
 
-            // check for non-empty, non-white-space-only NowPlaying title tag/suffix 
-            // 1. strip trailing white space
-            // 2. check vs empty string
-            //
-            if (Regex.IsMatch(titleTag, @"\s+$"))
-            {
-                Settings.NowPlayingTitleTag = Regex.Replace(titleTag, @"^(.*?)\s+$", "$1");
-            }
-            if (Settings.NowPlayingTitleTag == string.Empty)
-            {
-                errors = new List<string>()
-                {
-                    $"Invalid NowPlaying Title Suffix '{titleTag}'; must include some non-white-space characters"
-                };
-                return false;
-            }
-            else
-            {
-                errors = new List<string>();
-                return true;
-            }
+            //// check for non-empty, non-white-space-only NowPlaying title tag/suffix 
+            //// 1. strip trailing white space
+            //// 2. check vs empty string
+            ////
+            //if (Regex.IsMatch(titleTag, @"\s+$"))
+            //{
+            //    Settings.NowPlayingTitleTag = Regex.Replace(titleTag, @"^(.*?)\s+$", "$1");
+            //}
+            //if (Settings.NowPlayingTitleTag == string.Empty)
+            //{
+            //    errors = new List<string>()
+            //    {
+            //        $"Invalid NowPlaying Title Suffix '{titleTag}'; must include some non-white-space characters"
+            //    };
+            //    return false;
+            //}
+            //else
+            //{
+            //    errors = new List<string>();
+            //    return true;
+            //}
+
+            errors = new List<string>();
+            return true;
         }
 
     }

@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\DirectoryUtils.cs" />
+    <Compile Include="Core\DynamicResourceBinding.cs" />
     <Compile Include="Core\GridViewSort.cs" />
     <Compile Include="Core\RollingAverage.cs" />
     <Compile Include="Core\SmartUnits.cs" />
@@ -128,6 +129,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Page Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="NowPlayingStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

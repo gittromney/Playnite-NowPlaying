@@ -2,7 +2,6 @@
 using NowPlaying.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 namespace NowPlaying.ViewModels
@@ -14,11 +13,11 @@ namespace NowPlaying.ViewModels
         public string Directory => root.Directory;
         public string Device => System.IO.Directory.GetDirectoryRoot(Directory);
         public double MaxFillLevel => root.MaxFillLevel;
-        public string MaxFillReserved => $"{MaxFillLevel}%" + ReservedSpaceOnDevice;
 
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
         public long GamesEnabled { get; private set; }
-        public string CachesInstalled { get; private set; }
+        public int CachesInstalled { get; private set; }
+        public string CachesInstalledSize { get; private set; }
         public long BytesAvailableForCaches { get; private set; }
         public string SpaceAvailableForCaches { get; private set; }
 
@@ -48,11 +47,19 @@ namespace NowPlaying.ViewModels
 
         public void UpdateCachesInstalled()
         {
-            CachesInstalled = string.Format("{0}{1}",
-                GameCaches.Where(gc => IsCacheInstalled(gc)).Count(),
-                GetAggregateCacheSize(GameCaches.Where(gc => IsCacheNonEmpty(gc)).ToList())
-            );
-            OnPropertyChanged(nameof(CachesInstalled));
+            int ival = GameCaches.Where(gc => IsCacheInstalled(gc)).Count();
+            if (CachesInstalled != ival)
+            {
+                CachesInstalled = ival;
+                OnPropertyChanged(nameof(CachesInstalled));
+            }
+
+            string sval = GetAggregateCacheSize(GameCaches.Where(gc => IsCacheNonEmpty(gc)).ToList());
+            if (CachesInstalledSize != sval)
+            {
+                CachesInstalledSize = sval;
+                OnPropertyChanged(nameof(CachesInstalledSize));
+            }
         }
 
         public static long GetReservedSpaceOnDevice(string rootDir, double maxFillLevel)
@@ -113,7 +120,6 @@ namespace NowPlaying.ViewModels
                 ReservedSpaceOnDevice = "";
             }
             OnPropertyChanged(nameof(ReservedSpaceOnDevice));
-            OnPropertyChanged(nameof(MaxFillReserved));
 
             UpdateSpaceAvailableForCaches();
         }

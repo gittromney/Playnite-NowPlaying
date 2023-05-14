@@ -5,7 +5,6 @@ using NowPlaying.Views;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 

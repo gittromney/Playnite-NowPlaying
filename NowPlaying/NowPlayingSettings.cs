@@ -4,52 +4,16 @@ namespace NowPlaying
 {
     public class NowPlayingSettings : ObservableObject
     {
-        public enum HideOption { Enabled, Installed, Never };
-        public HideOption HideSourceGameOption { get; set; }
-        public string NowPlayingTitleTag { get; set; }
+        public enum DoWhen { Always, Ask, Never };
+        public DoWhen SyncDirtyCache_DoWhen { get; set; }
+        public DoWhen WhilePlayingInstall_DoWhen { get; set; }
         public bool ConfirmUninstall { get; set; }
-        public bool AskDirtyWriteBack { get; set; }
-
-        public bool HideSource_Enabled
-        {
-            get => HideSourceGameOption == HideOption.Enabled;
-            set 
-            {
-                if (value)
-                {
-                    HideSourceGameOption = HideOption.Enabled;
-                }
-            }
-        }
-        public bool HideSource_Installed
-        {
-            get => HideSourceGameOption == HideOption.Installed;
-            set 
-            {
-                if (value)
-                {
-                    HideSourceGameOption = HideOption.Installed;
-                }
-            }
-        }
-        public bool HideSource_Never
-        {
-            get => HideSourceGameOption == HideOption.Never;
-            set 
-            {
-                if (value)
-                {
-                    HideSourceGameOption = HideOption.Never;
-                }
-            }
-        }
 
         public NowPlayingSettings()
         {
-            this.HideSourceGameOption = HideOption.Enabled;
-            this.NowPlayingTitleTag = " (NowPlaying)";
             this.ConfirmUninstall = false;
-            this.AskDirtyWriteBack = true;
+            this.SyncDirtyCache_DoWhen = DoWhen.Always;
+            this.WhilePlayingInstall_DoWhen = DoWhen.Always;
         }
     }
 }

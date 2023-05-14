@@ -203,7 +203,7 @@ namespace NowPlaying.Models
             return cachePopulateJobs.ContainsKey(id);
         }
 
-        public void StartPopulateGameCacheJob(string id, RoboStats jobStats)
+        public void StartPopulateGameCacheJob(string id, RoboStats jobStats, int interPacketGap = 0)
         {
             if (!cacheEntries.ContainsKey(id))
             {
@@ -214,7 +214,7 @@ namespace NowPlaying.Models
                 throw new InvalidOperationException($"Cache populate already in progress for Id={id}");
             }
             GameCacheEntry entry = cacheEntries[id];
-            GameCacheJob job = new GameCacheJob(entry, jobStats);
+            GameCacheJob job = new GameCacheJob(entry, jobStats, interPacketGap);
 
             // if necessary, analyze the current cache directory contents to determine its state.
             if (entry.State == GameCacheState.Unknown)
@@ -257,10 +257,7 @@ namespace NowPlaying.Models
                 // . Invalid/Unknown state
                 default:
                     job.cancelledOnError = true;
-                    job.errorLog = new List<string>
-                        {
-                            $"Attempted to populate a game cache folder in '{entry.State}' state."
-                        };
+                    job.errorLog = new List<string> { $"Attempted to populate a game cache folder in '{entry.State}' state." };
                     eJobCancelled?.Invoke(this, job);
                     break;
             }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using static NowPlaying.Models.GameCacheManager;
+using static NowPlaying.NowPlayingSettings;
 
 namespace NowPlaying
 {
@@ -60,7 +61,7 @@ namespace NowPlaying
 
         public void NowPlayingUninstall()
         {
-            bool cacheWriteBackOption = !settings.AskDirtyWriteBack;
+            bool cacheWriteBackOption = settings.SyncDirtyCache_DoWhen == DoWhen.Always;
             bool cancelUninstall = false;
             string gameTitle = nowPlayingGame.Name;
 
@@ -74,7 +75,7 @@ namespace NowPlaying
                 cancelUninstall = userChoice == MessageBoxResult.No;
             }
 
-            if (!cancelUninstall && settings.AskDirtyWriteBack)
+            if (!cancelUninstall && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
             {
                 DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
                 if (result.isDirty)

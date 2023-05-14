@@ -1,7 +1,6 @@
 ﻿using NowPlaying.Models;
 using NowPlaying.Core;
 using Playnite.SDK;
-using System.Xml;
 using System;
 
 namespace NowPlaying.ViewModels
@@ -63,10 +62,10 @@ namespace NowPlaying.ViewModels
             cacheManager.gameCacheManager.eJobDone += OnJobDone;
 
             // . initialize any rolling average stats
-            this.rollAvgDepth = 100;
-            this.rollAvgAvgBps = new RollingAverageLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir));
+            this.rollAvgDepth = 50;
+            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir));
             this.rollAvgRefreshCnt = 0;
-            this.rollAvgRefreshRate = 100;
+            this.rollAvgRefreshRate = 50;
 
             PauseInstallCommand = new RelayCommand(controller.RequestPauseInstall);
             CancelInstallCommand = new RelayCommand(controller.RequestCancellInstall);
@@ -114,26 +113,25 @@ namespace NowPlaying.ViewModels
                 }
 
                 sval = SmartUnits.Duration(jobStats.GetDuration());
-                if (duration != sval)
+                bool durationUpdated = duration != sval;
+                if (durationUpdated)
                 {
                     duration = sval;
-                    //OnPropertyChanged(nameof(Duration));
                     OnPropertyChanged(nameof(SpeedDurationEta));
                 }
 
-                // . update rolling averaged stats + display at lower refresh rate... 
-                rollAvgAvgBps.Push(jobStats.GetAvgBytesPerSecond());
-                if (rollAvgRefreshCnt++ == 0)
+                // . update rolling averaged stats and display at lower refresh rate... 
+                if (rollAvgRefreshCnt++ == 0 || durationUpdated)
                 {
+                    rollAvgAvgBps.Push(jobStats.GetAvgBytesPerSecond());
+
                     var timeSpanRemaining = jobStats.GetTimeRemaining(rollAvgAvgBps.GetAverage());
                     sval = SmartUnits.Duration(timeSpanRemaining);
+
                     if (timeRemaining != sval)
                     {
                         timeRemaining = sval;
-                        //OnPropertyChanged(nameof(TimeRemaining));
                         OnPropertyChanged(nameof(SpeedDurationEta));
-
-                        // . also update game cache view model, if applicable
                         gameCache.UpdateInstallEta(timeSpanRemaining);
                     }
 
@@ -141,20 +139,15 @@ namespace NowPlaying.ViewModels
                     if (averageSpeed != sval)
                     {
                         averageSpeed = sval;
-                        //OnPropertyChanged(nameof(AverageSpeed));
                         OnPropertyChanged(nameof(SpeedDurationEta));
                     }
                 }
-                else if (rollAvgRefreshCnt == rollAvgRefreshRate)
+                if (rollAvgRefreshCnt >= rollAvgRefreshRate)
                 {
                     rollAvgRefreshCnt = 0;
                 }
 
-                ///
-                // . updated affected game cache view model properties
-                //
                 gameCache.UpdateCacheSize();
-
             }
         }
 

@@ -44,6 +44,7 @@ namespace NowPlaying.ViewModels
                 {
                     var viewModel = installProgressView.DataContext as InstallProgressViewModel;
                     viewModel.PauseInstallCommand.Execute();
+                    plugin.panelView.GameCaches_ClearSelected();
                 }
             });
             this.CancelInstallCommand = new RelayCommand(() =>
@@ -52,6 +53,7 @@ namespace NowPlaying.ViewModels
                 {
                     var viewModel = installProgressView.DataContext as InstallProgressViewModel;
                     viewModel.CancelInstallCommand.Execute();
+                    plugin.panelView.GameCaches_ClearSelected();
                 }
             });
 
