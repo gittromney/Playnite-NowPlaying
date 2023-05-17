@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using NowPlaying.Exceptions;
 using System;
 using System.Collections.Generic;

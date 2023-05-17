@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using NowPlaying.Models;
 using Playnite.SDK.Models;
 using System;

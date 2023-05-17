@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using System;
 
 namespace NowPlaying.Models

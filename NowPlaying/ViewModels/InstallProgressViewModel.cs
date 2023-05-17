@@ -1,5 +1,5 @@
 ﻿using NowPlaying.Models;
-using NowPlaying.Core;
+using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
 
@@ -38,7 +38,7 @@ namespace NowPlaying.ViewModels
         private int rollAvgRefreshCnt;
         private int rollAvgRefreshRate;
   
-        public string ProgressPanelTitle => $"Installing {GameTitle}'s Game Cache";
+        public string ProgressPanelTitle => $"Installing {GameTitle}'s Game Cache...";
         public double PercentDone => percentDone;
         public string CopiedFilesOfFiles => copiedFilesOfFiles;
         public string CopiedBytesOfBytes => copiedBytesOfBytes;
@@ -53,7 +53,13 @@ namespace NowPlaying.ViewModels
             this.cacheManager = controller.cacheManager;
             this.jobStats = controller.jobStats;
             this.gameCache = controller.gameCache;
+            this.PauseInstallCommand = new RelayCommand(controller.RequestPauseInstall);
+            this.CancelInstallCommand = new RelayCommand(controller.RequestCancellInstall);
+            PrepareToInstall();
+        }
 
+        public void PrepareToInstall()
+        {
             // . Start in "Preparing to install..." state; until job is underway & statistics are updated 
             this.PreparingToInstall = true;
 
@@ -66,9 +72,6 @@ namespace NowPlaying.ViewModels
             this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir));
             this.rollAvgRefreshCnt = 0;
             this.rollAvgRefreshRate = 50;
-
-            PauseInstallCommand = new RelayCommand(controller.RequestPauseInstall);
-            CancelInstallCommand = new RelayCommand(controller.RequestCancellInstall);
         }
 
         /// <summary>

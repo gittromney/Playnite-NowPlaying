@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 
-namespace NowPlaying.Core
+namespace NowPlaying.Utils
 {
 
     // This implementation allows each target framework element (e.g. ProgressBar) to use up to a maximum of (N=5)

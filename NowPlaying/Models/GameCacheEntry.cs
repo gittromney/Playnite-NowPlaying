@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using System;
 using System.IO;
 using System.Runtime.Serialization;

@@ -3,49 +3,189 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:utils="clr-namespace:NowPlaying.Utils"
+             xmlns:local="clr-namespace:NowPlaying"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
-    <StackPanel Margin="20">
 
-        <StackPanel Orientation="Horizontal" Margin="5">
-            <TextBlock Text="NowPlaying Game Cacher Settings" Foreground="DeepSkyBlue" FontSize="18"/>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <utils:EnumToBoolConverter x:Key="EnumToBool"/>
+            <utils:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!--HorizontalScrollBarVisibility = ActualWidth < 580 ? "Visible" : "Hidden" implemented in code-behind-->
+    <ScrollViewer
+        Name="Scroller"
+        HorizontalAlignment="Left"
+        SizeChanged="Scroller_SizeChanged"
+        Margin="20,20,0,0">
+        
+        <!--track the width of the parent / scroll viewer, until width is less than our minimum-->
+        <StackPanel
+            MinWidth="580" 
+            Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}">
+
+            <CheckBox 
+                Content="{DynamicResource LOCNowPlayingSettingsConfirmUninstall}"
+                Foreground="{DynamicResource TextBrush}"
+                IsChecked="{Binding Settings.ConfirmUninstall}"
+                Margin="0,0,0,10"/>
+
+            <TextBlock Text="Background cache installation options (while playing a game at the same time)" Style="{DynamicResource SubheadingText}"/>
+            <RadioButton
+                Content="Pause all game cache installations (resume on game exit)."
+                IsChecked="{Binding Settings.WhilePlayingMode, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:WhilePlaying.Pause}}"
+                GroupName="BackgroundRadio"
+                Click="ScrollerShiftOnButtonClick_Workaround"
+                Margin="0,0,0,0"/>
+            <RadioButton 
+                x:Name="SpeedLimitButton"
+                Content="Continue installation(s) in speed limited mode (return to full speed on game exit)."
+                IsChecked="{Binding Settings.WhilePlayingMode, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:WhilePlaying.SpeedLimit}}"
+                GroupName="BackgroundRadio"
+                Click="ScrollerShiftOnButtonClick_Workaround"
+                Margin="0,0,0,0"/>
+            <RadioButton 
+                Content="Continue installation(s) at full speed - not recommended for most cases."
+                IsChecked="{Binding Settings.WhilePlayingMode, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:WhilePlaying.Normal}}"
+                GroupName="BackgroundRadio"
+                Click="ScrollerShiftOnButtonClick_Workaround"
+                Margin="0,0,0,10"/>
+
+            <StackPanel Opacity="{Binding ElementName=SpeedLimitButton, Path=IsChecked, Converter={StaticResource BoolToOpacity}}">
+                <TextBlock Text="Speed limited mode" Style="{DynamicResource SubheadingText}" Margin="15,0,0,10"/>
+                <TextBlock 
+                    HorizontalAlignment="Left" TextWrapping="Wrap" Margin="30,0,25,10">
+                    When installing a game cache in speed limited mode, an inter packet gap (IPG) delay is injected between every 64KB packet 
+                    of game data installed. Valid range for IPG is 0-250 milliseconds.
+                    If set appropriately, sufficient disk bandwidth can be available for playing games at the same time (from the same disk).
+                    See example scenarios, below.
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal" Margin="30,0,0,10">
+                    <TextBlock Text="IPG:" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                    <TextBox 
+                        Text="{Binding Settings.SpeedLimitIPG}" 
+                        IsHitTestVisible="{Binding ElementName=SpeedLimitButton, Path=IsChecked}"
+                        Focusable="{Binding ElementName=SpeedLimitButton, Path=IsChecked}"
+                        Height="25" Width="40" 
+                        HorizontalContentAlignment="Right"/>
+                    <TextBlock Text="milliseconds" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                    <TextBlock
+                        Foreground="{DynamicResource TextBrushDarker}"
+                        VerticalAlignment="Center" Margin="20,0,0,0">
+                    
+                    </TextBlock>
+                </StackPanel>
+
+                <Grid Margin="30,0,30,10">
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource TextBrushDarker}"/>
+                            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+                            <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Padding" Value="0,0,0,0"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextBrushDarker}"/>
+                            <Setter Property="Background" Value="{DynamicResource NormalBrush}"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+                            <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="Focusable" Value="False"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBox Grid.Column="0" Grid.Row="0" Text="IPG"/>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="0 (full speed)"/>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="25"/>
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="50"/>
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="75"/>
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="100"/>
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="150"/>
+
+                    <TextBox Grid.Column="1" Grid.Row="0" Text="Relative Speed"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1" Text="100%"/>
+                    <TextBlock Grid.Column="1" Grid.Row="2" Text="15-40%"/>
+                    <TextBlock Grid.Column="1" Grid.Row="3" Text="7-20%"/>
+                    <TextBlock Grid.Column="1" Grid.Row="4" Text="6-15%"/>
+                    <TextBlock Grid.Column="1" Grid.Row="5" Text="4-10%"/>
+                    <TextBlock Grid.Column="1" Grid.Row="6" Text="3-8%"/>
+
+                    <TextBox Grid.Column="2" Grid.Row="0" Text="Game 1"/>
+                    <TextBlock Grid.Column="2" Grid.Row="1" Text="95 MB/s"/>
+                    <TextBlock Grid.Column="2" Grid.Row="2" Text="16 MB/s"/>
+                    <TextBlock Grid.Column="2" Grid.Row="3" Text="7 MB/s"/>
+                    <TextBlock Grid.Column="2" Grid.Row="4" Text="6 MB/s"/>
+                    <TextBlock Grid.Column="2" Grid.Row="5" Text="4 MB/s"/>
+                    <TextBlock Grid.Column="2" Grid.Row="6" Text="3 MB/s"/>
+
+                    <TextBox Grid.Column="3" Grid.Row="0" Text="Game 2"/>
+                    <TextBlock Grid.Column="3" Grid.Row="1" Text="80 MB/s"/>
+                    <TextBlock Grid.Column="3" Grid.Row="2" Text="30 MB/s"/>
+                    <TextBlock Grid.Column="3" Grid.Row="3" Text="15 MB/s"/>
+                    <TextBlock Grid.Column="3" Grid.Row="4" Text="12 MB/s"/>
+                    <TextBlock Grid.Column="3" Grid.Row="5" Text="9 MB/s"/>
+                    <TextBlock Grid.Column="3" Grid.Row="6" Text="6 MB/s"/>
+
+                    <TextBox Grid.Column="4" Grid.Row="0" Text="Game 3"/>
+                    <TextBlock Grid.Column="4" Grid.Row="1" Text="55 MB/s"/>
+                    <TextBlock Grid.Column="4" Grid.Row="2" Text="20 MB/s"/>
+                    <TextBlock Grid.Column="4" Grid.Row="3" Text="10 MB/s"/>
+                    <TextBlock Grid.Column="4" Grid.Row="4" Text="9 MB/s"/>
+                    <TextBlock Grid.Column="4" Grid.Row="5" Text="6 MB/s"/>
+                    <TextBlock Grid.Column="4" Grid.Row="6" Text="4 MB/s"/>
+                </Grid>
+            </StackPanel>
+                
+            <TextBlock Text="Sync options when uninstalling a game cache" Style="{DynamicResource SubheadingText}"/>
+            <TextBlock TextWrapping="Wrap" Margin="15,0,25,10">
+                Some games save settings and game save data locally. 
+                While playing one of these games, the cache can become 'dirty', or different, than the installed files.
+                When a dirty game cache is uninstalled, you have the option of syncing updated game settings/save data back
+                to the installation directory.
+            </TextBlock>
+            <TextBlock Text="When unstalling a 'dirty' game cache..." Margin="15,0,0,2"/>
+            <RadioButton 
+                Content="Always sync settings/game save data."
+                IsChecked="{Binding Settings.SyncDirtyCache_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Always}}"
+                GroupName="DirtyRadio"
+                Margin="15,0,0,0"/>
+            <RadioButton 
+                Content="Ask whether to sync settings/game save data."
+                IsChecked="{Binding Settings.SyncDirtyCache_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Ask}}"
+                GroupName="DirtyRadio"
+                Margin="15,0,0,0"/>
+            <RadioButton 
+                Content="Never sync settings/game save data."
+                IsChecked="{Binding Settings.SyncDirtyCache_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Never}}"
+                GroupName="DirtyRadio"
+                Margin="15,0,0,0"/>
+
         </StackPanel>
-
-        <StackPanel Margin="5">
-            <TextBlock Text="Source game hiding options:" FontSize="14" Foreground="{DynamicResource GlyphBrush}" Margin="0,0,0,5"/>
-            <RadioButton Content="Hide source game when enabled for game caching."
-                         IsChecked="{Binding Settings.HideSource_Enabled}"
-                         Foreground="White"/>
-            <RadioButton Content="Hide source game when enabled for game caching and cache is installed."
-                         IsChecked="{Binding Settings.HideSource_Installed}"
-                         Foreground="White"/>
-            <RadioButton Content="Don't hide source game."
-                         IsChecked="{Binding Settings.HideSource_Never}"
-                         Foreground="White"/>
-        </StackPanel>
-
-        <TextBlock Text="Game cache uninstall options:" FontSize="14" Foreground="DeepSkyBlue" Margin="5"/>
-        <CheckBox Content="Require confirmation when a game cache is uninstalled."
-                  Foreground="White"
-                  Margin="5,0,0,5"
-                  IsChecked="{Binding Settings.ConfirmUninstall}"/>
-
-        <!--<Comment>TODO: Change write-back option to three write-back states as radio buttons: always/never/ask </Comment>-->
-        <CheckBox Content='Ask before writing back a "dirty" game cache, which has updated files due to saved games, settings, etc.'
-                  Foreground="White"
-                  Margin="5,0,0,5"
-                  IsChecked="{Binding Settings.AskDirtyWriteBack}"/>
-
-        <!--<StackPanel Orientation="Horizontal">
-            <TextBlock Text="Suffix added to NowPlaying enabled game titles:" 
-                       Foreground="DeepSkyBlue"
-                       Margin="5,0,0,0"
-                       VerticalAlignment="Center"/>
-            <TextBox Text="{Binding Settings.NowPlayingTitleTag}"
-                     Width="200"
-                     Foreground="White"
-                     Margin="5"/>
-        </StackPanel>-->
-
-    </StackPanel>
+    </ScrollViewer>
 </UserControl>

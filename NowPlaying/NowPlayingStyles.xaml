@@ -26,8 +26,17 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">
-                    <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                        <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                    <Border 
+                        x:Name="border" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Background="{TemplateBinding Background}" 
+                        SnapsToDevicePixels="True">
+                        <ScrollViewer 
+                            x:Name="PART_ContentHost" 
+                            Focusable="false" 
+                            HorizontalScrollBarVisibility="Hidden" 
+                            VerticalScrollBarVisibility="Hidden"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="false">
@@ -65,6 +74,13 @@
     <Style x:Key="HeadingText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource GlyphBrush}"/>
         <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+    </Style>
+    
+    <Style x:Key="SubheadingText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="Foreground" Value="{DynamicResource GlyphBrush}"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
 
     <Style x:Key="TopPanelButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -129,5 +145,22 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <!--<Style TargetType="{x:Type RadioButton}">
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RadioButton}">
+                    <CheckBox
+                        IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsChecked, Mode=TwoWay}"
+                        IsHitTestVisible="True">
+                        <TextBlock 
+                            Text="{TemplateBinding Content}" 
+                            TextWrapping="Wrap"/>
+                    </CheckBox>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
 
 </ResourceDictionary>

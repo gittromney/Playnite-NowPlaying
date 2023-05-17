@@ -53,11 +53,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\DirectoryUtils.cs" />
-    <Compile Include="Core\DynamicResourceBinding.cs" />
-    <Compile Include="Core\GridViewSort.cs" />
-    <Compile Include="Core\RollingAverage.cs" />
-    <Compile Include="Core\SmartUnits.cs" />
+    <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\DirectoryUtils.cs" />
+    <Compile Include="Utils\DynamicResourceBinding.cs" />
+    <Compile Include="Utils\EnumToBoolConverter.cs" />
+    <Compile Include="Utils\GridViewSort.cs" />
+    <Compile Include="Utils\RollingAverage.cs" />
+    <Compile Include="Utils\SmartUnits.cs" />
     <Compile Include="Exceptions\RoboCacherException.cs" />
     <Compile Include="Models\CacheRoot.cs" />
     <Compile Include="Models\GameCacheEntry.cs" />

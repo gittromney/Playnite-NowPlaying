@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="NowPlaying.Views.AddGameCachesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:core="clr-namespace:NowPlaying.Core"
+             xmlns:core="clr-namespace:NowPlaying.Utils"
              MinWidth="750" MaxWidth="1200" MinHeight="500" MaxHeight="1200">
 
     <UserControl.Resources>

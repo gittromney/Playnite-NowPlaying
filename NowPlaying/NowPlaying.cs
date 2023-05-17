@@ -12,11 +12,13 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using NowPlaying.ViewModels;
 using UserControl = System.Windows.Controls.UserControl;
-using NowPlaying.Core;
+using NowPlaying.Utils;
 using NowPlaying.Models;
 using System.IO;
 using System.Diagnostics;
 using System.Data;
+using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace NowPlaying
 {
@@ -46,10 +48,12 @@ namespace NowPlaying
         public readonly NowPlayingPanelView panelView;
 
         public readonly GameCacheManagerViewModel cacheManager;
+        public bool IsGamePlaying = false;
 
         public Queue<NowPlayingGameEnabler> gameEnablerQueue;
         public Queue<NowPlayingInstallController> cacheInstallQueue;
         public Queue<NowPlayingUninstallController> cacheUninstallQueue;
+        public bool cacheInstallQueuePaused;
 
         public NowPlaying(IPlayniteAPI api) : base(api)
         {
@@ -65,6 +69,7 @@ namespace NowPlaying
             gameEnablerQueue = new Queue<NowPlayingGameEnabler>();
             cacheInstallQueue = new Queue<NowPlayingInstallController>();
             cacheUninstallQueue = new Queue<NowPlayingUninstallController>();
+            cacheInstallQueuePaused = false;
 
             Settings = LoadPluginSettings<NowPlayingSettings>() ?? new NowPlayingSettings();
             settingsViewModel = new NowPlayingSettingsViewModel(this);
@@ -110,15 +115,39 @@ namespace NowPlaying
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
             // Add code to be executed when sourceGame is started running.
-            if (args.Game.PluginId != Id) return;
-
-            Game nowPlayingGame = args.Game;
-            string cacheId = nowPlayingGame.SourceId.ToString();
-            if (cacheManager.GameCacheExists(cacheId))
+            if (args.Game.PluginId == Id)
             {
-                cacheManager.SetGameCacheAndDirStateAsPlayed(cacheId);
+                Game nowPlayingGame = args.Game;
+                string cacheId = nowPlayingGame.SourceId.ToString();
+                if (cacheManager.GameCacheExists(cacheId))
+                {
+                    cacheManager.SetGameCacheAndDirStateAsPlayed(cacheId);
+                }
             }
+
+            IsGamePlaying = true;
+
+            if (Settings.WhilePlayingMode == WhilePlaying.Pause)
+            {
+                PauseCacheInstallQueue();
+            }
+
         }
+
+
+        public override void OnGameStopped(OnGameStoppedEventArgs args)
+        {
+            base.OnGameStopped(args);
+
+            IsGamePlaying = false;
+
+            if (Settings.WhilePlayingMode == WhilePlaying.Pause)
+            {
+                ResumeCacheInstallQueue();
+            }
+
+        }
+
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
@@ -765,7 +794,7 @@ namespace NowPlaying
             topPanelViewModel.InstallDoneOrCancelled();
 
             // Invoke next in queue's controller, if applicable.
-            if (cacheInstallQueue.Count > 0)
+            if (cacheInstallQueue.Count > 0 && !cacheInstallQueuePaused)
             {
                 cacheInstallQueue.First().NowPlayingInstall();
             }
@@ -792,6 +821,31 @@ namespace NowPlaying
             }
         }
 
+        private void PauseCacheInstallQueue()
+        {
+            cacheInstallQueuePaused = true;
+            if (cacheInstallQueue.Count > 0)
+            {
+                cacheInstallQueue.First().RequestPauseInstall();
+            }
+        }
+
+        private void ResumeCacheInstallQueue()
+        {
+            cacheInstallQueuePaused = false;
+            if (cacheInstallQueue.Count > 0)
+            {
+                // . restore top panel queue state
+                foreach (var controller in cacheInstallQueue)
+                {
+                    topPanelViewModel.QueuedInstall(controller.gameCache.InstallSize, controller.gameCache.InstallEtaTimeSpan);
+                }
+
+                NotifyInfo($"Game stopped; NowPlaying installation resumed for '{cacheInstallQueue.First().gameCache.Title}'.");
+                cacheInstallQueue.First().progressViewModel.PrepareToInstall();
+                Task.Run(() => cacheInstallQueue.First().NowPlayingInstall());
+            }
+        }
 
         public void NotifyInfo(string message)
         {

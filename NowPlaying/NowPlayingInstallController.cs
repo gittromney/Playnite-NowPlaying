@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using NowPlaying.Models;
 using NowPlaying.ViewModels;
 using NowPlaying.Views;
@@ -41,7 +41,14 @@ namespace NowPlaying
 
         public override void Install(InstallActionArgs args)
         {
-            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir)) return;
+            if (plugin.cacheInstallQueuePaused) return;
+
+            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir))
+            {
+                nowPlayingGame.IsInstalling = false;
+                PlayniteApi.Database.Games.Update(nowPlayingGame);
+                return;
+            }
 
             // . Workaround: prevent (accidental) install while install|uninstall in progress
             //   -> Note, better solution requires a Playnite fix => Play CanExecute=false while IsInstalling=true||IsUninstalling=true
@@ -181,7 +188,7 @@ namespace NowPlaying
                 gameCache.UpdateCacheSpaceWillFit();
                 gameCache.UpdateStatus();
 
-                // . if install was cancelled before completing, revert Game state to uninstalled
+                // . if install was paused before completing, revert Game state to uninstalled
                 if (gameCache.entry.State != GameCacheState.Populated)
                 {
                     nowPlayingGame.IsInstalled = false;
@@ -202,6 +209,10 @@ namespace NowPlaying
                 {
                     plugin.PopupError($"Installation of '{gameCache.Title}' game cache terminated because of an error.", seeLogFile);
                 }
+                else if (plugin.cacheInstallQueuePaused)
+                {
+                    plugin.NotifyInfo($"Game started; NowPlaying installation paused for '{gameCache.Title}'.");
+                }
                 else
                 {
                     NowPlaying.logger.Info($"NowPlaying installation paused for '{gameCache.Title}'.");
@@ -214,7 +225,16 @@ namespace NowPlaying
             // . update averageBps for this install device and save to JSON file
             cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond());
 
-            plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
+            if (!plugin.cacheInstallQueuePaused) 
+            { 
+                plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
+            }
+            else
+            {
+                // . update install queue status of queued installers & top panel status
+                plugin.UpdateInstallQueueStatuses();
+                plugin.topPanelViewModel.InstallQueuePaused();
+            }
         }
 
     }

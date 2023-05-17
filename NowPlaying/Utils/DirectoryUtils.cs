@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace NowPlaying.Core
+namespace NowPlaying.Utils
 {
     public static class DirectoryUtils
     {

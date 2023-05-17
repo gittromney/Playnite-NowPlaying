@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NowPlaying.Core
+namespace NowPlaying.Utils
 {
     public class RollingAvgLong : RollingAverage<long>
     {

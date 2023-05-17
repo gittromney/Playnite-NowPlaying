@@ -1,5 +1,12 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsUninstallOptions">Game cache uninstall options:</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsConfirmUninstall">Require confirmation when a game cache is uninstalled.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsDirtyCacheExplainer">
+        Some games save their settings and game save data locally, within the installation directory. 
+        When playing these games from their game cache, the cache can become 'dirty', or different than the original installation files.
+    </sys:String>
     <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **</sys:String>
 </ResourceDictionary>

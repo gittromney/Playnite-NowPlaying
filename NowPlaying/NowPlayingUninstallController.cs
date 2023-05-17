@@ -38,7 +38,12 @@ namespace NowPlaying
 
         public override void Uninstall(UninstallActionArgs args)
         {
-            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir)) return;
+            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir))
+            {
+                nowPlayingGame.IsUninstalling = false;
+                PlayniteApi.Database.Games.Update(nowPlayingGame);
+                return;
+            }
 
             // . enqueue our controller (but don't add more than once)
             if (plugin.EnqueueCacheUninstallerIfUnique(this))

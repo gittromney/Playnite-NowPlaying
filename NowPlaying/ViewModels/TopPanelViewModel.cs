@@ -1,4 +1,4 @@
-﻿using NowPlaying.Core;
+﻿using NowPlaying.Utils;
 using Playnite.SDK.Plugins;
 using System;
 using System.Windows.Media;
@@ -68,18 +68,23 @@ namespace NowPlaying.ViewModels
         public TopPanelViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
-            this.gamesToEnable = 0;
-            this.gamesEnabled = 0;
-            this.cachesToUninstall = 0;
-            this.cachesUninstalled = 0;
-            this.nowInstallingCache = null;
-            this.cachesInstalled = 0;
-            this.cachesToInstall = 0;
-            this.totalBytesToInstall = 0;
-            this.totalBytesInstalled = 0;
-            this.queuedInstallEta = TimeSpan.Zero;
-            this.PercentDone = 0;
-            this.Status = "";
+            Reset();
+        }
+
+        private void Reset()
+        {
+            gamesToEnable = 0;
+            gamesEnabled = 0;
+            cachesToUninstall = 0;
+            cachesUninstalled = 0;
+            nowInstallingCache = null;
+            cachesInstalled = 0;
+            cachesToInstall = 0;
+            totalBytesToInstall = 0;
+            totalBytesInstalled = 0;
+            queuedInstallEta = TimeSpan.Zero;
+            PercentDone = 0;
+            Status = "";
         }
 
         public void OnJobStatsUpdated(object sender, string cacheId)
@@ -121,18 +126,7 @@ namespace NowPlaying.ViewModels
             }
             else
             {
-                gamesToEnable = 0;
-                gamesEnabled = 0;
-                cachesToUninstall = 0;
-                cachesUninstalled = 0;
-                nowInstallingCache = null;
-                cachesInstalled = 0;
-                cachesToInstall = 0;
-                totalBytesToInstall = 0;
-                totalBytesInstalled = 0;
-                queuedInstallEta = TimeSpan.Zero;
-                PercentDone = 0;
-                Status = "";
+                Reset();
             }
         }
 
@@ -159,7 +153,13 @@ namespace NowPlaying.ViewModels
             plugin.cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
             UpdateStatus();
         }
-        
+
+        public void InstallQueuePaused()
+        {
+            Reset();
+            UpdateStatus();
+        }
+
         public void InstallDoneOrCancelled()
         {
             plugin.cacheManager.gameCacheManager.eJobStatsUpdated -= OnJobStatsUpdated;

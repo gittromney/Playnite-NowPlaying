@@ -12,7 +12,7 @@ using System.Windows.Data;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace NowPlaying.Core
+namespace NowPlaying.Utils
 {
     public class GridViewSort
     {
