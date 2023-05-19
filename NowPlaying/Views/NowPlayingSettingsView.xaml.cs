@@ -15,7 +15,7 @@ namespace NowPlaying.Views
 
         private void Scroller_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (Scroller.ActualWidth < 580)
+            if (Scroller.ActualWidth < double.Parse((string)(Scroller.Tag ?? "0")))
             {
                 Scroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
             }
@@ -27,10 +27,5 @@ namespace NowPlaying.Views
             e.Handled = true;
         }
 
-        private void ScrollerShiftOnButtonClick_Workaround(object sender, RoutedEventArgs e)
-        {
-            Scroller.ScrollToLeftEnd();
-            e.Handled = true;
-        }
     }
 }

@@ -12,6 +12,8 @@
     </UserControl.Resources>
 
     <Grid Width="auto" Height="auto">
+        
+        <!--top panel cache activity/status-->
         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,9.5,126,0">
                 <UserControl Content="{Binding TopPanelView}"/>
@@ -19,45 +21,48 @@
         </StackPanel>
 
         <DockPanel Margin="0,28,0,0">
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20,0,0,10">
-                <Button 
-                    Content="🔧" FontSize="17"
-                    Command="{Binding ToggleShowSettings}"
-                    ToolTip="{Binding ShowSettingsToolTip}"
-                    Style="{DynamicResource TopPanelButton}"/>
-                <Button
-                    Command="{Binding ToggleShowCacheRoots}"
-                    ToolTip="{Binding ShowCacheRootsToolTip}"
-                    Style="{DynamicResource TopPanelButton}"
-                    MouseEnter="RootsButton_MouseEnter"
-                    MouseLeave="RootsButton_MouseLeave">
-                    <StackPanel Background="Transparent">
-                        <Image Name="RootsButtonImage" Width="28" Height="28">
-                            <!--Source set in code-behind-->
-                        </Image>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-            <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}"/>
             
+            <!--menu buttons-->
+            <StackPanel DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal" Margin="20,0,0,10">
+                    <Button 
+                        Content="🔧" FontSize="17"
+                        Command="{Binding ToggleShowSettings}"
+                        ToolTip="{Binding ShowSettingsToolTip}"
+                        Style="{DynamicResource TopPanelButton}"/>
+                    <Button
+                        Command="{Binding ToggleShowCacheRoots}"
+                        ToolTip="{Binding ShowCacheRootsToolTip}"
+                        Style="{DynamicResource TopPanelButton}"
+                        MouseEnter="RootsButton_MouseEnter"
+                        MouseLeave="RootsButton_MouseLeave">
+                        <StackPanel Background="Transparent">
+                            <Image Name="RootsButtonImage" Width="28" Height="28">
+                                <!--Source set in code-behind-->
+                            </Image>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}"/>
+            </StackPanel>
+        
+            <!--settings panel-->
+            <StackPanel DockPanel.Dock="Bottom" Visibility="{Binding SettingsVisibility}">
+                <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}" Margin="0,5,0,0"/>
+                <TextBlock Text="NowPlaying Game Cacher Settings" Style="{DynamicResource HeadingText}" Margin="20,10,0,10"/>
+                <UserControl Content="{Binding SettingsView}" Margin="0,0,0,15"/>
+                <StackPanel Orientation="Horizontal" Margin="20,0,0,20">
+                    <Button Content="Save" Width="70" Height="35" Command="{Binding SaveSettingsCommand}" Margin="0,0,10,0"/>
+                    <Button Content="Cancel" Width="70" Height="35" Command="{Binding CancelSettingsCommand}"/>
+                </StackPanel>
+            </StackPanel>
+
             <!--cache installation progress panel-->
             <UserControl DockPanel.Dock="Bottom" Content="{Binding InstallProgressView}"/>
             
             <!--Main panel - scroll viewer-->
-            <ScrollViewer HorizontalAlignment="Left" Margin="20,0,5,0">
+            <ScrollViewer HorizontalAlignment="Stretch" Margin="20,10,5,10">
                 <StackPanel Width="auto" Height="auto" Margin="0,0,20,0">
-
-                    <!--NowPlaying settings panel-->
-                    <TextBlock 
-                        Visibility="{Binding SettingsVisibility}"
-                        Text="{DynamicResource LOCNowPlayingSettingsHeading}" 
-                        Style="{DynamicResource HeadingText}" 
-                        Margin="0,0,0,10"/>
-                    <UserControl Content="{Binding SettingsView}" Margin="-20,-20,-30,15"/>
-                    <StackPanel Orientation="Horizontal" Visibility="{Binding SettingsVisibility}" Margin="0,0,0,35">
-                        <Button Content="Save" Command="{Binding SaveSettingsCommand}" Margin="0,0,5,0"/>
-                        <Button Content="Cancel" Command="{Binding CancelSettingsCommand}"/>
-                    </StackPanel>
 
                     <!--Cache Roots View panel-->
                     <UserControl Content="{Binding CacheRootsView}"/>

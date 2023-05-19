@@ -39,6 +39,7 @@ namespace NowPlaying.ViewModels
             // Code executed when user decides to cancel any changes made since BeginEdit was called.
             Settings = Serialization.GetClone(plugin.Settings);
             OnPropertyChanged(nameof(Settings));
+            plugin.settingsViewModel.OnPropertyChanged(nameof(Settings));
         }
 
         public void EndEdit()
@@ -47,34 +48,11 @@ namespace NowPlaying.ViewModels
             plugin.SavePluginSettings(Settings);
             OnPropertyChanged(nameof(Settings));
             plugin.UpdateSettings(Serialization.GetClone(Settings));
+            plugin.settingsViewModel.OnPropertyChanged(nameof(Settings));
         }
 
         public bool VerifySettings(out List<string> errors)
         {
-            //string titleTag = Settings.NowPlayingTitleTag;
-
-            //// check for non-empty, non-white-space-only NowPlaying title tag/suffix 
-            //// 1. strip trailing white space
-            //// 2. check vs empty string
-            ////
-            //if (Regex.IsMatch(titleTag, @"\s+$"))
-            //{
-            //    Settings.NowPlayingTitleTag = Regex.Replace(titleTag, @"^(.*?)\s+$", "$1");
-            //}
-            //if (Settings.NowPlayingTitleTag == string.Empty)
-            //{
-            //    errors = new List<string>()
-            //    {
-            //        $"Invalid NowPlaying Title Suffix '{titleTag}'; must include some non-white-space characters"
-            //    };
-            //    return false;
-            //}
-            //else
-            //{
-            //    errors = new List<string>();
-            //    return true;
-            //}
-
             errors = new List<string>();
             return true;
         }
