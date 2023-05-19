@@ -30,17 +30,31 @@ namespace NowPlaying.ViewModels
         private string uninstallQueueStatus;
         private bool nowInstalling; 
         private bool nowUninstalling;
+        private string cacheInstalledSize;
+        private bool isSpeedLimited;
+
         public string InstallQueueStatus => installQueueStatus;
         public string UninstallQueueStatus => uninstallQueueStatus;
         public bool NowInstalling => nowInstalling;
         public bool NowUninstalling => nowUninstalling;
-        public string Status => GetStatus(entry.State, installQueueStatus, uninstallQueueStatus, nowInstalling, nowUninstalling);
-        public string StatusColor => State == GameCacheState.Invalid ? "WarningBrush" : Status == "Uninstalled" ? "TextBrushDarker" : "TextBrush";
+        public string Status => GetStatus
+        (
+            entry.State, 
+            installQueueStatus, 
+            uninstallQueueStatus, 
+            nowInstalling, 
+            isSpeedLimited,
+            nowUninstalling
+        );
+        public string StatusColor => (State == GameCacheState.Invalid ? "WarningBrush" : 
+                                      Status == "Uninstalled" ? "TextBrushDarker" : 
+                                      NowInstalling ? (isSpeedLimited ? "SlowInstallBrush" : "InstallBrush") :
+                                      "TextBrush");
 
-        private string cacheInstalledSize;
         public string CacheInstalledSize => cacheInstalledSize;
-        public string CacheInstalledSizeColor => CanInstallCache == "No" ? "WarningBrush" : State == GameCacheState.Empty ? "TextBrushDarker" : "TextBrush";
-
+        public string CacheInstalledSizeColor => (CanInstallCache == "No" ? "WarningBrush" : 
+                                                  State == GameCacheState.Empty ? "TextBrushDarker" : 
+                                                  "TextBrush");
         public bool CacheWillFit { get; private set; }
         public string CanInstallCache => entry.State==GameCacheState.Empty || entry.State==GameCacheState.InProgress ? (CacheWillFit ? "Yes" : "No") : "-";
         public string CanInstallCacheColor => CanInstallCache == "No" ? "WarningBrush" : "TextBrush";
@@ -57,6 +71,7 @@ namespace NowPlaying.ViewModels
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
             this.cacheInstalledSize = GetCacheInstalledSize(entry);
+            this.isSpeedLimited = false;
             UpdateInstallEta();
         }
 
@@ -108,12 +123,18 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void UpdateNowInstalling(bool value)
+        public void UpdateNowInstalling(bool value, bool isSpeedLimited = false)
         {
-            if (nowInstalling != value)
+            if (nowInstalling != value || this.isSpeedLimited != isSpeedLimited)
             {
                 nowInstalling = value;
                 nowUninstalling &= !nowInstalling;
+                
+                if (this.isSpeedLimited != isSpeedLimited)
+                {
+                    this.isSpeedLimited = isSpeedLimited;
+                    UpdateInstallEta();
+                }
 
                 OnPropertyChanged(nameof(NowInstalling));
                 OnPropertyChanged(nameof(NowUninstalling));
@@ -180,7 +201,7 @@ namespace NowPlaying.ViewModels
         {
             if (value == null)
             {
-                value = GetInstallEtaTimeSpan(entry, manager.GetInstallAverageBps(entry.InstallDir));
+                value = GetInstallEtaTimeSpan(entry, manager.GetInstallAverageBps(entry.InstallDir, isSpeedLimited));
             }
             if (InstallEtaTimeSpan != value || InstallEta == null)
             {
@@ -229,7 +250,15 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private string GetStatus(GameCacheState state, string installQueueStatus, string uninstallQueueStatus, bool nowInstalling, bool nowUninstalling)
+        private string GetStatus
+            (
+                GameCacheState state,
+                string installQueueStatus,
+                string uninstallQueueStatus,
+                bool nowInstalling,
+                bool isSpeedLimited,
+                bool nowUninstalling
+            )
         {
             if (installQueueStatus != null)
             {
@@ -241,7 +270,7 @@ namespace NowPlaying.ViewModels
             }
             else if (nowInstalling)
             {
-                return "Installing...";
+                return isSpeedLimited ? "Installing w/speed limit..." : "Installing...";
             }
             else if (nowUninstalling)
             {

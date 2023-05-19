@@ -1,17 +1,24 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <Color x:Key="SlowInstallColor">#FFF0D020</Color>
     <Color x:Key="TopPanelEnableFgColor">#FF3CB371</Color>
     <Color x:Key="TopPanelEnableBgColor">#FF2E8B57</Color>
     <Color x:Key="TopPanelInstallFgColor">#FF247BA0</Color>
     <Color x:Key="TopPanelInstallBgColor">#80202b4d</Color>
+    <Color x:Key="TopPanelSlowInstallFgColor">#80F0D020</Color>
+    <Color x:Key="TopPanelSlowInstallBgColor">#80202b4d</Color>
     <Color x:Key="TopPanelUninstallFgColor">#FFB22222</Color>
     <Color x:Key="TopPanelUninstallBgColor">#FF800000</Color>
 
+    <SolidColorBrush x:Key="InstallBrush" Color="{DynamicResource GlyphColor}"/>
+    <SolidColorBrush x:Key="SlowInstallBrush" Color="{DynamicResource SlowInstallColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableFgBrush" Color="{DynamicResource TopPanelEnableFgColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableBgBrush" Color="{DynamicResource TopPanelEnableBgColor}"/>
     <SolidColorBrush x:Key="TopPanelInstallFgBrush" Color="{DynamicResource TopPanelInstallFgColor}"/>
     <SolidColorBrush x:Key="TopPanelInstallBgBrush" Color="{DynamicResource TopPanelInstallBgColor}"/>
+    <SolidColorBrush x:Key="TopPanelSlowInstallFgBrush" Color="{DynamicResource TopPanelSlowInstallFgColor}"/>
+    <SolidColorBrush x:Key="TopPanelSlowInstallBgBrush" Color="{DynamicResource TopPanelSlowInstallBgColor}"/>
     <SolidColorBrush x:Key="TopPanelUninstallFgBrush" Color="{DynamicResource TopPanelUninstallFgColor}"/>
     <SolidColorBrush x:Key="TopPanelUninstallBgBrush" Color="{DynamicResource TopPanelUninstallBgColor}"/>
 

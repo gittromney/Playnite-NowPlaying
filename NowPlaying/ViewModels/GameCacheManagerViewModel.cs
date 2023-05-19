@@ -190,9 +190,13 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public long GetInstallAverageBps(string installDir)
+        public long GetInstallAverageBps(string installDir, bool isSpeedLimited = false)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
+            if (isSpeedLimited)
+            {
+                installDevice += "(speed limited)";
+            }
 
             if (InstallAverageBps.ContainsKey(installDevice))
             {
@@ -200,13 +204,17 @@ namespace NowPlaying.ViewModels
             }
             else
             {
-                return 52428800; // initial default: assume 50 MB/s
+                return isSpeedLimited ? 5242880 : 52428800; // initial default: 50 MB/s (or speed limited => 5 MB/s) 
             }
         }
 
-        public void UpdateInstallAverageBps(string installDir, long averageBps)
+        public void UpdateInstallAverageBps(string installDir, long averageBps, bool isSpeedLimited = false)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
+            if (isSpeedLimited)
+            {
+                installDevice += "(speed limited)";
+            }
 
             if (InstallAverageBps.ContainsKey(installDevice))
             {

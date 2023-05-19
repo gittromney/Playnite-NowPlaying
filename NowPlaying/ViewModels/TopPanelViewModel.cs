@@ -9,7 +9,7 @@ namespace NowPlaying.ViewModels
 
     public class TopPanelViewModel : ViewModelBase
     {
-        public enum Mode { Enable, Uninstall, Install };
+        public enum Mode { Enable, Uninstall, Install, SlowInstall };
 
         private readonly NowPlaying plugin;
 
@@ -20,6 +20,7 @@ namespace NowPlaying.ViewModels
         private int cachesUninstalled;
 
         private GameCacheViewModel nowInstallingCache;
+        private bool isSlowInstall;
         private int cachesToInstall;
         private int cachesInstalled;
         private long totalBytesToInstall;
@@ -29,9 +30,15 @@ namespace NowPlaying.ViewModels
         public double PercentDone { get; private set; }
         public string Status { get; private set; }
 
-        public string ProgressIsIndeterminate => TopPanelMode==Mode.Install ? "False" : "True";
-        public string ProgressBarForeground => TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : "TopPanelInstallFgBrush";
-        public string ProgressBarBackground => TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" : "TopPanelInstallBgBrush";
+        public string ProgressIsIndeterminate => TopPanelMode==Mode.Install || TopPanelMode==Mode.SlowInstall ? "False" : "True";
+        public string ProgressBarForeground => (TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : 
+                                                TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : 
+                                                TopPanelMode==Mode.SlowInstall ? "TopPanelSlowInstallFgBrush" :
+                                                "TopPanelInstallFgBrush");
+        public string ProgressBarBackground => (TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : 
+                                                TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" :
+                                                TopPanelMode == Mode.SlowInstall ? "TopPanelSlowInstallBgBrush" :
+                                                "TopPanelInstallBgBrush");
 
         private Mode topPanelMode;
         public Mode TopPanelMode
@@ -78,6 +85,7 @@ namespace NowPlaying.ViewModels
             cachesToUninstall = 0;
             cachesUninstalled = 0;
             nowInstallingCache = null;
+            isSlowInstall = false;
             cachesInstalled = 0;
             cachesToInstall = 0;
             totalBytesToInstall = 0;
@@ -97,7 +105,9 @@ namespace NowPlaying.ViewModels
 
         public void UpdateStatus()
         {
-            TopPanelMode = gamesEnabled < gamesToEnable ? Mode.Enable : cachesUninstalled < cachesToUninstall ? Mode.Uninstall : Mode.Install;
+            TopPanelMode = (gamesEnabled < gamesToEnable ? Mode.Enable : 
+                            cachesUninstalled < cachesToUninstall ? Mode.Uninstall : 
+                            isSlowInstall ? Mode.SlowInstall : Mode.Install);
             TopPanelVisible = gamesEnabled < gamesToEnable || cachesUninstalled < cachesToUninstall || cachesInstalled < cachesToInstall;
 
             if (TopPanelVisible)
@@ -146,10 +156,11 @@ namespace NowPlaying.ViewModels
             UpdateStatus();
         }
 
-        public void NowInstalling(GameCacheViewModel gameCache)
+        public void NowInstalling(GameCacheViewModel gameCache, bool isSpeedLimited = false)
         {
             nowInstallingCache = gameCache;
             queuedInstallEta -= gameCache.InstallEtaTimeSpan;
+            isSlowInstall = isSpeedLimited;
             plugin.cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
             UpdateStatus();
         }

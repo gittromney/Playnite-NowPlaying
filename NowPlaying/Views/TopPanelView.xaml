@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="NowPlaying.Views.TopPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"      
-             xmlns:core="clr-namespace:NowPlaying.Utils">
+             xmlns:utils="clr-namespace:NowPlaying.Utils">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -17,8 +17,8 @@
             <ProgressBar 
                 Value="{Binding PercentDone, Mode=OneWay}"
                 IsIndeterminate="{Binding ProgressIsIndeterminate}"
-                Foreground="{core:DynamicResourceBinding ProgressBarForeground}"
-                Background="{core:DynamicResourceBinding ProgressBarBackground}"
+                Foreground="{utils:DynamicResourceBinding ProgressBarForeground}"
+                Background="{utils:DynamicResourceBinding ProgressBarBackground}"
                 Width="200" Height="20" Padding="0,0,0,0"
                 BorderBrush="Transparent">
                 

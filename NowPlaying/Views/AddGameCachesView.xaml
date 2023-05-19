@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="NowPlaying.Views.AddGameCachesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:core="clr-namespace:NowPlaying.Utils"
+             xmlns:utils="clr-namespace:NowPlaying.Utils"
              MinWidth="750" MaxWidth="1200" MinHeight="500" MaxHeight="1200">
 
     <UserControl.Resources>
@@ -53,7 +53,7 @@
             IsSynchronizedWithCurrentItem="True"
             MouseUp="EligibleGames_OnMouseUp"
             SelectionMode="Extended"
-            core:GridViewSort.AutoSort="True">
+            utils:GridViewSort.AutoSort="True">
 
             <ListView.View>
                 <GridView>
@@ -61,7 +61,7 @@
                     <GridViewColumn 
                         Width="95" 
                         DisplayMemberBinding="{Binding Path=InstallSize}"
-                        core:GridViewSort.CustomSort="{Binding CustomInstallSizeSort}">
+                        utils:GridViewSort.CustomSort="{Binding CustomInstallSizeSort}">
                         <GridViewColumnHeader Content="Install Size"/>
                     </GridViewColumn>
 

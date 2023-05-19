@@ -7,6 +7,7 @@ using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace NowPlaying
 {
@@ -22,10 +23,12 @@ namespace NowPlaying
         public readonly GameCacheManagerViewModel cacheManager;
         public readonly InstallProgressViewModel progressViewModel;
         public readonly InstallProgressView progressView;
+        private Action speedLimitChangeOnPaused;
+        public int speedLimitIPG;
 
         private bool deleteCacheOnJobCancelled { get; set; } = false;
 
-        public NowPlayingInstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache) 
+        public NowPlayingInstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache, int speedLimitIPG = 0) 
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
@@ -35,8 +38,10 @@ namespace NowPlaying
             this.nowPlayingGame = nowPlayingGame;
             this.gameCache = gameCache;
             this.jobStats = new RoboStats();
-            this.progressViewModel = new InstallProgressViewModel(this);
+            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG > 0);
             this.progressView = new InstallProgressView(progressViewModel);
+            this.speedLimitChangeOnPaused = null;
+            this.speedLimitIPG = speedLimitIPG;
         }
 
         public override void Install(InstallActionArgs args)
@@ -77,7 +82,7 @@ namespace NowPlaying
 
         public void NowPlayingInstall()
         {
-            plugin.topPanelViewModel.NowInstalling(gameCache);
+            plugin.topPanelViewModel.NowInstalling(gameCache, isSpeedLimited: speedLimitIPG > 0);
 
             gameCache.UpdateCacheSpaceWillFit();
 
@@ -86,15 +91,22 @@ namespace NowPlaying
                 deleteCacheOnJobCancelled = false;
  
                 plugin.UpdateInstallQueueStatuses();
-                NowPlaying.logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache started.");
+                if (speedLimitIPG > 0)
+                {
+                    NowPlaying.logger.Info($"NowPlaying speed limited installation of '{gameCache.Title}' game cache started (IPG={speedLimitIPG}).");
+                }
+                else
+                {
+                    NowPlaying.logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache started.");
+                }
 
                 nowPlayingGame.IsInstalling = true;
-                gameCache.UpdateNowInstalling(true);
+                gameCache.UpdateNowInstalling(true, isSpeedLimited: speedLimitIPG > 0);
 
                 // display the progress panel
                 plugin.panelViewModel.InstallProgressView = progressView;
                 
-                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled);
+                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIPG);
             }
             else
             {
@@ -118,8 +130,8 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond());
-
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), isSpeedLimited: speedLimitIPG > 0);
+            
             InvokeOnInstalled(new GameInstalledEventArgs());
 
             plugin.NotifyInfo($"NowPlaying game cache installed for '{gameCache.Title}'.");
@@ -127,8 +139,9 @@ namespace NowPlaying
             plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
         }
 
-        public void RequestPauseInstall()
+        public void RequestPauseInstall(Action speedLimitChangeOnPaused = null)
         {
+            this.speedLimitChangeOnPaused = speedLimitChangeOnPaused; 
             deleteCacheOnJobCancelled = false;
             cacheManager.CancelInstall(gameCache.Id);
         }
@@ -209,9 +222,9 @@ namespace NowPlaying
                 {
                     plugin.PopupError($"Installation of '{gameCache.Title}' game cache terminated because of an error.", seeLogFile);
                 }
-                else if (plugin.cacheInstallQueuePaused)
+                else if (plugin.cacheInstallQueuePaused && speedLimitChangeOnPaused == null)
                 {
-                    plugin.NotifyInfo($"Game started; NowPlaying installation paused for '{gameCache.Title}'.");
+                    NowPlaying.logger.Info($"Game started; NowPlaying installation paused for '{gameCache.Title}'.");
                 }
                 else
                 {
@@ -223,7 +236,7 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond());
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), isSpeedLimited: speedLimitIPG > 0);
 
             if (!plugin.cacheInstallQueuePaused) 
             { 
@@ -234,6 +247,7 @@ namespace NowPlaying
                 // . update install queue status of queued installers & top panel status
                 plugin.UpdateInstallQueueStatuses();
                 plugin.topPanelViewModel.InstallQueuePaused();
+                speedLimitChangeOnPaused?.Invoke();
             }
         }
 
