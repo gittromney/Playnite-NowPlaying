@@ -23,6 +23,7 @@ namespace NowPlaying.ViewModels
         public bool HasSpaceForCaches { get; private set; }
 
         public string RootStatus { get; private set; }
+        public string RootStatus2 { get; private set; }
 
         private string rootDirectory;
         public string RootDirectory
@@ -141,35 +142,44 @@ namespace NowPlaying.ViewModels
         private void UpdateRootDirectoryStatus()
         {
             RootIsValid = false;
+            RootStatus2 = "";
             if (string.IsNullOrEmpty(RootDirectory))
             {
-                RootStatus = "** please specify a root directory **";
+                RootStatus = "LOCNowPlayingAddCacheRootStatusSpecify";
             }
             else if (!Directory.Exists(RootDirectory))
             {
-                RootStatus = $"** specified directory not found **";
-            }
-            else if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
-            {
-                RootStatus = "** specified directory is not user writable **";
-            }
-            else if (existingRoots.Contains(RootDirectory))
-            {
-                RootStatus = "** specified directory is already a cache root **";
-            }
-            else if (rootDevices.ContainsKey(Directory.GetDirectoryRoot(RootDirectory)))
-            {
-                string rootDevice = Directory.GetDirectoryRoot(RootDirectory);
-                string otherRootDir = rootDevices[rootDevice];
-                RootStatus = $"** same device as existing cache root '{otherRootDir}' **"; 
+                RootStatus = "LOCNowPlayingAddCacheRootStatusNotFound";
             }
             else
             {
-                RootIsValid = true;
-                RootStatus = "";
+                // . make sure directory root name is always upper case (c:\mydir -> C:\mydir)
+                string device = Directory.GetDirectoryRoot(RootDirectory).ToUpper();
+                RootDirectory = device + RootDirectory.Substring(device.Length);
+
+                if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
+                {
+                    RootStatus = "LOCNowPlayingAddCacheRootStatusNotWritable";
+                }
+                else if (existingRoots.Contains(RootDirectory))
+                {
+                    RootStatus = "LOCNowPlayingAddCacheRootStatusDirIsRoot";
+                }
+                else if (rootDevices.ContainsKey(device))
+                {
+                    string otherRootDir = rootDevices[device];
+                    RootStatus = "LOCNowPlayingAddCacheRootStatusDevIsRoot";
+                    RootStatus2 = $" '{otherRootDir}' **";
+                }
+                else
+                {
+                    RootIsValid = true;
+                    RootStatus = "";
+                }
             }
             OnPropertyChanged(nameof(RootIsValid));
             OnPropertyChanged(nameof(RootStatus));
+            OnPropertyChanged(nameof(RootStatus2));
             UpdateAddCommandCanExectue();
         }
 

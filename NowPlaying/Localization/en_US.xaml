@@ -8,5 +8,36 @@
         Some games save their settings and game save data locally, within the installation directory. 
         When playing these games from their game cache, the cache can become 'dirty', or different than the original installation files.
     </sys:String>
-    <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **</sys:String>
+    <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">
+        ** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **
+    </sys:String>
+
+    <!--AddCacheRootView-->
+    <sys:String x:Key="LOCNowPlayingAddCacheRootHeading">Add NowPlaying Cache Root</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootDescr1">
+        Choose a directory (on a fast device such as an SSD) to create game caches in. 
+        Note, only one cache root is allowed per device.
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootDescr2">
+        Also set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
+        This can be used to reserve a portion of the device's total capacity for non-game cache use.  
+        It's recommended to set the maximum fill level to 75-85% (or so) for a cache root on your system disk (C:).  
+        If the cache root is on a device used solely for gaming, it can be set as high as 100%.
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootDirLabel">Cache root directory:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootBrowseToolTip">Browse for cache root directory</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootDeviceLabel">Cache root device:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootCapacityLabel">Device capacity:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootSpaceLabel">Space available:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootMaxFillLabel">Maximum fill level allowed:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootCacheAvailLabel">Space available for game caches:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootNoSpaceWarning">** no space available **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusSpecify">** please specify a root directory **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotFound">** specified directory not found **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotWritable">** specified directory is not user writable **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDirIsRoot">** specified directory is already a cache root **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDevIsRoot">** same device as existing cache root</sys:String>
+
+
+
 </ResourceDictionary>

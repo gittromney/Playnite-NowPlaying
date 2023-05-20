@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="NowPlaying.Views.AddCacheRootView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utils="clr-namespace:NowPlaying.Utils"
              MinWidth="650" MaxWidth="1000" MinHeight="460" MaxHeight="460">
 
     <UserControl.Resources>
@@ -11,24 +12,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Orientation="Vertical" Margin="30,0,30,0">
-
+    <StackPanel Margin="30,0,30,0">
         <TextBlock 
-            Text="Add NowPlaying Cache Root" 
+            Text="{DynamicResource LOCNowPlayingAddCacheRootHeading}" 
             Style="{DynamicResource HeadingText}" 
             Margin="0,0,0,20"/>
-
-        <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
-            Choose a directory (on a fast device such as an SSD) to create game caches under. 
-            Note, only one cache root is allowed per device.
-        </TextBlock>
-
-        <TextBlock TextWrapping="Wrap" Margin="0,0,0,20">
-            Also set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
-            This can be used to reserve a portion of the device's total capacity for non-game cache use.  
-            It's recommended to set the maximum fill level to 75-85% (or so) for a cache root on your system disk (C:).  
-            If the cache root is on a device used solely for gaming, it can be set as high as 100%."
-        </TextBlock>
+        <TextBlock 
+            Text="{DynamicResource LOCNowPlayingAddCacheRootDescr1}" 
+            TextWrapping="Wrap" 
+            Margin="0,0,0,10"/>
+        <TextBlock 
+            Text="{DynamicResource LOCNowPlayingAddCacheRootDescr2}" 
+            TextWrapping="Wrap" 
+            Margin="0,0,0,20"/>
 
         <Grid Margin="0,0,0,15">
             <Grid.ColumnDefinitions>
@@ -43,7 +39,7 @@
 
             <!--top row-->
             <TextBlock 
-                Text="Cache root directory:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootDirLabel}" 
                 Grid.Row="0" Grid.Column="0" 
                 VerticalAlignment="Center" 
                 Margin="0,0,10,0"/>
@@ -53,35 +49,39 @@
                 Margin="0,0,10,0"/>
             <Button 
                 Content="📁" FontSize="15"
-                ToolTip="Browse for folder"
+                ToolTip="{DynamicResource LOCNowPlayingAddCacheRootBrowseToolTip}"
                 Grid.Row="0" Grid.Column="2" 
                 Command="{Binding SelectFolderCommand}"
                 Style="{DynamicResource SmallButton}"/>
             
             <!--bottom row-->
-            <TextBlock 
-                Text="{Binding RootStatus}" 
-                Grid.Row="1" Grid.Column="1" Margin="0,5,0,0"
-                Foreground="{DynamicResource WarningBrush}"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Margin="0,5,0,0">
+                <TextBlock 
+                    Text="{utils:DynamicResourceBinding RootStatus}"
+                    Foreground="{DynamicResource WarningBrush}"/>
+                <TextBlock 
+                    Text="{Binding RootStatus2}"
+                    Foreground="{DynamicResource WarningBrush}"/>
+            </StackPanel>
         </Grid>
 
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
             <TextBlock 
-                Text="Cache root device:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootDeviceLabel}" 
                 Margin="0,0,10,0"/>
             <TextBlock 
                 Text="{Binding DeviceName}" 
                 Foreground="{DynamicResource TextBrushDarker}" 
                 Margin="0,0,35,0"/>
             <TextBlock 
-                Text="Device capacity:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootCapacityLabel}" 
                 Margin="0,0,10,0"/>
             <TextBlock 
                 Text="{Binding DeviceCapacity}" 
                 Foreground="{DynamicResource TextBrushDarker}" 
                 Margin="0,0,35,0"/>
             <TextBlock 
-                Text="Space available:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootSpaceLabel}" 
                 Margin="0,0,10,0"/>
             <TextBlock 
                 Text="{Binding SpaceAvailable}" 
@@ -90,7 +90,7 @@
 
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
             <TextBlock 
-                Text="Maximum fill level allowed:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootMaxFillLabel}" 
                 VerticalAlignment="Center" 
                 Margin="0,0,10,0"/>
             <TextBox 
@@ -109,7 +109,7 @@
 
         <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
             <TextBlock 
-                Text="Space available for game caches:" 
+                Text="{DynamicResource LOCNowPlayingAddCacheRootCacheAvailLabel}" 
                 Margin="0,0,10,0"/>
             
             <Grid Margin="0,0,15,0">
@@ -118,7 +118,7 @@
                     Foreground="{DynamicResource TextBrushDarker}"
                     Visibility="{Binding SpaceAvailableVisibility}"/>
                 <TextBlock 
-                    Text="** no space available **"
+                    Text="{DynamicResource LOCNowPlayingAddCacheRootNoSpaceWarning}"
                     Visibility="{Binding NoSpaceAvailableVisibility}"
                     Foreground="{DynamicResource WarningBrush}"/>
             </Grid>
@@ -130,6 +130,5 @@
         </StackPanel>
 
     </StackPanel>
-
     
 </UserControl>
