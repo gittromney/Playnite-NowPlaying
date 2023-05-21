@@ -9,6 +9,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Playnite.SDK.Plugins;
+using Playnite.SDK.Models;
 
 namespace NowPlaying.ViewModels
 {
@@ -23,7 +25,6 @@ namespace NowPlaying.ViewModels
         public bool HasSpaceForCaches { get; private set; }
 
         public string RootStatus { get; private set; }
-        public string RootStatus2 { get; private set; }
 
         private string rootDirectory;
         public string RootDirectory
@@ -142,14 +143,13 @@ namespace NowPlaying.ViewModels
         private void UpdateRootDirectoryStatus()
         {
             RootIsValid = false;
-            RootStatus2 = "";
             if (string.IsNullOrEmpty(RootDirectory))
             {
-                RootStatus = "LOCNowPlayingAddCacheRootStatusSpecify";
+                RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusSpecify");
             }
             else if (!Directory.Exists(RootDirectory))
             {
-                RootStatus = "LOCNowPlayingAddCacheRootStatusNotFound";
+                RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotFound");
             }
             else
             {
@@ -157,19 +157,27 @@ namespace NowPlaying.ViewModels
                 string device = Directory.GetDirectoryRoot(RootDirectory).ToUpper();
                 RootDirectory = device + RootDirectory.Substring(device.Length);
 
-                if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
+                if (!DirectoryUtils.IsEmptyDirectory(RootDirectory))
                 {
-                    RootStatus = "LOCNowPlayingAddCacheRootStatusNotWritable";
+                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotEmpty");
+                }
+                else if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
+                {
+                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotWritable");
                 }
                 else if (existingRoots.Contains(RootDirectory))
                 {
-                    RootStatus = "LOCNowPlayingAddCacheRootStatusDirIsRoot";
+                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusDirIsRoot");
                 }
                 else if (rootDevices.ContainsKey(device))
                 {
                     string otherRootDir = rootDevices[device];
-                    RootStatus = "LOCNowPlayingAddCacheRootStatusDevIsRoot";
-                    RootStatus2 = $" '{otherRootDir}' **";
+                    string formatString = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusDevIsRootFmt");
+                    if (string.IsNullOrEmpty(formatString) || !formatString.Contains("{0}"))
+                    {
+                        formatString = "** same device as existing cache root '{0}' **";
+                    }
+                    RootStatus = string.Format(formatString, otherRootDir);
                 }
                 else
                 {
@@ -179,7 +187,6 @@ namespace NowPlaying.ViewModels
             }
             OnPropertyChanged(nameof(RootIsValid));
             OnPropertyChanged(nameof(RootStatus));
-            OnPropertyChanged(nameof(RootStatus2));
             UpdateAddCommandCanExectue();
         }
 
@@ -199,11 +206,11 @@ namespace NowPlaying.ViewModels
             {
                 long deviceSize = DirectoryUtils.GetRootDeviceCapacity(RootDirectory);
                 long reservedSize = (long) (deviceSize * (1.0 - MaximumFillLevel / 100.0));
-                return "(" + SmartUnits.Bytes(reservedSize) + " reserved for other use)";
+                return SmartUnits.Bytes(reservedSize);
             }
             else
             {
-                return "";
+                return "-";
             }
         }
 

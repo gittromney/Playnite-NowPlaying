@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="NowPlaying.Views.CacheRootsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utils="clr-namespace:NowPlaying.Utils">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -12,12 +13,12 @@
 
     <StackPanel Margin="0,0,0,15">
         <StackPanel Orientation="Horizontal" >
-            <TextBlock Text="NowPlaying Cache Roots" Style="{DynamicResource HeadingText}" Margin="0,0,0,5"/>
+            <TextBlock Text="{DynamicResource LOCNowPlayingCacheRootsHeading}" Style="{DynamicResource HeadingText}" Margin="0,0,0,5"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
             <TextBlock 
-                Text="** Add at least one cache root device/directory where games caches can be installed **" 
+                Text="{DynamicResource LOCNowPlayingCacheRootsEmptyWarning}" 
                 Foreground="{DynamicResource WarningBrush}" FontFamily="{DynamicResource FontFamily}" FontSize="{DynamicResource FontSizeLarge}"
                 Visibility="{Binding EmptyRootsVisible}"
                 Margin="0,10,0,10"/>
@@ -33,19 +34,53 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="70" DisplayMemberBinding="{Binding Device}">
-                        <GridViewColumnHeader Content="Device" ToolTip="Root device where games will be cached"/>
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsDevice}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}"/>
                     </GridViewColumn>
                     <GridViewColumn Width="250" DisplayMemberBinding="{Binding Directory}">
-                        <GridViewColumnHeader Content="Directory" ToolTip="Directory on root device where game caches will be installed"/>
-                    </GridViewColumn>
-                    <GridViewColumn Width="120" DisplayMemberBinding="{Binding SpaceAvailableForCaches}">
-                        <GridViewColumnHeader Content="Space available" ToolTip="Space available for game caches on the root device"/>
-                    </GridViewColumn>
-                    <GridViewColumn Width="70" DisplayMemberBinding="{Binding GamesEnabled}">
-                        <GridViewColumnHeader Content="Games" ToolTip="Number of games enabled for caching to the root device"/>
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsDirectory}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsDirectoryToolTip}"/>
                     </GridViewColumn>
                     <GridViewColumn Width="120">
-                        <GridViewColumnHeader Content="Installed" ToolTip="Number (and size) of game caches installed on the root device"/>
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsSpace}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <!--bottom layer: is selected text (black)-->
+                                    <TextBlock Text="{Binding SpaceAvailableForCaches}" Foreground="Black"/>
+
+                                    <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
+                                    <TextBlock
+                                        x:Name="NormalText"
+                                        Text="{Binding SpaceAvailableForCaches}"
+                                        Foreground="{utils:DynamicResourceBinding SpaceAvailableForCachesColor}"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger 
+                                        Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" 
+                                        Value="True">
+                                        <Setter 
+                                            TargetName="NormalText" 
+                                            Property="Visibility" 
+                                            Value="Hidden"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="70" DisplayMemberBinding="{Binding GamesEnabled}">
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsGames}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}"/>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120">
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsInstalled}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsInstalledToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -61,8 +96,10 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="220">
-                        <GridViewColumnHeader Content="Max fill level" ToolTip="Allowed percentage of the root device to fill with game caches"/>
+                    <GridViewColumn Width="240">
+                        <GridViewColumnHeader 
+                            Content="{DynamicResource LOCNowPlayingCacheRootsMaxFill}" 
+                            ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -83,9 +120,16 @@
 
             <ListView.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Refresh" Command="{Binding RefreshRootsCommand}"/>
-                    <MenuItem Header="Remove" Command="{Binding RemoveCacheRootCommand}" Visibility="{Binding RemoveCacheRootVisibility}"/>
-                    <MenuItem Header="Edit max fill level" Command="{Binding EditMaxFillCommand}"/>
+                    <MenuItem 
+                        Header="{DynamicResource LOCNowPlayingCacheRootsRefresh}" 
+                        Command="{Binding RefreshRootsCommand}"/>
+                    <MenuItem 
+                        Header="{DynamicResource LOCNowPlayingCacheRootsRemove}" 
+                        Command="{Binding RemoveCacheRootCommand}" 
+                        Visibility="{Binding RemoveCacheRootVisibility}"/>
+                    <MenuItem 
+                        Header="{DynamicResource LOCNowPlayingCacheRootsEditMaxFill}" 
+                        Command="{Binding EditMaxFillCommand}"/>
                 </ContextMenu>
             </ListView.ContextMenu>
 
@@ -94,22 +138,22 @@
         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
             <Button 
                 Content="⟳" Padding="0,0,0,3" FontSize="20"
-                ToolTip="Refresh cache roots list"  
+                ToolTip="{DynamicResource LOCNowPlayingCacheRootsRefreshToolTip}"  
                 Command="{Binding RefreshRootsCommand}"
                 Style="{DynamicResource SmallButton}"/>
             <Button 
                 Content="➕" FontSize="12"
-                ToolTip="Add new cache root, where game caches can be installed"
+                ToolTip="{DynamicResource LOCNowPlayingCacheRootsAddToolTip}"
                 Command="{Binding AddCacheRootCommand}"
                 Style="{DynamicResource SmallButton}"/>
             <Button 
                 Content="➖" FontSize="12"
-                ToolTip="Delete selected cache root"
+                ToolTip="{DynamicResource LOCNowPlayingCacheRootsRemoveToolTip}"
                 Command="{Binding RemoveCacheRootCommand}"
                 Style="{DynamicResource SmallButton}"/>
             <Button 
                 Content="🖉" FontSize="18"
-                ToolTip="Edit selected cache root's max fill level"
+                ToolTip="{DynamicResource LOCNowPlayingCacheRootsEditMaxFillToolTip}"
                 Command="{Binding EditMaxFillCommand}"
                 Style="{DynamicResource SmallButton}"/>
         </StackPanel>

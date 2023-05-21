@@ -53,6 +53,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Playnite\SDK\Mo.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
     <Compile Include="Utils\DirectoryUtils.cs" />
     <Compile Include="Utils\DynamicResourceBinding.cs" />

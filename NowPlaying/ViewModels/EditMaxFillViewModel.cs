@@ -90,7 +90,7 @@ namespace NowPlaying.ViewModels
         {
             long deviceSize = DirectoryUtils.GetRootDeviceCapacity(RootDirectory);
             long reservedSize = (long) (deviceSize * (1.0 - MaximumFillLevel / 100.0));
-            return "(" + SmartUnits.Bytes(reservedSize) + " reserved for other use)";
+            return SmartUnits.Bytes(reservedSize);
         }
 
         private void UpdateSpaceAvailableForCaches()

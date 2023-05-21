@@ -19,10 +19,12 @@ namespace NowPlaying.ViewModels
     public class NowPlayingPanelViewModel : ViewModelBase
     {
         private readonly NowPlaying plugin;
+        private readonly IResourceProvider resources;
 
         public NowPlayingPanelViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
+            this.resources = plugin.PlayniteApi.Resources;
             this.CustomEtaSort = new CustomEtaSorter();
             this.CustomSizeSort = new CustomSizeSorter();
             this.CustomSpaceAvailableSort = new CustomSpaceAvailableSorter();
@@ -199,7 +201,7 @@ namespace NowPlaying.ViewModels
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;
         public string GameCachesVisibility => AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
-        public string GameCachesRootColumnWidth => MultipleCacheRoots ? "NaN" : "0";
+        public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
 
         public string InstallCachesMenu { get; private set; }
         public string InstallCachesVisibility { get; private set; }
@@ -341,8 +343,8 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        public string ShowCacheRootsToolTip => GetResourceString(showCacheRoots ? "LOCNowPlayingHideCacheRoots" : "LOCNowPlayingShowCacheRoots");
 
-        public string ShowCacheRootsToolTip => showCacheRoots ? "Hide cache roots" : "Show cache roots";
         private bool showCacheRoots;
         public bool ShowCacheRoots
         {
@@ -392,7 +394,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public string ShowSettingsToolTip => showSettings ? "Hide NowPlaying settings" : "Show NowPlaying settings";
+        public string ShowSettingsToolTip => GetResourceString(showSettings ? "LOCNowPlayingHideSettings" : "LOCNowPlayingShowSettings");
 
         public string SettingsVisibility => ShowSettings ? "Visible" : "Collapsed";
 
@@ -508,18 +510,58 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private string GetResourceString(string key)
+        {
+            return key != null ? resources.GetString(key) : null;
+        }
+
+        private string GetResourceFormatString(string key)
+        {
+            if (key != null)
+            {
+                string formatString = resources.GetString(key);
+                if (!string.IsNullOrEmpty(formatString) && formatString.Contains("{0}"))
+                {
+                    return formatString;
+                }
+                else
+                {
+                    plugin.PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}}' pattern");
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        private string FormatResourceString(string key, object formatItem)
+        {
+            string formatString = GetResourceFormatString(key);
+            return formatString != null ? string.Format(formatString, formatItem) : null;
+        }
+
         private string GetInstallCachesMenu(SelectedCachesContext context)
         {
             if (context != null && context.count > 0 && context.allWillFit)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return 
-                (
-                    context.allEmpty            ? "Install selected game cache" + gameCount :
-                    context.allPaused           ? "Resume Install selected game cache" + gameCount :
-                    context.allEmptyOrPaused    ? "Install / Resume Install selected game cache" + gameCount
-                                                : null
-                );
+                if (context.count > 1)
+                {
+                    return FormatResourceString
+                    (
+                        context.allEmpty ? "LOCNowPlayingInstallGameCachesFmt" :
+                        context.allPaused ? "LOCNowPlayingResumeGameCachesFmt" :
+                        context.allEmptyOrPaused ? "LOCNowPlayingInstallOrResumeGameCachesFmt" : null,
+                        context.count
+                    );
+                }
+                else
+                {
+                    return GetResourceString
+                    (
+                        context.allEmpty ? "LOCNowPlayingInstallGameCache" :
+                        context.allPaused ? "LOCNowPlayingResumeGameCache" :
+                        context.allEmptyOrPaused ? "LOCNowPlayingInstallOrResumeGameCache" : null
+                    );
+                }
             }
             else
             {
@@ -531,8 +573,14 @@ namespace NowPlaying.ViewModels
         {
             if (MultipleCacheRoots && context != null && context.count > 0 && context.allEmpty)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return $"Change cache root of selected game{gameCount}";
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingRerootGameCachesFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingRerootGameCache");
+                }
             }
             else
             {
@@ -556,10 +604,16 @@ namespace NowPlaying.ViewModels
 
         private string GetUninstallCachesMenu(SelectedCachesContext context)
         {
-            if (context != null && context.count > 0)
+            if (context != null && context.count > 0 && context.allInstalledPausedUnknownOrInvalid)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return context.allInstalledPausedUnknownOrInvalid ? "Uninstall selected game cache" + gameCount : null;
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingUninstallGameCachesFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingUninstallGameCache");
+                }
             }
             else
             {
@@ -569,10 +623,16 @@ namespace NowPlaying.ViewModels
 
         private string GetDisableCachesMenu(SelectedCachesContext context)
         {
-            if (context != null && context.count > 0)
+            if (context != null && context.count > 0 && context.allEmpty)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return context.allEmpty ? "Disable caching for selected game" + gameCount : null;
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingDisableGameCachesFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingDisableGameCache");
+                }
             }
             else
             {
@@ -582,10 +642,16 @@ namespace NowPlaying.ViewModels
 
         private string GetCancelQueuedInstallsMenu(SelectedCachesContext context)
         {
-            if (context != null && context.count > 0)
+            if (context != null && context.count > 0 && context.allQueuedForInstall)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return context.allQueuedForInstall ? "Cancel queued install for selected game cache" + gameCount : null;
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingCancelQueuedInstallsFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingCancelQueuedInstall");
+                }
             }
             else
             {
@@ -595,10 +661,16 @@ namespace NowPlaying.ViewModels
 
         private string GetPauseInstallMenu(SelectedCachesContext context)
         {
-            if (context != null && context.count > 0)
+            if (context != null && context.count > 0 && context.allInstalling)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return context.allInstalling ? "Pause install for selected game cache" + gameCount : null;
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingPauseInstallsFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingPauseInstall");
+                }
             }
             else
             {
@@ -608,10 +680,16 @@ namespace NowPlaying.ViewModels
 
         private string GetCancelInstallMenu(SelectedCachesContext context)
         {
-            if (context != null && context.count > 0)
+            if (context != null && context.count > 0 && context.allInstalling)
             {
-                string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
-                return context.allInstalling ? "Cancel install for selected game cache" + gameCount : null;
+                if (context.count > 1)
+                {
+                    return FormatResourceString("LOCNowPlayingCancelInstallsFmt", context.count);
+                }
+                else
+                {
+                    return GetResourceString("LOCNowPlayingCancelInstall");
+                }
             }
             else
             {
@@ -654,7 +732,7 @@ namespace NowPlaying.ViewModels
                     // NowPlaying game missing (removed from playnite)
                     // . delete cache dir if it exists and disable game caching
                     //
-                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                     if (Directory.Exists(gameCache.CacheDir))
                     {
                         Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
@@ -695,17 +773,17 @@ namespace NowPlaying.ViewModels
                 {
                     if (gameCache.CacheSize > 0)
                     {
-                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling and deleting game cache.");
+                        plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisableDeleteFmt", gameCache.Title));
                     }
                     else
                     {
-                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                        plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                     }
                     Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
                 }
                 else
                 {
-                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                 }
                 plugin.cacheManager.RemoveGameCache(gameCache.Id);
             }
@@ -729,17 +807,17 @@ namespace NowPlaying.ViewModels
                 {
                     if (gameCache.CacheSize > 0)
                     {
-                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling and deleting game cache.");
+                        plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisableDeleteFmt", gameCache.Title));
                     }
                     else
                     {
-                        plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                        plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                     }
                     Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
                 }
                 else
                 {
-                    plugin.PopupError($"Game '{gameCache.Title}' not found; disabling game caching.");
+                    plugin.PopupError(FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                 }
                 plugin.cacheManager.RemoveGameCache(gameCache.Id);
             }
@@ -761,7 +839,7 @@ namespace NowPlaying.ViewModels
                 }
             }
             plugin.cacheManager.RemoveGameCache(gameCache.Id);
-            plugin.NotifyInfo($"Game caching disabled for '{gameCache.Title}'");
+            plugin.NotifyInfo(FormatResourceString("LOCNowPlayingMsgGameCachingDisabledFmt", gameCache.Title));
         }
 
     }

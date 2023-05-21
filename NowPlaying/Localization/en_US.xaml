@@ -1,43 +1,140 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!--Common terms-->
+    <sys:String x:Key="LOCNowPlayingTermsGame">Game</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSave">Save</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsCancel">Cancel</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsIPG">IPG</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsMilliseconds">milliseconds</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsFullSpeed">full speed</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsRelativeSpeed">Relative speed</sys:String>
+    
+    <!--NowPlayingPanelView-->
+    <sys:String x:Key="LOCNowPlayingHideCacheRoots">Hide cache roots</sys:String>
+    <sys:String x:Key="LOCNowPlayingShowCacheRoots">Show cache roots</sys:String>
+    <sys:String x:Key="LOCNowPlayingHideSettings">Hide NowPlaying settings</sys:String>
+    <sys:String x:Key="LOCNowPlayingShowSettings">Show NowPlaying settings</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallGameCachesFmt">Install selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallGameCache">Install selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingResumeGameCachesFmt">Resume install of selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingResumeGameCache">Resume install of selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallOrResumeGameCachesFmt">Install / resume install of selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallOrResumeGameCache">Install / resume install of selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingRerootGameCachesFmt">Change cache root of selected games ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingRerootGameCache">Change cache root of selected game</sys:String>
+    <sys:String x:Key="LOCNowPlayingUninstallGameCachesFmt">Uninstall selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingUninstallGameCache">Uninstall selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingDisableGameCachesFmt">Disable caching for selected games ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingDisableGameCache">Disable caching for selected game</sys:String>
+    <sys:String x:Key="LOCNowPlayingPauseInstallsFmt">Pause install for selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingPauseInstall">Pause install for selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingCancelInstallsFmt">Cancel install for selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingCancelInstall">Cancel install for selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingCancelQueuedInstallsFmt">Cancel queued install for selected game caches ({0} games)</sys:String>
+    <sys:String x:Key="LOCNowPlayingCancelQueuedInstall">Cancel queued install for selected game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingRefreshGameCaches">Refresh game caches list</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddGameCaches">Enable game caching for additional games</sys:String>
+    <sys:String x:Key="LOCNowPlayingMsgGameCachingDisabledFmt">Game caching disabled for '{0}'</sys:String>
+    <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisablingFmt">Game '{0}' not found; disabling game caching.</sys:String>
+    <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisableDeleteFmt">Game '{0}' not found; disabling and deleting game cache.</sys:String>
+
+
+    <!--Settings view-->
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
-    <sys:String x:Key="LOCNowPlayingSettingsUninstallOptions">Game cache uninstall options:</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsGeneralTab">General</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsConfirmUninstall">Require confirmation when a game cache is uninstalled.</sys:String>
-    <sys:String x:Key="LOCNowPlayingSettingsDirtyCacheExplainer">
-        Some games save their settings and game save data locally, within the installation directory. 
-        When playing these games from their game cache, the cache can become 'dirty', or different than the original installation files.
+    <sys:String x:Key="LOCNowPlayingSettingsSyncTab">Sync on uninstall</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncHeading">Sync options when uninstalling a game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncDescr">
+        Some games save settings and game save data locally. 
+        While playing one of these games, the cache can become 'dirty', or different than the installed files.
+        When a dirty game cache is uninstalled, you have the option of syncing updated game settings/save data back
+        to the installation directory.
     </sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncWhenUninstalling">When unstalling a 'dirty' game cache...</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncAlways">Always sync settings/game save data.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncAsk">Ask whether to sync settings/game save data.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSyncNever">Never sync settings/game save data.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingTab">Install while playing</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingHeading">Game Cache installation options while playing a game</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingPause">Pause installation queue while playing; resume when done playing.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingSpeedLimit">
+        Install caches w/speed limit while playing a game; return to full speed when done playing.
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingFullSpeed">Always install caches at full speed.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSpeedLimitHeader">Speed limited cache installation</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsSpeedLimitDescr">
+        Game caches can be installed with a speed limit in order to free up disk bandwidth for playing games at the same time (on the same disk).
+        The tradeoff is longer cache install times.
+        When installing a game cache with a speed limit, an inter packet gap (IPG) delay is injected between every 64KB packet 
+        of game data installed. Valid range for IPG is 0-250 milliseconds, where IPG=0 is full speed.
+        Note, transfer speeds can vary significantly for a given IPG setting.  
+        You may need to experiment to dial in a reasonable setting on your hardware.
+        See example scenarios, below, as a rough guideline.
+    </sys:String>
+
+
+
+
     <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">
         ** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **
     </sys:String>
 
-    <!--AddCacheRootView-->
+    <!--AddCacheRootView / EditMaxFillView-->
+    <sys:String x:Key="LOCNowPlayingEditMaxFillHeading">Edit Maximum Fill Level</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootHeading">Add NowPlaying Cache Root</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDescr1">
-        Choose a directory (on a fast device such as an SSD) to create game caches in. 
+        Choose an empty directory (on a fast device such as an SSD) to create game caches in. 
         Note, only one cache root is allowed per device.
     </sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDescr2">
-        Also set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
-        This can be used to reserve a portion of the device's total capacity for non-game cache use.  
-        It's recommended to set the maximum fill level to 75-85% (or so) for a cache root on your system disk (C:).  
-        If the cache root is on a device used solely for gaming, it can be set as high as 100%.
+        Set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
+        This will limit the space used for game caches on the device and reserve a portion of it for other use.  
+        It's recommended to set the maximum fill level to, at most, 75-85% (or so) for a cache root on your system disk (C:).  
+        If the device is used exclusively for gaming, it can be set as high as 100%.
     </sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDirLabel">Cache root directory:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootBrowseToolTip">Browse for cache root directory</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDeviceLabel">Cache root device:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootCapacityLabel">Device capacity:</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddCacheRootSpaceLabel">Space available:</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddCacheRootMaxFillLabel">Maximum fill level allowed:</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddCacheRootCacheAvailLabel">Space available for game caches:</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddCacheRootNoSpaceWarning">** no space available **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootSpaceLabel">Space on device:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootMaxFillLabel">Maximum fill level:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootReservedLabel">Space reserved for other use:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootCacheAvailLabel">Space available for caches:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootNoSpaceWarning">** none **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusSpecify">** please specify a root directory **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotFound">** specified directory not found **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotEmpty">** specified directory is not empty **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotWritable">** specified directory is not user writable **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDirIsRoot">** specified directory is already a cache root **</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDevIsRoot">** same device as existing cache root</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDevIsRootFmt">** same device as existing cache root '{0}' **</sys:String>
 
+    <!--CacheRootsView-->
+    <sys:String x:Key="LOCNowPlayingCacheRootsHeading">NowPlaying Cache Roots</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsEmptyWarning">
+        ** Add at least one cache root device/directory where games caches can be installed **
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsDevice">Device</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsDeviceToolTip">Root device where games will be cached</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsDirectory">Directory</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsDirectoryToolTip">Directory on root device where game caches will be installed</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsSpace">Space available</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsSpaceToolTip">Space available for game caches on the root device</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsGames">Games</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsGamesToolTip">Number of games enabled for caching to the root device</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsInstalled">Installed</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsInstalledToolTip">Number (and size) of game caches installed on the root device</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsMaxFill">Max fill level</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsMaxFillToolTip">Allowed percentage of the root device to fill with game caches</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsRefresh">Refresh</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsRemove">Remove</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsEditMaxFill">Edit max fill level</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsRefreshToolTip">Refresh cache roots list</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsAddToolTip">Add new cache root, where game caches can be installed</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsRemoveToolTip">Remove selected cache root</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsEditMaxFillToolTip">Edit selected cache root's max fill level</sys:String>
 
 
 </ResourceDictionary>

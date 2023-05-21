@@ -1,6 +1,5 @@
 ﻿using NowPlaying.Utils;
 using NowPlaying.Models;
-using Playnite.SDK.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,6 +62,7 @@ namespace NowPlaying.ViewModels
         public string InstallEta { get; private set; }
 
         public string CacheRootSpaceAvailable { get; private set; }
+        public string CacheRootSpaceAvailableColor => cacheRoot.BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
 
         public GameCacheViewModel(GameCacheManagerViewModel manager, GameCacheEntry entry, CacheRootViewModel cacheRoot)
         {
@@ -190,10 +190,11 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(CacheInstalledSizeColor));
             }
             string sval = SmartUnits.Bytes(cacheRoot.BytesAvailableForCaches, decimals: 1);
-            if (CacheRootSpaceAvailable != sval)
+            if (CacheRootSpaceAvailable != sval || cacheRoot.BytesAvailableForCaches <= 0)
             {
                 CacheRootSpaceAvailable = sval;
                 OnPropertyChanged(nameof(CacheRootSpaceAvailable));
+                OnPropertyChanged(nameof(CacheRootSpaceAvailableColor));
             }
         }
 

@@ -43,6 +43,10 @@ namespace NowPlaying.ViewModels
 
         public void UpdateGameCaches()
         {
+            foreach (var gameCache in GameCaches)
+            {
+                gameCache.UpdateCacheRoot();
+            }
             OnPropertyChanged(nameof(GameCaches));
         }
 

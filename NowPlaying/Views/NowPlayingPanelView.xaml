@@ -49,11 +49,24 @@
             <!--settings panel-->
             <StackPanel DockPanel.Dock="Bottom" Visibility="{Binding SettingsVisibility}">
                 <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}" Margin="0,5,0,0"/>
-                <TextBlock Text="NowPlaying Game Cacher Settings" Style="{DynamicResource HeadingText}" Margin="20,10,0,10"/>
-                <UserControl Content="{Binding SettingsView}" Margin="0,0,0,15"/>
-                <StackPanel Orientation="Horizontal" Margin="20,0,0,20">
-                    <Button Content="Save" Width="70" Height="35" Command="{Binding SaveSettingsCommand}" Margin="0,0,10,0"/>
-                    <Button Content="Cancel" Width="70" Height="35" Command="{Binding CancelSettingsCommand}"/>
+                <TextBlock 
+                    Text="{DynamicResource LOCNowPlayingSettingsHeading}" 
+                    Style="{DynamicResource HeadingText}" Margin="20,10,0,10"/>
+                <UserControl 
+                    Content="{Binding SettingsView}" 
+                    Margin="0,0,0,15"/>
+                <StackPanel 
+                    Orientation="Horizontal" 
+                    Margin="20,0,0,20">
+                    <Button 
+                        Content="{DynamicResource LOCNowPlayingTermsSave}" 
+                        Width="70" Height="35" 
+                        Command="{Binding SaveSettingsCommand}" 
+                        Margin="0,0,10,0"/>
+                    <Button 
+                        Content="{DynamicResource LOCNowPlayingTermsCancel}" 
+                        Width="70" Height="35" 
+                        Command="{Binding CancelSettingsCommand}"/>
                 </StackPanel>
             </StackPanel>
 
@@ -169,16 +182,34 @@
                                     </GridViewColumn>
 
                                     <GridViewColumn Width="{Binding GameCachesRootColumnWidth}" DisplayMemberBinding="{Binding Device}">
-                                        <GridViewColumnHeader Content="Root" ToolTip="Root device to where this game cache is/will be"/>
+                                        <GridViewColumnHeader Content="Root" ToolTip="Root device where this game cache is/will be"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
                                         Width="140" 
-                                        DisplayMemberBinding="{Binding CacheRootSpaceAvailable}"
                                         utils:GridViewSort.CustomSort="{Binding CustomSpaceAvailableSort}">
                                         <GridViewColumnHeader 
                                             Content="Space available" 
                                             ToolTip="Space available for game caches on the root device"/>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <!--bottom layer: is selected text (black)-->
+                                                    <TextBlock Text="{Binding CacheRootSpaceAvailable}" Foreground="Black"/>
+
+                                                    <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
+                                                    <TextBlock
+                                                        x:Name="NormalText"
+                                                        Text="{Binding CacheRootSpaceAvailable}"
+                                                        Foreground="{utils:DynamicResourceBinding CacheRootSpaceAvailableColor}"/>
+                                                </Grid>
+                                                <DataTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                                        <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                 </GridView>
                             </ListView.View>
@@ -221,12 +252,12 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                             <Button
                                 Content="⟳" Padding="0,0,0,3" FontSize="20"
-                                ToolTip="Refresh game caches list"  
+                                ToolTip="{DynamicResource LOCNowPlayingRefreshGameCaches}"  
                                 Command="{Binding RefreshCachesCommand}"
                                 Style="{DynamicResource SmallButton}"/>
                             <Button 
                                 Content="➕" FontSize="12"
-                                ToolTip="Enable game caching for additional games"
+                                ToolTip="{DynamicResource LOCNowPlayingAddGameCaches}"
                                 Command="{Binding AddGameCachesCommand}"
                                 Style="{DynamicResource SmallButton}"/>
                             <Button 
@@ -265,8 +296,6 @@
 
                         </StackPanel>
                     </StackPanel>
-
-                    <!--<UserControl DockPanel.Dock="Bottom" Content="{Binding InstallProgressView}"/>-->
 
                 </StackPanel>
             </ScrollViewer>

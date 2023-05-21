@@ -20,6 +20,7 @@ namespace NowPlaying.ViewModels
         public string CachesInstalledSize { get; private set; }
         public long BytesAvailableForCaches { get; private set; }
         public string SpaceAvailableForCaches { get; private set; }
+        public string SpaceAvailableForCachesColor => BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
 
         private long bytesReservedOnDevice;
         public string ReservedSpaceOnDevice { get; private set; }
@@ -85,6 +86,7 @@ namespace NowPlaying.ViewModels
             }
             SpaceAvailableForCaches = SmartUnits.Bytes(BytesAvailableForCaches);
             OnPropertyChanged(nameof(SpaceAvailableForCaches));
+            OnPropertyChanged(nameof(SpaceAvailableForCachesColor));
         }
 
         private string GetAggregateCacheSize(List<GameCacheViewModel> gameCaches)

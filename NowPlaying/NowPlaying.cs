@@ -490,8 +490,6 @@ namespace NowPlaying
         {
             string cacheId = game.Id.ToString();
 
-            if (!CheckIfGameInstallDirIsAccessible(game.Name, game.InstallDirectory)) return;
-
             // . Already a NowPlaying enabled game
             //   -> change cache cacheRoot, if applicable
             //
@@ -531,7 +529,7 @@ namespace NowPlaying
                 }
             }
 
-            else
+            else if (CheckIfGameInstallDirIsAccessible(game.Name, game.InstallDirectory))
             {
                 // . Enable source game for NowPlaying game caching
                 (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
