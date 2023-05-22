@@ -13,19 +13,25 @@
 
     <StackPanel Margin="0,0,0,15">
         <StackPanel Orientation="Horizontal" >
-            <TextBlock Text="{DynamicResource LOCNowPlayingCacheRootsHeading}" Style="{DynamicResource HeadingText}" Margin="0,0,0,5"/>
+            <TextBlock 
+                Text="{DynamicResource LOCNowPlayingCacheRootsHeading}" 
+                Style="{DynamicResource HeadingText}" 
+                Margin="0,0,0,5"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
             <TextBlock 
                 Text="{DynamicResource LOCNowPlayingCacheRootsEmptyWarning}" 
-                Foreground="{DynamicResource WarningBrush}" FontFamily="{DynamicResource FontFamily}" FontSize="{DynamicResource FontSizeLarge}"
+                Foreground="{DynamicResource WarningBrush}" 
+                FontFamily="{DynamicResource FontFamily}" 
+                FontSize="{DynamicResource FontSizeLarge}"
                 Visibility="{Binding EmptyRootsVisible}"
                 Margin="0,10,0,10"/>
         </StackPanel>
 
         <ListView 
-            Name="CacheRoots" Margin="0,0,0,5"
+            Name="CacheRoots" 
+            Margin="0,0,0,5"
             ItemsSource="{Binding CacheRoots}"
             SelectionMode="Single"
             SelectedItem="{Binding SelectedCacheRoot}"
@@ -33,19 +39,23 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="70" DisplayMemberBinding="{Binding Device}">
+                    <GridViewColumn 
+                        Width="70" 
+                        DisplayMemberBinding="{Binding Device}">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsDevice}" 
+                            Content="{DynamicResource LOCNowPlayingTermsDevice}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}"/>
                     </GridViewColumn>
-                    <GridViewColumn Width="250" DisplayMemberBinding="{Binding Directory}">
+                    <GridViewColumn 
+                        Width="250" 
+                        DisplayMemberBinding="{Binding Directory}">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsDirectory}" 
+                            Content="{DynamicResource LOCNowPlayingTermsDirectory}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDirectoryToolTip}"/>
                     </GridViewColumn>
                     <GridViewColumn Width="120">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsSpace}" 
+                            Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -72,14 +82,16 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="70" DisplayMemberBinding="{Binding GamesEnabled}">
+                    <GridViewColumn 
+                        Width="70"
+                        DisplayMemberBinding="{Binding GamesEnabled}">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsGames}" 
+                            Content="{DynamicResource LOCNowPlayingTermsGames}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}"/>
                     </GridViewColumn>
                     <GridViewColumn Width="120">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsInstalled}" 
+                            Content="{DynamicResource LOCNowPlayingTermsInstalled}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsInstalledToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -98,7 +110,7 @@
                     </GridViewColumn>
                     <GridViewColumn Width="240">
                         <GridViewColumnHeader 
-                            Content="{DynamicResource LOCNowPlayingCacheRootsMaxFill}" 
+                            Content="{DynamicResource LOCNowPlayingTermsMaxFillLevel}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -121,10 +133,10 @@
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem 
-                        Header="{DynamicResource LOCNowPlayingCacheRootsRefresh}" 
+                        Header="{DynamicResource LOCNowPlayingTermsRefresh}" 
                         Command="{Binding RefreshRootsCommand}"/>
                     <MenuItem 
-                        Header="{DynamicResource LOCNowPlayingCacheRootsRemove}" 
+                        Header="{DynamicResource LOCNowPlayingTermsRemove}" 
                         Command="{Binding RemoveCacheRootCommand}" 
                         Visibility="{Binding RemoveCacheRootVisibility}"/>
                     <MenuItem 

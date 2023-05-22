@@ -3,25 +3,47 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!--Common terms-->
+    <sys:String x:Key="LOCNowPlayingTermsYes">Yes</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsNo">No</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsGame">Game</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsGames">Games</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsTitle">Title</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsStatus">Status</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSize">Size</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsRoot">Root</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsDevice">Device</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsDirectory">Directory</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSpaceAvailable">Space available</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsMaxFillLevel">Max fill level</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstallEta">Install ETA</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsInstallSize">Install size</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsCanInstall">Can install?</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsGenres">Genre(s)</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSave">Save</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsCancel">Cancel</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsClose">Close</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsRefresh">Refresh</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsRemove">Remove</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSelectAll">Select all</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSelectNone">Select none</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsIPG">IPG</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsMilliseconds">Milliseconds</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsFullSpeed">Full speed</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsRelativeSpeed">Relative speed</sys:String>
-    
+    <sys:String x:Key="LOCNowPlayingTermsPaused">Paused</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInvalid">Invalid</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstalled">Installed</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsUninstalled">Uninstalled</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstalling">Installing</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsUninstalling">Uninstalling</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstallSpeedLimit">Installing w/speed limit</sys:String>
+
     <!--NowPlayingPanelView-->
     <sys:String x:Key="LOCNowPlayingHideCacheRoots">Hide cache roots</sys:String>
     <sys:String x:Key="LOCNowPlayingShowCacheRoots">Show cache roots</sys:String>
     <sys:String x:Key="LOCNowPlayingHideSettings">Hide NowPlaying settings</sys:String>
     <sys:String x:Key="LOCNowPlayingShowSettings">Show NowPlaying settings</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCachesHeading">NowPlaying Game Caches</sys:String>
     <sys:String x:Key="LOCNowPlayingInstallGameCachesFmt">Install selected game caches ({0} games)</sys:String>
     <sys:String x:Key="LOCNowPlayingInstallGameCache">Install selected game cache</sys:String>
     <sys:String x:Key="LOCNowPlayingResumeGameCachesFmt">Resume install of selected game caches ({0} games)</sys:String>
@@ -45,6 +67,13 @@
     <sys:String x:Key="LOCNowPlayingMsgGameCachingDisabledFmt">Game caching disabled for '{0}'</sys:String>
     <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisablingFmt">Game '{0}' not found; disabling game caching.</sys:String>
     <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisableDeleteFmt">Game '{0}' not found; disabling and deleting game cache.</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheTitleToolTip">Playnite game, enabled for caching</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheStatusToolTip">Current game cache status or activity</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheCanInstallToolTip">Is there enough space available to install the game cache?</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheCanInstallEtaToolTip">Estimated time to install the game cache</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheSizeToolTip">Current size of the game cache (or space needed to install)</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheRootToolTip">Root device where the game is/will be cached to</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheSpaceToolTip">Space available for game caches on the root device</sys:String>
 
     <!--Settings view-->
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
@@ -131,20 +160,12 @@
     <sys:String x:Key="LOCNowPlayingCacheRootsEmptyWarning">
         ** Add at least one cache root device/directory where games caches can be installed **
     </sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsDevice">Device</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDeviceToolTip">Root storage device/disk where games will be cached</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsDirectory">Directory</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDirectoryToolTip">Directory on root device where game caches will be installed</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsSpace">Space available</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsSpaceToolTip">Space available for game caches on the root device</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsGames">Games</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsGamesToolTip">Number of games enabled for caching to the root device</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsInstalled">Installed</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsInstalledToolTip">Number (and size) of game caches installed on the root device</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsMaxFill">Max fill level</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsMaxFillToolTip">Allowed percentage of the root device to fill with game caches</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsRefresh">Refresh</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsRemove">Remove</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsEditMaxFill">Edit max fill level</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsRefreshToolTip">Refresh cache roots list</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsAddToolTip">Add new cache root, where game caches can be installed</sys:String>

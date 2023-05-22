@@ -82,7 +82,10 @@
 
                     <!--Game Caches View panel-->
                     <StackPanel Visibility="{Binding GameCachesVisibility}">
-                        <TextBlock Text="NowPlaying Game Caches" Style="{DynamicResource HeadingText}" Margin="0,0,0,5"/>
+                        <TextBlock 
+                            Text="{DynamicResource LOCNowPlayingGameCachesHeading}" 
+                            Style="{DynamicResource HeadingText}" 
+                            Margin="0,0,0,5"/>
 
                         <ListView 
                             Name="GameCaches" Margin="0,0,0,5"
@@ -95,11 +98,17 @@
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Width="{Binding TitleWidth}" DisplayMemberBinding="{Binding Title}">
-                                        <GridViewColumnHeader Content="Title" ToolTip="Playnite game, enabled for caching."/>
+                                        <GridViewColumnHeader 
+                                            Content="{DynamicResource LOCNowPlayingTermsTitle}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
                                     </GridViewColumn>
 
-                                    <GridViewColumn Width="185" utils:GridViewSort.PropertyName="Status">
-                                        <GridViewColumnHeader Content="Status" ToolTip="Current game cache status or activity"/>
+                                    <GridViewColumn 
+                                        Width="185" 
+                                        utils:GridViewSort.PropertyName="Status">
+                                        <GridViewColumnHeader 
+                                            Content="{DynamicResource LOCNowPlayingTermsStatus}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -121,8 +130,12 @@
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
 
-                                    <GridViewColumn Width="95" utils:GridViewSort.PropertyName="CanInstallCache">
-                                        <GridViewColumnHeader Content="Can Install?" ToolTip="Is there enough space available to install the game cache?"/>
+                                    <GridViewColumn 
+                                        Width="95" 
+                                        utils:GridViewSort.PropertyName="CanInstallCache">
+                                        <GridViewColumnHeader 
+                                            Content="{DynamicResource LOCNowPlayingTermsCanInstall}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}"/>
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -149,8 +162,8 @@
                                         DisplayMemberBinding="{Binding InstallEta}" 
                                         utils:GridViewSort.CustomSort="{Binding CustomEtaSort}">
                                         <GridViewColumnHeader 
-                                            Content="Install ETA" 
-                                            ToolTip="Estimated time to install the game cache"/>
+                                            Content="{DynamicResource LOCNowPlayingTermsInstallEta}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
@@ -158,8 +171,8 @@
                                         utils:GridViewSort.PropertyName="CacheInstalledSize" 
                                         utils:GridViewSort.CustomSort="{Binding CustomSizeSort}">
                                         <GridViewColumnHeader 
-                                            Content="Size" 
-                                            ToolTip="Current size of the game cache (or space needed to install)."/>
+                                            Content="{DynamicResource LOCNowPlayingTermsSize}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}"/>
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -181,16 +194,20 @@
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
 
-                                    <GridViewColumn Width="{Binding GameCachesRootColumnWidth}" DisplayMemberBinding="{Binding Device}">
-                                        <GridViewColumnHeader Content="Root" ToolTip="Root device where this game cache is/will be"/>
+                                    <GridViewColumn 
+                                        Width="{Binding GameCachesRootColumnWidth}" 
+                                        DisplayMemberBinding="{Binding Device}">
+                                        <GridViewColumnHeader 
+                                            Content="{DynamicResource LOCNowPlayingTermsRoot}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
                                         Width="140" 
                                         utils:GridViewSort.CustomSort="{Binding CustomSpaceAvailableSort}">
                                         <GridViewColumnHeader 
-                                            Content="Space available" 
-                                            ToolTip="Space available for game caches on the root device"/>
+                                            Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}"/>
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -215,7 +232,9 @@
                             </ListView.View>
                             <ListView.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Refresh" Command="{Binding RefreshCachesCommand}"/>
+                                    <MenuItem 
+                                        Header="{DynamicResource LOCNowPlayingTermsRefresh}" 
+                                        Command="{Binding RefreshCachesCommand}"/>
                                     <MenuItem 
                                         Header="{Binding InstallCachesMenu}" 
                                         Command="{Binding InstallCachesCommand}" 
