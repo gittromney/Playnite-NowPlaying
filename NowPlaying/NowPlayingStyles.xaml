@@ -153,4 +153,28 @@
         </Style.Triggers>
     </Style>
 
+    <Style TargetType="Label">
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
+    </Style>
+
+    <Style x:Key="BulletedLabel" TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Label}">
+                    <BulletDecorator Margin="{TemplateBinding Margin}">
+                        <BulletDecorator.Bullet>
+                            <Ellipse Width="5" Height="5" Fill="{TemplateBinding Foreground}"/>
+                        </BulletDecorator.Bullet>
+                        <TextBlock
+                            VerticalAlignment="Top"
+                            Text="{TemplateBinding Content}"
+                            Padding="10,0,0,0"/>
+                    </BulletDecorator>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

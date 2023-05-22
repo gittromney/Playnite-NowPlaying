@@ -4,11 +4,17 @@
 
     <!--Common terms-->
     <sys:String x:Key="LOCNowPlayingTermsGame">Game</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsTitle">Title</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstallSize">Install size</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsGenres">Genre(s)</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSave">Save</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsCancel">Cancel</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsClose">Close</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSelectAll">Select all</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSelectNone">Select none</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsIPG">IPG</sys:String>
-    <sys:String x:Key="LOCNowPlayingTermsMilliseconds">milliseconds</sys:String>
-    <sys:String x:Key="LOCNowPlayingTermsFullSpeed">full speed</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsMilliseconds">Milliseconds</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsFullSpeed">Full speed</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsRelativeSpeed">Relative speed</sys:String>
     
     <!--NowPlayingPanelView-->
@@ -40,7 +46,6 @@
     <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisablingFmt">Game '{0}' not found; disabling game caching.</sys:String>
     <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisableDeleteFmt">Game '{0}' not found; disabling and deleting game cache.</sys:String>
 
-
     <!--Settings view-->
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsGeneralTab">General</sys:String>
@@ -66,22 +71,32 @@
     <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingFullSpeed">Always install caches at full speed.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSpeedLimitHeader">Speed limited cache installation</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSpeedLimitDescr">
-        Game caches can be installed with a speed limit in order to free up disk bandwidth for playing games at the same time (on the same disk).
+        Game caches can be installed with a speed limit in order to free up bandwidth for playing games at the same time (on the same storage device). 
         The tradeoff is longer cache install times.
-        When installing a game cache with a speed limit, an inter packet gap (IPG) delay is injected between every 64KB packet 
-        of game data installed. Valid range for IPG is 0-250 milliseconds, where IPG=0 is full speed.
+        When installing a game cache with a speed limit, an inter packet gap (IPG) delay is injected between every 64KB packet of game data installed. 
+        Valid range for IPG is 0-250 milliseconds, where IPG=0 is full speed.
         Note, transfer speeds can vary significantly for a given IPG setting.  
         You may need to experiment to dial in a reasonable setting on your hardware.
         See example scenarios, below, as a rough guideline.
     </sys:String>
 
-
-
-
+    <!--AddGameCachesView-->
+    <sys:String x:Key="LOCNowPlayingAddGamesHeading">Enable games for NowPlaying game caching</sys:String>
     <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">
         ** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **
     </sys:String>
-
+    <sys:String x:Key="LOCNowPlayingRequirementsHeading">Note, games must meet the following requirements to be eligible for game caching:</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement1">Locally installed (added via Add Game -> Manually / Scan Automatically)</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement2">Listed under the 'Playnite' library.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement3">Have an empty Source (see Game Details -> General -> Source).</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement4">Playable from the installation directory (i.e. not in archived state).</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement5">Have no Roms.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement6">Have a single Play Action (see Game Details -> Actions).</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement7">Platform is 'PC (Windows)'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Show only games with titles matching search terms entered here</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>
+    
     <!--AddCacheRootView / EditMaxFillView-->
     <sys:String x:Key="LOCNowPlayingEditMaxFillHeading">Edit Maximum Fill Level</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootHeading">Add NowPlaying Cache Root</sys:String>
@@ -90,7 +105,7 @@
         Note, only one cache root is allowed per device.
     </sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDescr2">
-        Set the maximum fill level allowed for the device when installing game caches, in a range of 50-100%.  
+        Set the maximum fill level allowed for the storage device when installing game caches, in a range of 50-100%.  
         This will limit the space used for game caches on the device and reserve a portion of it for other use.  
         It's recommended to set the maximum fill level to, at most, 75-85% (or so) for a cache root on your system disk (C:).  
         If the device is used exclusively for gaming, it can be set as high as 100%.
@@ -117,7 +132,7 @@
         ** Add at least one cache root device/directory where games caches can be installed **
     </sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDevice">Device</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsDeviceToolTip">Root device where games will be cached</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsDeviceToolTip">Root storage device/disk where games will be cached</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDirectory">Directory</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDirectoryToolTip">Directory on root device where game caches will be installed</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsSpace">Space available</sys:String>

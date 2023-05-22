@@ -15,38 +15,41 @@
     <Grid Margin="30,0,30,30">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <TextBlock 
-                Text="Enable games for NowPlaying game caching"
-                Style="{DynamicResource HeadingText}"
-                Margin="0,0,0,15"/>
+        <TextBlock
+            Grid.Row="0"
+            Text="{DynamicResource LOCNowPlayingAddGamesHeading}"
+            Style="{DynamicResource HeadingText}"
+            Margin="0,0,0,15"/>
 
-            <TextBlock 
-                Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
-                Foreground="{DynamicResource WarningBrush}" 
-                FontSize="{DynamicResource FontSizeLarge}" 
-                Visibility="{Binding NoEligibleGamesVisibility}"
-                TextWrapping="Wrap"
-                Margin="0,10,0,0"/>
-
-            <StackPanel Orientation="Horizontal" Visibility="{Binding EligibleGamesVisibility}" Margin="0,0,0,10">
-                <Label Content="🔎" Margin="0,0,5,0"/>
-                <TextBox Width="250" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         ToolTip="Show only games with titles matching search text entered here."
-                         ToolTipService.InitialShowDelay="150"
-                         ToolTipService.BetweenShowDelay="0"
-                         Margin="0,0,15,0"/>
-                <Button Content="Select All" Margin="0,0,15,0" Command="{Binding SelectAllCommand}"/>
-                <Button Content="Select None" Command="{Binding SelectNoneCommand}"/>
-            </StackPanel>
+        <StackPanel 
+            Grid.Row="1"
+            Orientation="Horizontal" 
+            Visibility="{Binding EligibleGamesVisibility}" 
+            Margin="0,0,0,10">
+            <Label Content="🔎" Margin="0,0,5,0"/>
+            <TextBox 
+                Width="250" 
+                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
+                ToolTipService.InitialShowDelay="150"
+                ToolTipService.BetweenShowDelay="0"
+                Margin="0,0,15,0"/>
+            <Button 
+                Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
+                Command="{Binding SelectAllCommand}"
+                Margin="0,0,15,0"/> 
+            <Button 
+                Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
+                Command="{Binding SelectNoneCommand}"/>
         </StackPanel>
-        
+
         <ListView 
-            Grid.Row="1" Margin="0,0,0,20"
+            Grid.Row="2" Margin="0,0,0,20"
             Name="EligibleGames"
             Visibility="{Binding EligibleGamesVisibility}"
             ItemsSource="{Binding EligibleGames}"
@@ -57,21 +60,31 @@
 
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Title}"/>
+                    <GridViewColumn 
+                        Header="{DynamicResource LOCNowPlayingTermsTitle}" 
+                        DisplayMemberBinding="{Binding Path=Title}"/>
                     <GridViewColumn 
                         Width="95" 
                         DisplayMemberBinding="{Binding Path=InstallSize}"
                         utils:GridViewSort.CustomSort="{Binding CustomInstallSizeSort}">
-                        <GridViewColumnHeader Content="Install Size"/>
+                        <GridViewColumnHeader Content="{DynamicResource LOCNowPlayingTermsInstallSize}"/>
                     </GridViewColumn>
-
-                    <GridViewColumn Header="Genre(s)" DisplayMemberBinding="{Binding Path=Genres}"/>
+                    <GridViewColumn 
+                        Header="{DynamicResource LOCNowPlayingTermsGenres}" 
+                        DisplayMemberBinding="{Binding Path=Genres}"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,20">
-            <Label Content="Cache to:" Margin="0,0,10,0" Visibility="{Binding EligibleGamesVisibility}"/>
+        <StackPanel 
+            Grid.Row="3" 
+            Orientation="Horizontal" 
+            HorizontalAlignment="Right" 
+            Margin="0,0,0,20">
+            <Label 
+                Content="{DynamicResource LOCNowPlayingAddGamesCacheTo}" 
+                Visibility="{Binding EligibleGamesVisibility}"
+                Margin="0,0,10,0"/>
             <ComboBox 
                 SelectedIndex="0" 
                 ItemsSource="{Binding CacheRoots}"
@@ -79,10 +92,45 @@
                 Visibility="{Binding EligibleGamesVisibility}"
                 Width="200" Margin="0,0,15,0"/>
             <Button 
-                Content="Enable selected games" Margin="0,0,10,0"
+                Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
                 Visibility="{Binding EligibleGamesVisibility}"
-                Command="{Binding EnableSelectedGamesCommand}"/>
-            <Button Content="Close" Command="{Binding CloseCommand}"/>
+                Command="{Binding EnableSelectedGamesCommand}"
+                Margin="0,0,10,0"/>
+            <Button 
+                Content="{DynamicResource LOCNowPlayingTermsClose}" 
+                Command="{Binding CloseCommand}"/>
+        </StackPanel>
+
+        <!--No eligible games warning and info-->
+        <StackPanel
+            Grid.Row="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center" 
+            Visibility="{Binding NoEligibleGamesVisibility}">
+            <TextBlock 
+                Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
+                Foreground="{DynamicResource WarningBrush}" 
+                FontSize="{DynamicResource FontSizeLarge}"
+                HorizontalAlignment="Center"
+                TextWrapping="Wrap"
+                Margin="0,0,0,50"/>
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel.Resources>
+                    <Style TargetType="Label" BasedOn="{StaticResource BulletedLabel}">
+                        <Setter Property="Margin" Value="0,0,0,3"/>
+                    </Style>
+                </StackPanel.Resources>
+                <TextBlock Text="{DynamicResource LOCNowPlayingRequirementsHeading}"/>
+                <StackPanel Margin="10,10,0,0">
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement1}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement2}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement3}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement4}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement5}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement6}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingRequirement7}"/>
+                </StackPanel>
+            </StackPanel>
         </StackPanel>
 
     </Grid>
