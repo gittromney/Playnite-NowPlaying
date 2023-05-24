@@ -19,11 +19,11 @@
                 IsIndeterminate="{Binding ProgressIsIndeterminate}"
                 Foreground="{utils:DynamicResourceBinding ProgressBarForeground}"
                 Background="{utils:DynamicResourceBinding ProgressBarBackground}"
-                Width="200" Height="20" Padding="0,0,0,0"
+                Width="200" Height="20"
                 BorderBrush="Transparent">
                 
                 <ProgressBar.Clip>
-                    <RectangleGeometry RadiusX="7" RadiusY="7" Rect="0,0,200,20"/>
+                    <RectangleGeometry RadiusX="7" RadiusY="7" Rect="0.5,0,200,20"/>
                 </ProgressBar.Clip>
             </ProgressBar>
 

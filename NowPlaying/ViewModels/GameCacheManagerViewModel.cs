@@ -13,7 +13,7 @@ namespace NowPlaying.ViewModels
 {
     public class GameCacheManagerViewModel : ViewModelBase
     {
-        private readonly NowPlaying plugin;
+        public readonly NowPlaying plugin;
         private readonly string pluginUserDataPath;
         private readonly string cacheRootsJsonPath;
         private readonly string gameCacheEntriesJsonPath;
@@ -194,12 +194,13 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public long GetInstallAverageBps(string installDir, bool isSpeedLimited = false)
+        public long GetInstallAverageBps(string installDir, int speedLimitIpg = 0)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
-            if (isSpeedLimited)
+            if (speedLimitIpg > 0)
             {
-                installDevice += "(speed limited)";
+                int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
+                installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
             }
 
             if (InstallAverageBps.ContainsKey(installDevice))
@@ -208,22 +209,23 @@ namespace NowPlaying.ViewModels
             }
             else
             {
-                return isSpeedLimited ? 5242880 : 52428800; // initial default: 50 MB/s (or speed limited => 5 MB/s) 
+                return speedLimitIpg > 0 ? 5242880 : 52428800; // initial default: 50 MB/s (or speed limited => 5 MB/s) 
             }
         }
 
-        public void UpdateInstallAverageBps(string installDir, long averageBps, bool isSpeedLimited = false)
+        public void UpdateInstallAverageBps(string installDir, long averageBps, int speedLimitIpg = 0)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
-            if (isSpeedLimited)
+            if (speedLimitIpg > 0)
             {
-                installDevice += "(speed limited)";
+                int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
+                installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
             }
 
             if (InstallAverageBps.ContainsKey(installDevice))
             {
-                // take 50/50 average of saved Bps and current value
-                InstallAverageBps[installDevice] = (InstallAverageBps[installDevice] + averageBps) / 2;
+                // take 90/10 average of saved Bps and current value, respectively
+                InstallAverageBps[installDevice] = (9*InstallAverageBps[installDevice] + averageBps) / 10;
             }
             else
             {
@@ -294,7 +296,7 @@ namespace NowPlaying.ViewModels
                     }
                     else
                     {
-                        plugin.NotifyError($"Removing '{root.Directory}' as a NowPlaying cache root; Path not found or not writable.");
+                        plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingRemovingCacheRootNotFoundWritableFmt", root.Directory));
                     }
                 }
             }
@@ -339,7 +341,7 @@ namespace NowPlaying.ViewModels
                         }
                         else
                         {
-                            plugin.NotifyWarning($"Cache root '{entry.CacheRoot}' not found; disabling game caching for '{entry.Title}'.");
+                            plugin.NotifyWarning(plugin.FormatResourceString("LOCNowPlayingDisableGameCacheRootNotFoundFmt2", entry.CacheRoot, entry.Title));
                             plugin.DisableNowPlayingGameCaching(plugin.FindNowPlayingGame(entry.Id), entry.InstallDir, entry.ExePath, entry.XtraArgs);
                         }
                     }

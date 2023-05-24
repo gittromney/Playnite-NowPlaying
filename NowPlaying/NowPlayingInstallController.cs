@@ -38,7 +38,7 @@ namespace NowPlaying
             this.nowPlayingGame = nowPlayingGame;
             this.gameCache = gameCache;
             this.jobStats = new RoboStats();
-            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG > 0);
+            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG);
             this.progressView = new InstallProgressView(progressViewModel);
             this.speedLimitChangeOnPaused = null;
             this.speedLimitIPG = speedLimitIPG;
@@ -101,9 +101,10 @@ namespace NowPlaying
                 }
 
                 nowPlayingGame.IsInstalling = true;
-                gameCache.UpdateNowInstalling(true, isSpeedLimited: speedLimitIPG > 0);
+                gameCache.UpdateNowInstalling(true, speedLimitIPG);
 
-                // display the progress panel
+                // update speed and display the progress panel
+                progressViewModel.SpeedLimitIpg = speedLimitIPG;
                 plugin.panelViewModel.InstallProgressView = progressView;
                 
                 cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIPG);
@@ -130,7 +131,7 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), isSpeedLimited: speedLimitIPG > 0);
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), speedLimitIPG);
             
             InvokeOnInstalled(new GameInstalledEventArgs());
 
@@ -236,7 +237,7 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), isSpeedLimited: speedLimitIPG > 0);
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), speedLimitIPG);
 
             if (!plugin.cacheInstallQueuePaused) 
             { 

@@ -13,9 +13,9 @@ namespace NowPlaying.ViewModels
 
         private readonly NowPlaying plugin;
 
+        private string formatStringXofY;
         private int gamesToEnable;
         private int gamesEnabled;
-
         private int cachesToUninstall;
         private int cachesUninstalled;
 
@@ -93,6 +93,21 @@ namespace NowPlaying.ViewModels
             queuedInstallEta = TimeSpan.Zero;
             PercentDone = 0;
             Status = "";
+            this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
+        }
+
+        private bool EnableCounterReset()
+        {
+            gamesEnabled = 0;
+            gamesToEnable = 0;
+            return true;
+        }
+
+        private bool UninstallCounterReset()
+        {
+            cachesUninstalled = 0;
+            cachesToUninstall = 0;
+            return true;
         }
 
         public void OnJobStatsUpdated(object sender, string cacheId)
@@ -107,7 +122,8 @@ namespace NowPlaying.ViewModels
         {
             TopPanelMode = (gamesEnabled < gamesToEnable ? Mode.Enable : 
                             cachesUninstalled < cachesToUninstall ? Mode.Uninstall : 
-                            isSlowInstall ? Mode.SlowInstall : Mode.Install);
+                            isSlowInstall ? Mode.SlowInstall : 
+                            Mode.Install);
             TopPanelVisible = gamesEnabled < gamesToEnable || cachesUninstalled < cachesToUninstall || cachesInstalled < cachesToInstall;
 
             if (TopPanelVisible)
@@ -115,12 +131,14 @@ namespace NowPlaying.ViewModels
                 switch (TopPanelMode)
                 {
                     case Mode.Enable:
-                        Status = string.Format("Enabling game {0} of {1}...", gamesEnabled + 1, gamesToEnable);
+                        Status = plugin.GetResourceString("LOCNowPlayingTermsEnabling") + " ";
+                        Status += string.Format(formatStringXofY, gamesEnabled + 1, gamesToEnable) + "...";
                         OnPropertyChanged(nameof(Status));
                         break;
 
                     case Mode.Uninstall:
-                        Status = string.Format("Uninstalling {0} of {1}...", cachesUninstalled + 1, cachesToUninstall);
+                        Status = plugin.GetResourceString("LOCNowPlayingTermsUninstalling") + " ";
+                        Status += string.Format(formatStringXofY, cachesUninstalled + 1, cachesToUninstall) + "...";
                         OnPropertyChanged(nameof(Status));
                         break;
 
@@ -129,15 +147,27 @@ namespace NowPlaying.ViewModels
                         OnPropertyChanged(nameof(PercentDone));
 
                         var cachesInstallEta = SmartUnits.Duration((nowInstallingCache?.InstallEtaTimeSpan ?? TimeSpan.Zero) + queuedInstallEta);
-                        Status = string.Format("Installing {0} of {1}, ETA {2}", cachesInstalled + 1, cachesToInstall, cachesInstallEta);
+                        Status = plugin.GetResourceString("LOCNowPlayingTermsInstalling") + " ";
+                        Status += string.Format(formatStringXofY, cachesInstalled + 1, cachesToInstall) + ", ";
+                        Status += plugin.GetResourceString("LOCNowPlayingTermsEta") + " " + cachesInstallEta;
                         OnPropertyChanged(nameof(Status));
                         break;
+                }
+
+                if (gamesEnabled >= gamesToEnable)
+                {
+                    EnableCounterReset();
+                }
+                else if (cachesUninstalled >= cachesToUninstall)
+                {
+                    UninstallCounterReset();
                 }
             }
             else
             {
                 Reset();
             }
+
         }
 
         public void QueuedInstall(long installSize, TimeSpan eta)

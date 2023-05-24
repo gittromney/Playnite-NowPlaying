@@ -2,9 +2,6 @@
 using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
-using System.Security.Permissions;
-using System.Threading;
-using static NowPlaying.ViewModels.TopPanelViewModel;
 
 namespace NowPlaying.ViewModels
 {
@@ -25,6 +22,7 @@ namespace NowPlaying.ViewModels
                 if (preparingToInstall != value)
                 {
                     preparingToInstall = value;
+                    OnPropertyChanged();
                     OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
                     OnPropertyChanged(nameof(CurrentFile));
                     OnPropertyChanged(nameof(SpeedDurationEta));
@@ -32,15 +30,16 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private bool isSpeedLimited;
-        public bool IsSpeedLimited
+        private int speedLimitIpg;
+        public int SpeedLimitIpg
         {
-            get => isSpeedLimited;
+            get => speedLimitIpg;
             set
             {
-                if (isSpeedLimited != value)
+                if (speedLimitIpg != value)
                 {
-                    isSpeedLimited = value;
+                    speedLimitIpg = value;
+                    OnPropertyChanged();
                     OnPropertyChanged(nameof(ProgressPanelTitle));
                     OnPropertyChanged(nameof(ProgressTitleBrush));
                     OnPropertyChanged(nameof(ProgressBarBrush));
@@ -57,7 +56,15 @@ namespace NowPlaying.ViewModels
         //
         // Real-time GameCacheJob Statistics
         //
+        private string formatStringCopyingFile;
+        private string formatStringXofY;
+        private string formatStringFilesAndBytes;
+        private string formatStringSpeedDurationEta;
         private double percentDone;
+        private long   filesCopied;
+        private int    bytesScale;
+        private string bytesCopied;
+        private string bytesToCopy;
         private string copiedFilesOfFiles;
         private string copiedBytesOfBytes;
         private string currentFile;
@@ -71,21 +78,32 @@ namespace NowPlaying.ViewModels
         private int rollAvgRefreshCnt;
         private int rollAvgRefreshRate;
 
-        public string ProgressPanelTitle => (IsSpeedLimited ? 
-                                             $"Installing Game Cache w/Speed Limit for '{GameTitle}'..." : 
-                                             $"Installing Game Cache for '{GameTitle}'...");
-        public string ProgressTitleBrush => IsSpeedLimited ? "SlowInstallBrush" : "GlyphBrush";
+        public string ProgressPanelTitle =>
+        (
+            speedLimitIpg > 0
+            ? plugin.FormatResourceString("LOCNowPlayingProgressSpeedLimitTitleFmt2", speedLimitIpg, GameTitle)
+            : plugin.FormatResourceString("LOCNowPlayingProgressTitleFmt", GameTitle)
+        );
+        
+        public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "GlyphBrush";
 
         public double PercentDone => percentDone;
-        public string ProgressBarBrush => IsSpeedLimited ? "TopPanelSlowInstallFgBrush" : "TopPanelInstallFgBrush";
+        public string ProgressBarBrush => speedLimitIpg > 0? "TopPanelSlowInstallFgBrush" : "TopPanelInstallFgBrush";
 
-        public string CopiedFilesOfFiles => copiedFilesOfFiles;
-        public string CopiedBytesOfBytes => copiedBytesOfBytes;
-        public string CopiedFilesAndBytesProgress => PreparingToInstall ? "Preparing to install..." : $"{copiedFilesOfFiles} files,  {copiedBytesOfBytes} copied";
-        public string CurrentFile => PreparingToInstall ? "" : $"Copying '{currentFile}'...";
-        public string SpeedDurationEta => PreparingToInstall ? "" : $"Speed: {averageSpeed},   Time: {duration},   ETA: {timeRemaining}";
+        public string CopiedFilesAndBytesProgress =>
+        (
+            PreparingToInstall
+            ? plugin.GetResourceString("LOCNowPlayingPreparingToInstall")
+            : string.Format(formatStringFilesAndBytes, copiedFilesOfFiles, copiedBytesOfBytes)
+        );
 
-        public InstallProgressViewModel(NowPlayingInstallController controller, bool isSpeedLimited = false)
+        public string CurrentFile => PreparingToInstall ? "" : string.Format(formatStringCopyingFile, currentFile);
+        public string SpeedDurationEta =>
+        (
+            PreparingToInstall ? "" : string.Format(formatStringSpeedDurationEta, averageSpeed, duration, timeRemaining)
+        );
+
+        public InstallProgressViewModel(NowPlayingInstallController controller, int speedLimitIpg = 0)
         {
             this.plugin = controller.plugin;
             this.controller = controller;
@@ -94,14 +112,22 @@ namespace NowPlaying.ViewModels
             this.gameCache = controller.gameCache;
             this.PauseInstallCommand = new RelayCommand(() => controller.RequestPauseInstall());
             this.CancelInstallCommand = new RelayCommand(() => controller.RequestCancellInstall());
-            PrepareToInstall(isSpeedLimited);
+
+            this.formatStringCopyingFile = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}'...";
+            this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
+            this.formatStringFilesAndBytes = plugin.GetResourceFormatString("LOCNowPlayingProgressFilesAndBytesFmt2", 2) ?? "{0} files,  {1} copied";
+            this.formatStringSpeedDurationEta = (plugin.GetResourceString("LOCNowPlayingTermsSpeed") ?? "Speed") + ": {0},   ";
+            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsDuration") ?? "Duration") + ": {1},   ";
+            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsEta") ?? "ETA") + ": {2}";
+            
+            PrepareToInstall(speedLimitIpg);
         }
 
-        public void PrepareToInstall(bool isSpeedLimited = false)
+        public void PrepareToInstall(int speedLimitIpg = 0)
         {
             // . Start in "Preparing to install..." state; until job is underway & statistics are updated 
             this.PreparingToInstall = true;
-            this.IsSpeedLimited = isSpeedLimited;
+            this.speedLimitIpg = speedLimitIpg;
 
             cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
             cacheManager.gameCacheManager.eJobCancelled += OnJobDone;
@@ -109,9 +135,12 @@ namespace NowPlaying.ViewModels
 
             // . initialize any rolling average stats
             this.rollAvgDepth = 50;
-            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir, isSpeedLimited));
+            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIpg));
             this.rollAvgRefreshCnt = 0;
             this.rollAvgRefreshRate = 50;
+
+            this.filesCopied = 0;
+            this.bytesCopied = "-";
         }
 
         /// <summary>
@@ -122,7 +151,25 @@ namespace NowPlaying.ViewModels
         {
             if (cacheId == gameCache.Id)
             {
-                PreparingToInstall = false;
+                if (preparingToInstall)
+                {
+                    PreparingToInstall = false;
+
+                    // . First update only: get auto scale for and bake "OfBytes" to copy string.
+                    bytesScale = SmartUnits.GetBytesAutoScale(jobStats.BytesToCopy);
+                    bytesToCopy = SmartUnits.Bytes(jobStats.BytesToCopy, userScale: bytesScale);
+
+                    // . Initialize copied files of files and bytes of bytes progress. 
+                    filesCopied = jobStats.FilesCopied;
+                    bytesCopied = SmartUnits.Bytes(jobStats.GetTotalBytesCopied(), userScale: bytesScale, showUnits: false);
+                    copiedFilesOfFiles = string.Format(formatStringXofY, jobStats.FilesCopied, jobStats.FilesToCopy);
+                    copiedBytesOfBytes = string.Format(formatStringXofY, bytesCopied, bytesToCopy);
+
+                    OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
+                    OnPropertyChanged(nameof(ProgressPanelTitle));
+                    OnPropertyChanged(nameof(ProgressTitleBrush));
+                    OnPropertyChanged(nameof(ProgressBarBrush));
+                }
 
                 // . update any real-time properties that have changed
                 double dval = jobStats.UpdatePercentDone();
@@ -132,19 +179,19 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(PercentDone));
                 }
 
-                string sval = string.Format("{0} of {1}", jobStats.FilesCopied, jobStats.FilesToCopy);
-                if (copiedFilesOfFiles != sval)
+                string sval = SmartUnits.Bytes(jobStats.GetTotalBytesCopied(), userScale: bytesScale, showUnits: false);
+                if (filesCopied != jobStats.FilesCopied || bytesCopied != sval)
                 {
-                    copiedFilesOfFiles = sval;
-                    OnPropertyChanged(nameof(CopiedFilesOfFiles));
-                    OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
-                }
-
-                sval = SmartUnits.BytesOfBytes(jobStats.GetTotalBytesCopied(), jobStats.BytesToCopy);
-                if (copiedBytesOfBytes != sval)
-                {
-                    copiedBytesOfBytes = sval;
-                    OnPropertyChanged(nameof(CopiedBytesOfBytes));
+                    if (filesCopied != jobStats.FilesCopied)
+                    {
+                        filesCopied = jobStats.FilesCopied;
+                        copiedFilesOfFiles = string.Format(formatStringXofY, jobStats.FilesCopied, jobStats.FilesToCopy);
+                    }
+                    if (bytesCopied != sval)
+                    {
+                        bytesCopied = sval;
+                        copiedBytesOfBytes = string.Format(formatStringXofY, bytesCopied, bytesToCopy);
+                    }
                     OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
                 }
 

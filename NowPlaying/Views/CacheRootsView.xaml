@@ -96,8 +96,15 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="Installed" Text="{Binding CachesInstalled}" Foreground="{DynamicResource TextBrush}"/>
-                                    <TextBlock x:Name="InstalledSize" Text="{Binding CachesInstalledSize}" Foreground="{DynamicResource TextBrushDarker}"/>
+                                    <TextBlock 
+                                        x:Name="Installed" 
+                                        Text="{Binding CachesInstalled}" 
+                                        Foreground="{DynamicResource TextBrush}"
+                                        Margin="0,0,10,0"/>
+                                    <TextBlock 
+                                        x:Name="InstalledSize" 
+                                        Text="{Binding CachesInstalledSize}" 
+                                        Foreground="{DynamicResource TextBrushDarker}"/>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
@@ -108,15 +115,22 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="240">
+                    <GridViewColumn Width="300">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsMaxFillLevel}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="MaxFill" Text="{Binding MaxFillLevel, StringFormat={}{0}%}" Foreground="{DynamicResource TextBrush}"/>
-                                    <TextBlock x:Name="Reserved" Text="{Binding ReservedSpaceOnDevice}" Foreground="{DynamicResource TextBrushDarker}"/>
+                                    <TextBlock 
+                                        x:Name="MaxFill" 
+                                        Text="{Binding MaxFillLevel, StringFormat={}{0}%}" 
+                                        Foreground="{DynamicResource TextBrush}"
+                                        Margin="0,0,15,0"/>
+                                    <TextBlock 
+                                        x:Name="Reserved" 
+                                        Text="{Binding ReservedSpaceOnDevice}" 
+                                        Foreground="{DynamicResource TextBrushDarker}"/>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">

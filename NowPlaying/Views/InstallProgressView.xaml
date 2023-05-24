@@ -33,7 +33,7 @@
 
                 <!--drop shadow text-->
                 <TextBlock 
-                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n0}% done}"
+                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n1}%}"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Foreground="Black"
@@ -41,7 +41,7 @@
 
                 <!--foreground text-->
                 <TextBlock 
-                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n0}% done}"
+                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n1}%}"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     FontSize="16"/>

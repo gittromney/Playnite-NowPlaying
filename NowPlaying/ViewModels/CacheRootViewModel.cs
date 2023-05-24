@@ -9,6 +9,7 @@ namespace NowPlaying.ViewModels
     public class CacheRootViewModel : ObservableObject
     {
         public readonly GameCacheManagerViewModel manager;
+        public readonly NowPlaying plugin;
         public CacheRoot root;
         public string Directory => root.Directory;
         public string Device => System.IO.Directory.GetDirectoryRoot(Directory);
@@ -28,6 +29,7 @@ namespace NowPlaying.ViewModels
         public CacheRootViewModel(GameCacheManagerViewModel manager, CacheRoot root)
         {
             this.manager = manager;
+            this.plugin = manager.plugin;
             this.root = root;
 
             SetMaxFillLevel(root.MaxFillLevel);
@@ -92,7 +94,7 @@ namespace NowPlaying.ViewModels
         private string GetAggregateCacheSize(List<GameCacheViewModel> gameCaches)
         {
             var aggregateSize = gameCaches.Select(gc => gc.CacheSize).Sum(x => x);
-            return aggregateSize > 0 ? "  (" + SmartUnits.Bytes(aggregateSize) + ")" : "";
+            return aggregateSize > 0 ? "(" + SmartUnits.Bytes(aggregateSize) + ")" : "";
         }
 
         private bool IsCacheInstalled(GameCacheViewModel gameCache)
@@ -115,7 +117,7 @@ namespace NowPlaying.ViewModels
 
             if (MaxFillLevel < 100)
             {
-                ReservedSpaceOnDevice = "  (leave " + SmartUnits.Bytes(bytesReservedOnDevice) + " unused)";
+                ReservedSpaceOnDevice = plugin.FormatResourceString("LOCNowPlayingCacheRootReservedSpaceFmt", SmartUnits.Bytes(bytesReservedOnDevice));
             }
             else
             {

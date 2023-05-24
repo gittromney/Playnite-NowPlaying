@@ -8,6 +8,7 @@ namespace NowPlaying.ViewModels
 {
     public class GameCacheViewModel : ObservableObject
     {
+        private readonly NowPlaying plugin;
         public readonly GameCacheManagerViewModel manager;
         public readonly GameCacheEntry entry;
         public CacheRootViewModel cacheRoot;
@@ -30,7 +31,7 @@ namespace NowPlaying.ViewModels
         private bool nowInstalling; 
         private bool nowUninstalling;
         private string cacheInstalledSize;
-        private bool isSpeedLimited;
+        private int speedLimitIpg;
 
         public string InstallQueueStatus => installQueueStatus;
         public string UninstallQueueStatus => uninstallQueueStatus;
@@ -41,22 +42,34 @@ namespace NowPlaying.ViewModels
             entry.State, 
             installQueueStatus, 
             uninstallQueueStatus, 
-            nowInstalling, 
-            isSpeedLimited,
+            nowInstalling,
+            speedLimitIpg > 0,
             nowUninstalling
         );
-        public string StatusColor => (State == GameCacheState.Invalid ? "WarningBrush" : 
-                                      Status == "Uninstalled" ? "TextBrushDarker" : 
-                                      NowInstalling ? (isSpeedLimited ? "SlowInstallBrush" : "InstallBrush") :
-                                      "TextBrush");
+        public string StatusColor => 
+        (
+            State == GameCacheState.Invalid ? "WarningBrush" : 
+            Status == plugin.GetResourceString("LOCNowPlayingTermsUninstalled") ? "TextBrushDarker" : 
+            NowInstalling ? (speedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush") :
+            "TextBrush"
+        );
 
         public string CacheInstalledSize => cacheInstalledSize;
-        public string CacheInstalledSizeColor => (CanInstallCache == "No" ? "WarningBrush" : 
-                                                  State == GameCacheState.Empty ? "TextBrushDarker" : 
-                                                  "TextBrush");
+        public string CacheInstalledSizeColor => 
+        (
+            CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? "WarningBrush" : 
+            State == GameCacheState.Empty ? "TextBrushDarker" : 
+            "TextBrush"
+        );
+
         public bool CacheWillFit { get; private set; }
-        public string CanInstallCache => entry.State==GameCacheState.Empty || entry.State==GameCacheState.InProgress ? (CacheWillFit ? "Yes" : "No") : "-";
-        public string CanInstallCacheColor => CanInstallCache == "No" ? "WarningBrush" : "TextBrush";
+        public string CanInstallCache => 
+        (
+            (entry.State==GameCacheState.Empty || entry.State==GameCacheState.InProgress) 
+            ? plugin.GetResourceString(CacheWillFit ? "LOCNowPlayingTermsYes" : "LOCNowPlayingTermsNo") 
+            : "-"
+        );
+        public string CanInstallCacheColor => CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? "WarningBrush" : "TextBrush";
 
         public TimeSpan InstallEtaTimeSpan { get; private set; }
         public string InstallEta { get; private set; }
@@ -67,11 +80,12 @@ namespace NowPlaying.ViewModels
         public GameCacheViewModel(GameCacheManagerViewModel manager, GameCacheEntry entry, CacheRootViewModel cacheRoot)
         {
             this.manager = manager;
+            this.plugin = manager.plugin;
             this.entry = entry;
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
             this.cacheInstalledSize = GetCacheInstalledSize(entry);
-            this.isSpeedLimited = false;
+            this.speedLimitIpg = 0;
             UpdateInstallEta();
         }
 
@@ -123,16 +137,16 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void UpdateNowInstalling(bool value, bool isSpeedLimited = false)
+        public void UpdateNowInstalling(bool value, int speedLimitIpg = 0)
         {
-            if (nowInstalling != value || this.isSpeedLimited != isSpeedLimited)
+            if (nowInstalling != value || value && this.speedLimitIpg != speedLimitIpg)
             {
                 nowInstalling = value;
                 nowUninstalling &= !nowInstalling;
                 
-                if (this.isSpeedLimited != isSpeedLimited)
+                if (value && this.speedLimitIpg != speedLimitIpg)
                 {
-                    this.isSpeedLimited = isSpeedLimited;
+                    this.speedLimitIpg = speedLimitIpg;
                     UpdateInstallEta();
                 }
 
@@ -202,7 +216,7 @@ namespace NowPlaying.ViewModels
         {
             if (value == null)
             {
-                value = GetInstallEtaTimeSpan(entry, manager.GetInstallAverageBps(entry.InstallDir, isSpeedLimited));
+                value = GetInstallEtaTimeSpan(entry, manager.GetInstallAverageBps(entry.InstallDir, speedLimitIpg));
             }
             if (InstallEtaTimeSpan != value || InstallEta == null)
             {
@@ -245,8 +259,11 @@ namespace NowPlaying.ViewModels
             {
                 case GameCacheState.Played:
                 case GameCacheState.Populated: return SmartUnits.Bytes(entry.CacheSize, decimals:1);
-                case GameCacheState.InProgress: return SmartUnits.BytesOfBytes(entry.CacheSize, entry.InstallSize, decimals:1);
-                case GameCacheState.Empty: return "(needs " + SmartUnits.Bytes(entry.InstallSize, decimals:1) + ")";
+                case GameCacheState.InProgress: 
+                    //xxx
+                    return SmartUnits.BytesOfBytes(entry.CacheSize, entry.InstallSize, decimals:1);
+                case GameCacheState.Empty: 
+                    return plugin.FormatResourceString("LOCNowPlayingGameCacheSizeNeededFmt", SmartUnits.Bytes(entry.InstallSize, decimals:1));
                 default: return "-";
             }
         }
@@ -263,29 +280,29 @@ namespace NowPlaying.ViewModels
         {
             if (installQueueStatus != null)
             {
-                return $"Queued for install ({installQueueStatus})";
+                return plugin.GetResourceString("LOCNowPlayingTermsQueuedForInstall") + $" ({installQueueStatus})";
             }
             else if (uninstallQueueStatus != null)
             {
-                return $"Queued for uninstall ({uninstallQueueStatus})";
+                return plugin.GetResourceString("LOCNowPlayingTermsQueuedForUninstall") + $" ({uninstallQueueStatus})";
             }
             else if (nowInstalling)
             {
-                return isSpeedLimited ? "Installing w/speed limit..." : "Installing...";
+                return plugin.GetResourceString(isSpeedLimited ? "LOCNowPlayingTermsInstallSpeedLimit" : "LOCNowPlayingTermsInstalling") + "...";
             }
             else if (nowUninstalling)
             {
-                return "Uninstalling...";
+                return plugin.GetResourceString("LOCNowPlayingTermsUninstalling") + "...";
             }
             else
             {
                 switch (state)
                 {
                     case GameCacheState.Played:
-                    case GameCacheState.Populated: return "Installed";
-                    case GameCacheState.InProgress: return "Paused";
-                    case GameCacheState.Empty: return "Uninstalled";
-                    default: return "** invalid **";
+                    case GameCacheState.Populated: return plugin.GetResourceString("LOCNowPlayingTermsInstalled");
+                    case GameCacheState.InProgress: return plugin.GetResourceString("LOCNowPlayingTermsPaused");
+                    case GameCacheState.Empty: return plugin.GetResourceString("LOCNowPlayingTermsUninstalled");
+                    default: return "** " + plugin.GetResourceString("LOCNowPlayingTermsInvalid") + " **";
                 }
             }
         }

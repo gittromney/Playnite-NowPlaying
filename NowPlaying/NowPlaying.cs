@@ -108,6 +108,44 @@ namespace NowPlaying
             };
         }
 
+        public string GetResourceString(string key)
+        {
+            return key != null ? PlayniteApi.Resources.GetString(key) : null;
+        }
+
+        public string GetResourceFormatString(string key, int formatItemCount)
+        {
+            if (key != null)
+            {
+                string formatString = PlayniteApi.Resources.GetString(key);
+                bool validFormat = !string.IsNullOrEmpty(formatString);
+                for (int fi = 0; validFormat && fi < formatItemCount; fi++) {
+                    validFormat &= formatString.Contains("{" + fi + "}");
+                }    
+                if (validFormat) {
+                    return formatString;
+                }
+                else if (formatItemCount > 1)
+                {
+                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}} - '{{{formatItemCount-1}}}' patterns");
+                    return null;
+                }
+                else
+                {
+                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}}' pattern");
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        public string FormatResourceString(string key, params object[] formatItems)
+        {
+            string formatString = GetResourceFormatString(key, formatItems.Count());
+            return formatString != null ? string.Format(formatString, formatItems) : null;
+        }
+
+
         public void UpdateSettings(NowPlayingSettings settings)
         {
             Settings = settings;
@@ -196,10 +234,10 @@ namespace NowPlaying
                     string possibleCacheDir = Path.Combine(root.Directory, subDir);
                     if (!cacheManager.IsGameCacheDirectory(possibleCacheDir))
                     {
-                        NotifyWarning($"Unknown/orphaned directory '{subDir}' found under NowPlaying cache cacheRoot '{root}'", () =>
+                        NotifyWarning(FormatResourceString("LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2", subDir, root.Directory), () =>
                         {
-                            string caption = "NowPlaying: unknown or orphaned cache directory";
-                            string message = $"Do you want to delete '{possibleCacheDir}'?";
+                            string caption = GetResourceString("LOCNowPlayingUnknownOrphanedDirectoryCaption");
+                            string message = FormatResourceString("LOCNowPlayingUnknownOrphanedDirectoryMsgFmt", possibleCacheDir);
                             if (PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                             {
                                 DirectoryUtils.DeleteDirectory(possibleCacheDir);
@@ -215,12 +253,12 @@ namespace NowPlaying
             bool foundBroken = false;
             foreach (var game in PlayniteApi.Database.Games.Where(g => g.PluginId == this.Id))
             {
-                if (!cacheManager.GameCacheExists(game.Id.ToString())) 
+                if (!cacheManager.GameCacheExists(game.Id.ToString()))
                 {
                     // . NowPlaying game is missing the supporting game cache... attempt to recreate it
                     if (!TryRestoreMissingGameCache(game.Id.ToString(), game))
                     {
-                        NotifyWarning($"NowPlaying game cache information missing; disabling game caching for '{game.Name}'.");
+                        NotifyWarning(FormatResourceString("LOCNowPlayingDisableGameCacheMissingInfoFmt", game.Name));
                         DisableNowPlayingGameCaching(game);
                         foundBroken = true;
                     }
@@ -260,11 +298,6 @@ namespace NowPlaying
             Game nowPlayingGame = args.Game;
             string cacheId = nowPlayingGame.Id.ToString();
 
-            if (!CheckIfGameInstallDirIsAccessible(nowPlayingGame.Name, nowPlayingGame.InstallDirectory))
-            {
-                return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
-            }
-
             if (!cacheManager.GameCacheExists(cacheId))
             {
                 TryRestoreMissingGameCache(cacheId, nowPlayingGame);
@@ -282,8 +315,8 @@ namespace NowPlaying
                 {
                     if (!gameCache.CacheWillFit)
                     {
-                        string message = $"Not enough space to install game cache to '{gameCache.CacheDir}'";
-                        message += Environment.NewLine + "(Click on the NowPlaying sidebar for more details.)";
+                        string message = FormatResourceString("LOCNowPlayingCacheWillNotFitFmt2", gameCache.Title, gameCache.CacheDir);
+                        message += Environment.NewLine + Environment.NewLine + GetResourceString("LOCNowPlayingCacheWillNotFitMsg");
                         PopupError(message);
                     }
                     return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
@@ -291,7 +324,7 @@ namespace NowPlaying
             }
             else
             {
-                PopupError($"Unable to find or restore NowPlaying game cache entry for '{args.Game.Name}'");
+                PopupError(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", args.Game.Name));
                 return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
             }
         }
@@ -332,7 +365,7 @@ namespace NowPlaying
             }
             else
             {
-                PopupError($"Unable to find or restore NowPlaying game cache entry for '{args.Game.Name}'");
+                PopupError(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", args.Game.Name));
                 return null;
             }
         }
@@ -352,8 +385,7 @@ namespace NowPlaying
             if (title != null && installDir != null && exePath != null && cacheRootDir != null && cacheSubDir != null)
             {
                 cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
-
-                NotifyWarning($"Restored NowPlaying game cache entry for '{title}'");
+                NotifyWarning(FormatResourceString("LOCNowPlayingRestoredCacheInfoFmt", title));
                 return true;
             }
             return false;
@@ -403,19 +435,27 @@ namespace NowPlaying
 
             // . get selected games context
             var context = new SelectedGamesContext(this, args.Games);
-            string gameCount = context.count > 1 ? $"s ({context.count} games)" : "";
 
             // . Enable game caching menu
             if (context.allEligible)
             {
+                string description = "NowPlaying: ";
+                if (context.count > 1)
+                {
+                    description += FormatResourceString("LOCNowPlayingEnableGameCachesFmt", context.count);
+                }
+                else
+                {
+                    description += GetResourceString("LOCNowPlayingEnableGameCache");
+                }
                 if (cacheManager.CacheRoots.Count > 1)
                 {
                     foreach (var cacheRoot in cacheManager.CacheRoots)
                     {
                         gameMenuItems.Add(new GameMenuItem
                         {
-                            MenuSection = "Enable NowPlaying caching for selected game" + gameCount,
-                            Description = $"To {cacheRoot.Directory}",
+                            MenuSection = description,
+                            Description = GetResourceString("LOCNowPlayingTermsTo") + " " + cacheRoot.Directory,
                             Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
                         });
                     }
@@ -425,7 +465,7 @@ namespace NowPlaying
                     var cacheRoot = cacheManager.CacheRoots.First();
                     gameMenuItems.Add(new GameMenuItem
                     {
-                        Description = "Enable NowPlaying caching for selected game" + gameCount,
+                        Description = description,
                         Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
                     });
                 }
@@ -434,16 +474,25 @@ namespace NowPlaying
             // . Disable game caching menu
             else if (context.allEnabledAndEmpty)
             {
+                string description = "NowPlaying: ";
+                if (context.count > 1)
+                {
+                    description += FormatResourceString("LOCNowPlayingDisableGameCachesFmt", context.count);
+                }
+                else
+                {
+                    description += GetResourceString("LOCNowPlayingDisableGameCache");
+                }
                 gameMenuItems.Add(new GameMenuItem
                 {
-                    Description = "Disable NowPlaying caching for selected game" + gameCount,
+                    Description = description,
                     Action = (a) => 
                     { 
                         foreach (var game in args.Games) 
                         { 
                             DisableNowPlayingGameCaching(game);
                             cacheManager.RemoveGameCache(game.Id.ToString());
-                            NotifyInfo($"Game caching disabled for '{game.Name}'");
+                            NotifyInfo(FormatResourceString("LOCNowPlayingMsgGameCachingDisabledFmt", game.Name));
                         } 
                     }
                 });
@@ -519,12 +568,12 @@ namespace NowPlaying
                         }
                         else
                         {
-                            PopupError($"Couldn't find NowPlaying play action for game: {game.Name}");
+                            PopupError(FormatResourceString("LOCNowPlayingPlayActionNotFoundFmt", game.Name));
                         }
                     }
                     else
                     {
-                        PopupError($"Attempted to change cache cacheRoot of non-empty game cache: {game.Name}");
+                        PopupError(FormatResourceString("LOCNowPlayingNonEmptyRerootAttemptedFmt", game.Name));
                     }
                 }
             }
@@ -541,7 +590,7 @@ namespace NowPlaying
         {
             if (!Directory.Exists(installDir))
             {
-                PopupError($"{title}'s installation directory '{installDir}' not found; is the disk mounted and decrypted?");
+                PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
                 return false;
             }
             return true;
@@ -850,8 +899,8 @@ namespace NowPlaying
                     // . restore top panel queue state
                     topPanelViewModel.QueuedInstall(controller.gameCache.InstallSize, controller.gameCache.InstallEtaTimeSpan);
 
+                    // . update transfer speed 
                     controller.speedLimitIPG = speedLimitIPG;
-                    controller.progressViewModel.PrepareToInstall(isSpeedLimited: speedLimitIPG > 0);
                 }
 
                 string title = cacheInstallQueue.First().gameCache.Title;
@@ -868,6 +917,7 @@ namespace NowPlaying
                     NowPlaying.logger.Info($"Game stopped; NowPlaying installation resumed for '{title}'.");
                 }
 
+                cacheInstallQueue.First().progressViewModel.PrepareToInstall(speedLimitIPG);
                 Task.Run(() => cacheInstallQueue.First().NowPlayingInstall());
             }
         }
