@@ -2,6 +2,15 @@
 
 This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows to keep your games hosted on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and can create & mangage cached copies of those games where there can be played from your fast storage device(s). 
 
+Games must meet the following requirements to be eligible for game caching:
+- Must be locally installed (added via Add Game -> Manually / Scan Automatically)
+- Are playable from the installation directory on the big-and-slow host device (i.e. not in an archived state).
+- Are listed under the 'Playnite' library.
+- Have an empty Source (see Game Details -> General -> Source).
+- Have no Roms.
+- Have a single Play Action (see Game Details -> Actions).
+- Platform is 'PC (Windows)'.
+
 Example use case:
 
 1. Import PC Windows games into Playnite from your big-and-slow storage devices (Add Game -> Manually, or Add Game -> Scan Automatically)
@@ -43,15 +52,5 @@ Example use case:
 
     Several ways:
     - Playnite's main view: use all of the normal mechanisms to Install a library game.
-
-
-Games must meet the following requirements to be eligible for game caching:
-- Locally installed (added via Add Game -> Manually / Scan Automatically)
-- Listed under the 'Playnite' library.
-- Have an empty Source (see Game Details -> General -> Source).
-- Playable from the installation directory on a big-and-slow host storage device (i.e. not in an archived state).
-- Have no Roms.
-- Have a single Play Action (see Game Details -> Actions).
-- Platform is 'PC (Windows)'.
 
 
