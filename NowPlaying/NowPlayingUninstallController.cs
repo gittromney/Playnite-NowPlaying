@@ -1,4 +1,5 @@
-﻿using NowPlaying.Models;
+﻿using Microsoft.SqlServer.Server;
+using NowPlaying.Models;
 using NowPlaying.ViewModels;
 using Playnite.SDK;
 using Playnite.SDK.Models;
@@ -14,6 +15,7 @@ namespace NowPlaying
     public class NowPlayingUninstallController : UninstallController
     {
         private readonly NowPlaying plugin;
+        private readonly ILogger logger;
         private readonly NowPlayingSettings settings;
         private readonly IPlayniteAPI PlayniteApi;
         private readonly GameCacheManagerViewModel cacheManager;
@@ -27,6 +29,7 @@ namespace NowPlaying
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
+            this.logger = NowPlaying.logger;
             this.settings = plugin.Settings;
             this.PlayniteApi = plugin.PlayniteApi;
             this.cacheManager = plugin.cacheManager;
@@ -59,7 +62,7 @@ namespace NowPlaying
                 else
                 {
                     plugin.UpdateUninstallQueueStatuses();
-                    NowPlaying.logger.Info($"NowPlaying uninstall of '{gameCache.Title}' game cache queued ({gameCache.UninstallQueueStatus}).");
+                    logger.Info($"NowPlaying uninstall of '{gameCache.Title}' game cache queued ({gameCache.UninstallQueueStatus}).");
                 }
             }
         }
@@ -74,9 +77,8 @@ namespace NowPlaying
 
             if (settings.ConfirmUninstall)
             {
-                string message = $"Are you sure you want to uninstall the NowPlaying Game Cache for '{gameTitle}'?";
-                string caption = "Confirm NowPlaying Uninstall";
-                MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo);
+                string message = plugin.FormatResourceString("LOCNowPlayingUninstallConfirmMsgFmt", gameTitle);
+                MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, string.Empty, MessageBoxButton.YesNo);
                 cancelUninstall = userChoice == MessageBoxResult.No;
             }
 
@@ -85,14 +87,11 @@ namespace NowPlaying
                 DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
                 if (result.isDirty)
                 {
-                    string caption = "Confirm NowPlaying Cache Write-Back";
                     string nl = System.Environment.NewLine;
-                    string message = string.Empty;
-                    message += $"{gameTitle}'s Game Cache differs from its installation directory." + nl + nl;
+                    string caption = plugin.GetResourceString("LOCNowPlayingSyncOnUninstallCaption");
+                    string message = plugin.FormatResourceString("LOCNowPlayingSyncOnUninstallDiffHeadingFmt3", gameTitle, cacheDirectory, installDirectory) + nl + nl;
                     message += result.summary;
-                    message += "Do you want to copy new/modified files from the Game Cache" + nl;
-                    message += $"back to the install directory ({installDirectory})" + nl;
-                    message += "before deleting it?";
+                    message += plugin.GetResourceString("LOCNowPlayingSyncOnUninstallPrompt");
                     MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNoCancel);
                     cacheWriteBackOption = userChoice == MessageBoxResult.Yes;
                     cancelUninstall = userChoice == MessageBoxResult.Cancel;
@@ -167,11 +166,10 @@ namespace NowPlaying
 
             gameCache.UpdateNowUninstalling(false);
 
-            string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".uninstall.txt");
-
             if (job.cancelledOnError)
             {
-                plugin.PopupError($"Uninstall of '{gameCache.Title}' game cache terminated because of an error.", seeLogFile);
+                string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".uninstall.txt");
+                plugin.PopupError($"Uninstall of '{gameCache.Title}' game cache terminated because of an error." + seeLogFile);
             }
 
             // . update state in JSON file 

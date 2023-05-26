@@ -7,6 +7,10 @@ namespace NowPlaying
 
     public class NowPlayingSettings : ObservableObject
     {
+        public bool ConfirmUninstall { get; set; }
+        public bool NotifyOnInstallCancelled { get; set; }
+        public bool NotifyOnInstallWhilePlayingActivity { get; set; }
+
         private DoWhen syncDirtyCache_DoWhen;
         public DoWhen SyncDirtyCache_DoWhen 
         {
@@ -51,11 +55,12 @@ namespace NowPlaying
             } 
         }
 
-        public bool ConfirmUninstall { get; set; }
-
         public NowPlayingSettings()
         {
-            this.ConfirmUninstall = false;
+            this.ConfirmUninstall = true;
+            this.NotifyOnInstallCancelled = false;
+            this.NotifyOnInstallWhilePlayingActivity = false;
+
             this.SyncDirtyCache_DoWhen = DoWhen.Always;
             this.WhilePlayingMode = WhilePlaying.SpeedLimit;
             this.SpeedLimitIPG = 75;

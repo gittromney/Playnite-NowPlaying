@@ -1,15 +1,17 @@
 ﻿using NowPlaying.Utils;
-using NowPlaying.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Playnite.SDK;
 
 namespace NowPlaying.Models
 {
     public class RoboCacher
     {
+        private readonly ILogger logger;
+
         // . callbacks for real-time stats updates and job done
         public event EventHandler<string> eStatsUpdated;
         public event EventHandler<GameCacheJob> eJobDone;
@@ -17,8 +19,9 @@ namespace NowPlaying.Models
         
         private List<Process> activeBackgroundProcesses;
 
-        public RoboCacher()
+        public RoboCacher(ILogger logger)
         {
+            this.logger = logger;
             activeBackgroundProcesses = new List<Process>();
         }
 
@@ -77,6 +80,12 @@ namespace NowPlaying.Models
             }
         }
 
+        private void RoboError(string msg)
+        {
+            logger.Error(msg); 
+            throw new InvalidOperationException(msg);
+        }
+
         /// <summary>
         /// Runs robocopy.exe in "analysis mode" to compare source and destination directories.
         /// This is a blocking task that waits for robocopy.exe to finish (or fail). 
@@ -89,7 +98,7 @@ namespace NowPlaying.Models
         {
             DiffResult diff = new DiffResult();
             ProcessStartInfo rcPsi = RoboStartInfo(srcDir, destDir, listOnly: true, showClass: true);
-            Console.WriteLine($"Starting robocopy.exe w/args '{rcPsi.Arguments}'...");
+            logger.Debug($"Starting robocopy.exe w/args '{rcPsi.Arguments}'...");
             Process foregroundProcess = Process.Start(rcPsi);
 
             string line;
@@ -107,7 +116,8 @@ namespace NowPlaying.Models
                         // . kill robocopy.exe
                         foregroundProcess.Kill();
                         foregroundProcess.Dispose();
-                        throw new RoboCacherException($"Unexpected robocopy.exe output line: '{line}'");
+                        RoboError($"Unexpected robocopy.exe output line: '{line}'");
+                        break;
                 }
                 Console.WriteLine(line);
             }
@@ -119,7 +129,7 @@ namespace NowPlaying.Models
 
             if (exitCode > 3)  // exit code 0-3 == successful analysis run
             {
-                throw new RoboCacherException($"Analysis of cache folder contents failed.");
+                RoboError("Diff of cache folder contents vs install directory failed.");
             }
 
             diff.TotalDiffCount += diff.ExtraFiles.Count + diff.NewFiles.Count;
@@ -188,8 +198,7 @@ namespace NowPlaying.Models
                 // . diff results not expected: cache state is Invalid
                 entry.State = GameCacheState.Invalid;
                 MarkCacheDirectoryState(cacheDir, entry.State);
-
-                throw new RoboCacherException($"Analysis of cache folder contents failed: {ex.Message}");
+                RoboError($"Analysis of cache folder contents failed: {ex.Message}");
             }
         }
 
@@ -198,10 +207,9 @@ namespace NowPlaying.Models
             long freeSpace = DirectoryUtils.GetAvailableFreeSpace(cacheDir);
             if (freeSpace < spaceRequired)
             {
-                string message = string.Format("Not enough space in {0} for game cache. Needs {1}, has {2}",
+                RoboError(string.Format("Not enough space in {0} for game cache. Needs {1}, has {2}",
                     cacheDir, SmartUnits.Bytes(spaceRequired), SmartUnits.Bytes(freeSpace)
-                );
-                throw new InvalidOperationException(message);
+                ));
             }
         }
 
@@ -231,6 +239,7 @@ namespace NowPlaying.Models
             // 2. Resume Populating the Game Cache.
             //
             ProcessStartInfo rcPsi = RoboStartInfo(installDir, cacheDir, listOnly: true);
+            logger.Debug($"Started robocopy.exe with arguments '{rcPsi.Arguments}'");
             List<string> stdout = new List<string> { $"robocopy.exe {rcPsi.Arguments}" };
             Process foregroundProcess = Process.Start(rcPsi);
 
@@ -261,7 +270,7 @@ namespace NowPlaying.Models
                 }
             }
 
-            // cancellation requested or due to error condition
+            // cancellation requested or due to msg condition
             if (job.token.IsCancellationRequested || job.cancelledOnError)
             {
                 // . kill robocopy.exe
@@ -282,6 +291,10 @@ namespace NowPlaying.Models
                     job.cancelledOnError = true;
                     job.errorLog = stdout;
                     job.errorLog.Add($"robocopy.exe exited with exit code {exitCode}");
+                    foreach (var err in job.errorLog)
+                    {
+                        logger.Error(err);
+                    }
 
                     // notify of job cancelled
                     eJobCancelled?.Invoke(this, job);
@@ -309,7 +322,7 @@ namespace NowPlaying.Models
 
             // . run robocopy.exe as a background process...
             ProcessStartInfo rcPsi = RoboStartInfo(installDir, cacheDir, interPacketGap: interPacketGap);
-            Console.WriteLine($"Starting robocopy.exe w/args '{rcPsi.Arguments}'...");
+            logger.Debug($"Starting robocopy.exe w/args '{rcPsi.Arguments}'...");
             try
             {
                 Process rcProcess = Process.Start((rcPsi));
@@ -322,7 +335,7 @@ namespace NowPlaying.Models
             }
             catch (Exception ex)
             {
-                throw new RoboCacherException(ex.Message);
+                RoboError(ex.Message);
             }
         }
 
@@ -333,6 +346,7 @@ namespace NowPlaying.Models
             RoboStats stats = job.stats;
             string cacheDir = entry.CacheDir;
             string installDir = entry.InstallDir;
+            string fileSizeLine = string.Empty;
 
             // while job is in progress: grab robocopy.exe output lines, one at a time...
             string line;
@@ -360,8 +374,9 @@ namespace NowPlaying.Models
                             stats.BytesCopied += stats.CurrFileSize;
                             stats.CurrFileSize = 0;
                             stats.CurrFilePct = 0.0;
-                            stdout.Add(line);
+                            stdout.Add(fileSizeLine);
                         }
+                        fileSizeLine = line;
                         (stats.CurrFileSize, stats.CurrFileName) = RoboParser.GetFileSizeName(line);
                         break;
 
@@ -381,7 +396,7 @@ namespace NowPlaying.Models
                             stats.BytesCopied += stats.CurrFileSize;
                             stats.CurrFileSize = 0;
                             stats.CurrFilePct = 0.0;
-                            stdout.Add(line);
+                            stdout.Add(fileSizeLine);
                         }
                         break;
 
@@ -397,7 +412,7 @@ namespace NowPlaying.Models
                         stdout.Add(line);
                         break;
                         
-                    // We got an unexpected line... return error log
+                    // We got an unexpected line... return msg log
                     default:
                         job.cancelledOnError = true;
                         job.errorLog = stdout;
@@ -415,7 +430,7 @@ namespace NowPlaying.Models
                 eStatsUpdated?.Invoke(this, entry.Id);
             }
 
-            // cancellation requested or due to disk full/error condition
+            // cancellation requested or due to disk full/msg condition
             if (job.token.IsCancellationRequested || job.cancelledOnDiskFull || job.cancelledOnError)
             {
                 // . kill robocopy.exe
@@ -443,6 +458,10 @@ namespace NowPlaying.Models
                     job.cancelledOnError = true;
                     job.errorLog = stdout;
                     job.errorLog.Add($"robocopy.exe exited with exit code {exitCode}");
+                    foreach (var err in job.errorLog)
+                    {
+                        logger.Error(err);
+                    }
 
                     entry.State = GameCacheState.Unknown;
                     MarkCacheDirectoryState(cacheDir, entry.State);
@@ -490,7 +509,11 @@ namespace NowPlaying.Models
                 catch (Exception ex)
                 {
                     job.cancelledOnError = true;
-                    job.errorLog = new List<string> { ex.Message };
+                    job.errorLog = new List<string> { $"Error diffing cache vs install dir for '{job.entry.Title}': {ex.Message}" };
+                    foreach (var err in job.errorLog)
+                    {
+                        logger.Error(err);
+                    }
                     eJobCancelled?.Invoke(this, job);
                     return;
                 }
@@ -500,7 +523,7 @@ namespace NowPlaying.Models
             {
                 // . write-back any differences to the install dir
                 //   -> Remove cache state marker file, so it won't get written back
-                //   -> Rely on robocopy to report an error ("Other" LineType) if there are any issues,
+                //   -> Rely on robocopy to report an msg ("Other" LineType) if there are any issues,
                 //      such as insufficient disk space, etc.
                 //
                 ClearCacheDirectoryStateMarker(cacheDir);
@@ -518,12 +541,20 @@ namespace NowPlaying.Models
                             job.cancelledOnError = true;
                             job.errorLog = stdout;
                             job.errorLog.Add($"robocopy.exe terminated because disk was full");
+                            foreach (var err in job.errorLog)
+                            {
+                                logger.Error(err);
+                            }
                             break;
 
                         case RoboParser.LineType.Other:
                             job.cancelledOnError = true;
                             job.errorLog = stdout;
                             job.errorLog.Add($"Unexpected robocopy.exe output line: '{line}'");
+                            foreach (var err in job.errorLog)
+                            {
+                                logger.Error(err);
+                            }
                             break;
 
                         default: continue;
@@ -557,6 +588,10 @@ namespace NowPlaying.Models
 
                         job.cancelledOnError = true;
                         job.errorLog = new List<string> { $"Unexpected robocopy.exe exit code: {exitCode}" };
+                        foreach (var err in job.errorLog)
+                        {
+                            logger.Error(err);
+                        }
                         eJobCancelled?.Invoke(this, job);
                         return;
                     }
@@ -587,6 +622,10 @@ namespace NowPlaying.Models
 
                 job.cancelledOnError = true;
                 job.errorLog = new List<string> { $"Deleting cache directory failed: {ex.Message}" };
+                foreach (var err in job.errorLog)
+                {
+                    logger.Error(err);
+                }
                 eJobCancelled?.Invoke(this, job);
                 return;
             }

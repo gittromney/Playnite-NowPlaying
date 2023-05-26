@@ -32,7 +32,17 @@
                         Content="{DynamicResource LOCNowPlayingSettingsConfirmUninstall}"
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.ConfirmUninstall}"
-                        Margin="0,0,0,0"/>
+                        Margin="0,0,0,10"/>
+                    <CheckBox
+                        Content="{DynamicResource LOCNowPlayingSettingsNotifyOnInstallCancel}"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.NotifyOnInstallCancelled}"
+                        Margin="0,0,0,10"/>
+                    <CheckBox
+                        Content="{DynamicResource LOCNowPlayingSettingsNotifyOnInstallWhilePlaying}"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"
+                        Margin="0,0,0,10"/>
                 </StackPanel>
             </TabItem>
 

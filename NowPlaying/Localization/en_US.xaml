@@ -97,6 +97,8 @@
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsGeneralTab">General</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsConfirmUninstall">Require confirmation when a game cache is uninstalled.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsNotifyOnInstallCancel">Notify when game cache install is cancelled.</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsNotifyOnInstallWhilePlaying">Notify of 'install while playing' game cache activity.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncTab">Sync on uninstall</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncHeading">Sync options when uninstalling a game cache</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncDescr">
@@ -129,9 +131,7 @@
 
     <!--AddGameCachesView-->
     <sys:String x:Key="LOCNowPlayingAddGamesHeading">Enable games for NowPlaying game caching</sys:String>
-    <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">
-        ** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **
-    </sys:String>
+    <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirementsHeading">Note, games must meet the following requirements to be eligible for game caching:</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement1">Locally installed (added via Add Game -> Manually / Scan Automatically)</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement2">Listed under the 'Playnite' library.</sys:String>
@@ -175,9 +175,7 @@
 
     <!--CacheRootsView, CacheRootViewModel-->
     <sys:String x:Key="LOCNowPlayingCacheRootsHeading">NowPlaying Cache Roots</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsEmptyWarning">
-        ** Add at least one cache root device/directory where games caches can be installed **
-    </sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsEmptyWarning">** Add at least one cache root device/directory where games caches can be installed **</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDeviceToolTip">Root storage device/disk where games will be cached</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsDirectoryToolTip">Directory on root device where game caches will be installed</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsSpaceToolTip">Space available for game caches on the root device</sys:String>
@@ -192,28 +190,45 @@
     <sys:String x:Key="LOCNowPlayingCacheRootReservedSpaceFmt">(Reserved space: {0})</sys:String>
 
     <!--GameCacheManagerViewModel-->
-    <sys:String x:Key="LOCNowPlayingRemovingCacheRootNotFoundWritableFmt">
-        Removing '{0}' as a NowPlaying cache root; Path not found or not writable.
+    <sys:String x:Key="LOCNowPlayingRemovingCacheRootNotFoundWritableFmt">Removing '{0}' as a NowPlaying cache root; Path not found or not writable.</sys:String>
+    <sys:String x:Key="LOCNowPlayingDisableGameCacheRootNotFoundFmt2">Cache root '{0}' not found; disabling game caching for '{1}'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingDirtyCacheModifiedFilesFmt">Game cache has {0} modified file(s):</sys:String>
+    <sys:String x:Key="LOCNowPlayingDirtyCacheNewFilesFmt">Game cache has {0} new file(s):</sys:String>
+    <sys:String x:Key="LOCNowPlayingDirtyCacheMissingFilesFmt">Game cache is missing {0} file(s) (WILL BE IGNORED):</sys:String>
+    <sys:String x:Key="LOCNowPlayingDirtyCacheOutOfDateFilesFmt">Game cache has {0} out-of-date file(s) (WILL BE IGNORED):</sys:String>
+    
+    <!--NowPlayingInstallController-->
+    <sys:String x:Key="LOCNowPlayingPausedMaxFillFmt">Installation of {0}'s game cache paused because max fill level exceeded.</sys:String>
+    <sys:String x:Key="LOCNowPlayingPausedDiskFullFmt">Installation of {0}'s game cache paused because disk was full.</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallTerminatedFmt">Installation of {0}'s game cache terminated because of an error.</sys:String>
+    <sys:String x:Key="LOCNowPlayingPausedGameStartedFmt">Game started; NowPlaying installation paused for '{0}'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallSkippedFmt">Installation of {0}'s game cache skipped because not enough space available.</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallDoneFmt">NowPlaying game cache installed for '{0}'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingInstallCancelledFmt">NowPlaying installation cancelled for '{0}'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingDeleteCacheFailedFmt">Deletion of game cache '{0}' failed.</sys:String>
+    
+    <!--NowPlayingUninstallController-->
+    <sys:String x:Key="LOCNowPlayingSyncOnUninstallCaption">NowPlaying: Sync on uninstall?</sys:String>
+    <sys:String x:Key="LOCNowPlayingSyncOnUninstallDiffHeadingFmt3">{0}'s game cache ({1}) differs from its installation directory ({2}).</sys:String>
+    <sys:String x:Key="LOCNowPlayingSyncOnUninstallPrompt">
+        Do you want to sync the new/newer files above back to the install directory when the game cache is uninstalled?
     </sys:String>
-    <sys:String x:Key="LOCNowPlayingDisableGameCacheRootNotFoundFmt2">
-        Cache root '{0}' not found; disabling game caching for '{1}'.
-    </sys:String>
-
+    
     <!--NowPlaying-->
-    <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2">
-        Unknown/orphaned directory '{0}' found under NowPlaying cache root '{1}'
-    </sys:String>
+    <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2">Unknown/orphaned directory '{0}' found under NowPlaying cache root '{1}'</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryCaption">NowPlaying: unknown or orphaned cache directory</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryMsgFmt">Do you want to delete '{0}'?</sys:String>
     <sys:String x:Key="LOCNowPlayingDisableGameCacheMissingInfoFmt">NowPlaying game cache information missing; disabling game caching for '{0}'</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitFmt2">Not enough space to install game cache for '{0}' to '{1}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitMsg">(Click on the NowPlaying sidebar for more details)</sys:String>
     <sys:String x:Key="LOCNowPlayingUnabletoRestoreCacheInfoFmt">Unable to find or restore NowPlaying game cache information for '{0}'</sys:String>
-    <sys:String x:Key="LOCNowPlayingGameInstallDirNotFoundFmt2">
-        {0}'s installation directory '{1}' not found; is the disk mounted and decrypted?
-    </sys:String>
+    <sys:String x:Key="LOCNowPlayingGameInstallDirNotFoundFmt2">{0}'s installation directory '{1}' not found; is the disk mounted and decrypted?</sys:String>
     <sys:String x:Key="LOCNowPlayingPlayActionNotFoundFmt">Couldn't find NowPlaying play action for '{0}'</sys:String>
     <sys:String x:Key="LOCNowPlayingNonEmptyRerootAttemptedFmt">Attempted to change cache root of non-empty game cache: '{0}'</sys:String>
     <sys:String x:Key="LOCNowPlayingRestoredCacheInfoFmt">Restored NowPlaying game cache information for '{0}'</sys:String>
+    <sys:String x:Key="LOCNowPlayingUninstallConfirmMsgFmt">Are you sure you want to unsinstall the game cache for '{0}'?</sys:String>
+    <sys:String x:Key="LOCNowPlayingContinueWithSpeedLimitFmt2">Game started: NowPlaying installation for '{0}' continuing at limited speed (IPG={1}).</sys:String>
+    <sys:String x:Key="LOCNowPlayingContinueAtFullSpeedFmt">Game stopped; NowPlaying installation for '{0}' continuing at full speed.</sys:String>
+    <sys:String x:Key="LOCNowPlayingResumeGameStoppedFmt">Game stopped; NowPlaying installation resumed for '{0}'.</sys:String>
 
 </ResourceDictionary>

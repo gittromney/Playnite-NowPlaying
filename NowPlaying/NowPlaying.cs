@@ -52,6 +52,7 @@ namespace NowPlaying
         public WhilePlaying WhilePlayingMode { get; private set; }
         public int SpeedLimitIPG { get; private set; } = 0;
 
+        private string formatStringXofY;
         public Queue<NowPlayingGameEnabler> gameEnablerQueue;
         public Queue<NowPlayingInstallController> cacheInstallQueue;
         public Queue<NowPlayingUninstallController> cacheUninstallQueue;
@@ -66,8 +67,10 @@ namespace NowPlaying
                 HasSettings = true
             };
 
-            cacheManager = new GameCacheManagerViewModel(this);
 
+            cacheManager = new GameCacheManagerViewModel(this, logger);
+
+            formatStringXofY = GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}"; 
             gameEnablerQueue = new Queue<NowPlayingGameEnabler>();
             cacheInstallQueue = new Queue<NowPlayingInstallController>();
             cacheUninstallQueue = new Queue<NowPlayingUninstallController>();
@@ -208,14 +211,19 @@ namespace NowPlaying
             {
                 cacheManager.LoadGameCacheEntriesFromJson();
             }
-            catch
+            catch (Exception ex)
             {
+                logger.Error($"Exception thrown in LoadGameCacheEntriesFromJson: '{ex.Message}'");
+
                 // . attempt to reconstruct Game Cache entries from the Playnite database
                 var nowPlayingGames = PlayniteApi.Database.Games.Where(a => a.PluginId == this.Id);
                 foreach (var nowPlayingGame in nowPlayingGames)
                 {
                     string cacheId = nowPlayingGame.Id.ToString();
-                    TryRestoreMissingGameCache(cacheId, nowPlayingGame);
+                    if (!cacheManager.GameCacheExists(cacheId))
+                    {
+                        TryRestoreMissingGameCache(cacheId, nowPlayingGame);
+                    }
                 }
                 cacheManager.SaveGameCacheEntriesToJson();
             }
@@ -223,8 +231,15 @@ namespace NowPlaying
             CheckForOrphanedCacheDirectories();
             CheckForBrokenNowPlayingGames();
             cacheRootsViewModel.RefreshCacheRoots();
+
+            // TODO: look at adding callback for database changes (Games removed????)  similar to....
+            //
+            // PlayniteApi.Database.Games.ItemCollectionChanged += (_, args) =>
+            //{
+            //    PlayniteApi.Dialogs.ShowMessage(args.AddedItems.Count + " items added into the library.");
+            //};
         }
-        
+
         public void CheckForOrphanedCacheDirectories()
         {
             foreach (var root in cacheManager.CacheRoots)
@@ -752,7 +767,7 @@ namespace NowPlaying
             int size = cacheInstallQueue.Count - 1;
             if (index > 0)
             {
-                return $"{index} of {size}";
+                return string.Format(formatStringXofY, index, size);
             }
             else
             {
@@ -767,7 +782,7 @@ namespace NowPlaying
             int size = cacheUninstallQueue.Count - 1;
             if (index > 0)
             {
-                return $"{index} of {size}";
+                return string.Format(formatStringXofY, index, size);
             }
             else
             {
@@ -906,15 +921,36 @@ namespace NowPlaying
                 string title = cacheInstallQueue.First().gameCache.Title;
                 if (speedLimitIPG > 0)
                 {
-                    NowPlaying.logger.Info($"Game started: NowPlaying installation for '{title}' continuing at limited speed (IPG={speedLimitIPG}).");
+                    if (Settings.NotifyOnInstallWhilePlayingActivity)
+                    {
+                        NotifyInfo(FormatResourceString("LOCNowPlayingContinueWithSpeedLimitFmt2", title, speedLimitIPG));
+                    }
+                    else
+                    {
+                        logger.Info($"Game started: NowPlaying installation for '{title}' continuing at limited speed (IPG={speedLimitIPG}).");
+                    }
                 }
                 else if (resumeFromSpeedLimitedMode)
                 {
-                    NowPlaying.logger.Info($"Game stopped; NowPlaying installation for '{title}' continuing at full speed.");
+                    if (Settings.NotifyOnInstallWhilePlayingActivity)
+                    {
+                        NotifyInfo(FormatResourceString("LOCNowPlayingContinueAtFullSpeedFmt", title));
+                    }
+                    else
+                    {
+                        logger.Info($"Game stopped; NowPlaying installation for '{title}' continuing at full speed.");
+                    }
                 }
                 else
                 {
-                    NowPlaying.logger.Info($"Game stopped; NowPlaying installation resumed for '{title}'.");
+                    if (Settings.NotifyOnInstallWhilePlayingActivity)
+                    {
+                        NotifyInfo(FormatResourceString("LOCNowPlayingResumeGameStoppedFmt", title));
+                    }
+                    else
+                    {
+                        logger.Info($"Game stopped; NowPlaying installation resumed for '{title}'.");
+                    }
                 }
 
                 cacheInstallQueue.First().progressViewModel.PrepareToInstall(speedLimitIPG);
@@ -934,37 +970,28 @@ namespace NowPlaying
 
         public void NotifyInfo(string message)
         {
-            NowPlaying.logger.Info(message);
+            logger.Info(message);
             PlayniteApi.Notifications.Add(Guid.NewGuid().ToString(), message, NotificationType.Info);
         }
 
         public void NotifyWarning(string message, Action action = null)
         {
-            NowPlaying.logger.Warn(message);
+            logger.Warn(message);
             var notification = new NotificationMessage(Guid.NewGuid().ToString(), message, NotificationType.Info, action);
             PlayniteApi.Notifications.Add(notification);
         }
 
         public void NotifyError(string message, Action action = null)
         {
-            NowPlaying.logger.Error(message);
+            logger.Error(message);
             var notification = new NotificationMessage(Guid.NewGuid().ToString(), message, NotificationType.Error, action);
             PlayniteApi.Notifications.Add(notification);
         }
 
-        public void PopupError(string message, string selectableMessage = null)
+        public void PopupError(string message)
         {
-            if (!string.IsNullOrEmpty(selectableMessage))
-            {
-                NowPlaying.logger.Error(message + selectableMessage);
-                //PlayniteApi.Dialogs.ShowSelectableString(message, "NowPlaying Error:", selectableMessage);
-                PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:" + selectableMessage);
-            }
-            else
-            {
-                NowPlaying.logger.Error(message);
-                PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:");
-            }
+            logger.Error(message);
+            PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:");
         }
 
         public string SaveJobErrorLogAndGetMessage(GameCacheJob job, string logFileSuffix)
@@ -973,19 +1000,26 @@ namespace NowPlaying
             if (job.errorLog != null)
             {
                 // save error log
-                string errorLogs = Path.Combine(GetPluginUserDataPath(), "errorLogs");
-                string errorLog = Path.Combine(errorLogs, job.entry.Id + " " + DirectoryUtils.ToSafeFileName(job.entry.Title) + logFileSuffix);
-                if (DirectoryUtils.MakeDir(errorLogs))
+                string errorLogsDir = Path.Combine(GetPluginUserDataPath(), "errorLogs");
+                string errorLogFile = Path.Combine(errorLogsDir, job.entry.Id + " " + DirectoryUtils.ToSafeFileName(job.entry.Title) + logFileSuffix);
+                if (DirectoryUtils.MakeDir(errorLogsDir))
                 {
                     try
                     {
-                        const int showMaxErrorLineCount = 25;
-                        File.Create(errorLog)?.Dispose();
-                        File.WriteAllLines(errorLog, job.errorLog);
-                        seeLogFile = $"(See {errorLog}):";
+                        const int showMaxErrorLineCount = 10;
+                        File.Create(errorLogFile)?.Dispose();
+                        File.WriteAllLines(errorLogFile, job.errorLog);
+                        string nl = System.Environment.NewLine;
+                        seeLogFile = nl + $"(See {errorLogFile})";
+
+                        seeLogFile += nl + nl;
+                        seeLogFile += $"Last {Math.Min(showMaxErrorLineCount, job.errorLog.Count())} lines:" + nl; 
 
                         // . show at most the last 'showMaxErrorLineCount' lines of the error log in the popup
-                        seeLogFile += errorLogs.Skip(Math.Max(0, errorLog.Count() - showMaxErrorLineCount));
+                        foreach (var err in job.errorLog.Skip(Math.Max(0, job.errorLog.Count() - showMaxErrorLineCount)))
+                        {
+                            seeLogFile += err + nl;
+                        }
                     }
                     catch { }
                 }

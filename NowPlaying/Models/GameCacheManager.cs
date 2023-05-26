@@ -5,11 +5,13 @@ using System.IO;
 using static NowPlaying.Models.RoboCacher;
 using NowPlaying.Utils;
 using System.Threading.Tasks;
+using Playnite.SDK;
 
 namespace NowPlaying.Models
 {
     public class GameCacheManager
     {
+        private readonly ILogger logger;
         private readonly RoboCacher roboCacher;
         private Dictionary<string,CacheRoot> cacheRoots;
         private Dictionary<string,GameCacheEntry> cacheEntries;
@@ -26,9 +28,10 @@ namespace NowPlaying.Models
         private void OnJobCancelled(object s, GameCacheJob job) { eJobCancelled?.Invoke(s, job); }
         private void OnJobDone(object s, GameCacheJob job) { eJobDone?.Invoke(s, job); }
 
-        public GameCacheManager()
+        public GameCacheManager(ILogger logger)
         {
-            this.roboCacher = new RoboCacher();
+            this.logger = logger;
+            this.roboCacher = new RoboCacher(logger);
             this.cacheRoots = new Dictionary<string,CacheRoot>();
             this.cacheEntries = new Dictionary<string,GameCacheEntry>();
             this.cachePopulateJobs = new Dictionary<string,GameCacheJob>();
@@ -295,51 +298,17 @@ namespace NowPlaying.Models
             }
         }
 
-        public DirtyCheckResult CheckCacheDirty(string id)
+        public DiffResult CheckCacheDirty(string id)
         {
-            DirtyCheckResult result = new DirtyCheckResult();
-
             if (!cacheEntries.ContainsKey(id))
             {
                 throw new InvalidOperationException($"Game Cache with Id={id} not found");
             }
-
             if (cacheEntries[id].State == GameCacheState.Played)
             {
-                DiffResult diff = roboCacher.RoboDiff(cacheEntries[id].CacheDir, cacheEntries[id].InstallDir);
-
-                result.isDirty = diff.NewerFiles.Count > 0 || diff.NewFiles.Count > 0;
-
-                if (result.isDirty)
-                {
-                    string nl = Environment.NewLine;
-                    if (diff.NewerFiles.Count > 0)
-                    {
-                        result.summary += $"Game Cache has {diff.NewerFiles.Count} modified files:" + nl;
-                        foreach (var file in diff.NewerFiles) result.summary += "-> " + file + nl;
-                        result.summary += nl;
-                    }
-                    if (diff.NewFiles.Count > 0)
-                    {
-                        result.summary += $"Game Cache has {diff.NewFiles.Count} new files (not found in install dir):" + nl;
-                        foreach (var file in diff.NewFiles) result.summary += "-> " + file + nl;
-                        result.summary += nl;
-                    }
-                    if (diff.ExtraFiles.Count > 0)
-                    {
-                        result.summary += $"Game Cache is missing {diff.ExtraFiles.Count} files (WILL BE IGNORED):" + nl;
-                        foreach (var file in diff.ExtraFiles) result.summary += "-> " + file + nl;
-                        result.summary += nl;
-                    }
-                    if (diff.OlderFiles.Count > 0)
-                    {
-                        result.summary += $"Game Cache has {diff.OlderFiles.Count} stale files (WILL BE IGNORED):" + nl;
-                        foreach (var file in diff.OlderFiles) result.summary += "-> " + file + nl;
-                        result.summary += nl;
-                    }
-                }
+                return roboCacher.RoboDiff(cacheEntries[id].CacheDir, cacheEntries[id].InstallDir);
             }
-            return result;
+            return null;
         }
 
         public void StartEvictGameCacheJob(string id, bool cacheWriteBackOption=true)

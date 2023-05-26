@@ -30,6 +30,9 @@ namespace NowPlaying.ViewModels
         private string uninstallQueueStatus;
         private bool nowInstalling; 
         private bool nowUninstalling;
+        private string formatStringXofY;
+        private int bytesScale;
+        private string bytesToCopy;
         private string cacheInstalledSize;
         private int speedLimitIpg;
 
@@ -48,7 +51,7 @@ namespace NowPlaying.ViewModels
         );
         public string StatusColor => 
         (
-            State == GameCacheState.Invalid ? "WarningBrush" : 
+            State == GameCacheState.Unknown || State == GameCacheState.Invalid ? "WarningBrush" : 
             Status == plugin.GetResourceString("LOCNowPlayingTermsUninstalled") ? "TextBrushDarker" : 
             NowInstalling ? (speedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush") :
             "TextBrush"
@@ -84,8 +87,13 @@ namespace NowPlaying.ViewModels
             this.entry = entry;
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
-            this.cacheInstalledSize = GetCacheInstalledSize(entry);
             this.speedLimitIpg = 0;
+
+            this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
+            this.cacheInstalledSize = GetCacheInstalledSize(entry);
+            this.bytesScale = SmartUnits.GetBytesAutoScale(entry.InstallSize);
+            this.bytesToCopy = SmartUnits.Bytes(entry.InstallSize, decimals: 1, userScale: bytesScale);
+
             UpdateInstallEta();
         }
 
@@ -139,6 +147,13 @@ namespace NowPlaying.ViewModels
 
         public void UpdateNowInstalling(bool value, int speedLimitIpg = 0)
         {
+            if (value)
+            {
+                // . update auto scale for and bake "OfBytes" to copy string.
+                this.bytesScale = SmartUnits.GetBytesAutoScale(entry.InstallSize);
+                this.bytesToCopy = SmartUnits.Bytes(entry.InstallSize, decimals: 1, userScale: bytesScale);
+            }
+
             if (nowInstalling != value || value && this.speedLimitIpg != speedLimitIpg)
             {
                 nowInstalling = value;
@@ -258,12 +273,18 @@ namespace NowPlaying.ViewModels
             switch (entry.State)
             {
                 case GameCacheState.Played:
-                case GameCacheState.Populated: return SmartUnits.Bytes(entry.CacheSize, decimals:1);
-                case GameCacheState.InProgress: 
-                    //xxx
-                    return SmartUnits.BytesOfBytes(entry.CacheSize, entry.InstallSize, decimals:1);
-                case GameCacheState.Empty: 
-                    return plugin.FormatResourceString("LOCNowPlayingGameCacheSizeNeededFmt", SmartUnits.Bytes(entry.InstallSize, decimals:1));
+                case GameCacheState.Populated: return SmartUnits.Bytes(entry.CacheSize, decimals: 1);
+                case GameCacheState.InProgress: return string.Format
+                (
+                    formatStringXofY,
+                    SmartUnits.Bytes(entry.CacheSize, userScale: bytesScale, decimals: 1, showUnits: false),
+                    bytesToCopy
+                );
+                case GameCacheState.Empty: return plugin.FormatResourceString
+                (
+                    "LOCNowPlayingGameCacheSizeNeededFmt", 
+                    SmartUnits.Bytes(entry.InstallSize, decimals:1)
+                );
                 default: return "-";
             }
         }

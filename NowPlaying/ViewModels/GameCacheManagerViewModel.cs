@@ -8,12 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
+using static NowPlaying.Models.GameCacheManager;
+using Playnite.SDK;
 
 namespace NowPlaying.ViewModels
 {
     public class GameCacheManagerViewModel : ViewModelBase
     {
         public readonly NowPlaying plugin;
+        public readonly ILogger logger;
         private readonly string pluginUserDataPath;
         private readonly string cacheRootsJsonPath;
         private readonly string gameCacheEntriesJsonPath;
@@ -24,21 +27,22 @@ namespace NowPlaying.ViewModels
         public ObservableCollection<CacheRootViewModel> CacheRoots { get; private set; }
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
 
-        public Dictionary<string,long> InstallAverageBps { get; private set; }
+        public Dictionary<string, long> InstallAverageBps { get; private set; }
 
-        public GameCacheManagerViewModel(NowPlaying plugin)
+        public GameCacheManagerViewModel(NowPlaying plugin, ILogger logger)
         {
             this.plugin = plugin;
+            this.logger = logger;
             this.pluginUserDataPath = plugin.GetPluginUserDataPath();
 
             cacheRootsJsonPath = Path.Combine(pluginUserDataPath, "CacheRoots.json");
             gameCacheEntriesJsonPath = Path.Combine(pluginUserDataPath, "gameCacheEntries.json");
             installAverageBpsJsonPath = Path.Combine(pluginUserDataPath, "InstallAverageBps.json");
 
-            gameCacheManager = new GameCacheManager();
+            gameCacheManager = new GameCacheManager(logger);
             CacheRoots = new ObservableCollection<CacheRootViewModel>();
             GameCaches = new ObservableCollection<GameCacheViewModel>();
-            InstallAverageBps = new Dictionary<string,long>();
+            InstallAverageBps = new Dictionary<string, long>();
         }
 
         public void UpdateGameCaches()
@@ -152,7 +156,7 @@ namespace NowPlaying.ViewModels
         public void RemoveGameCache(string cacheId)
         {
             var gameCache = FindGameCache(cacheId);
-            
+
             if (gameCache != null)
             {
                 // . remove game cache entry
@@ -225,7 +229,7 @@ namespace NowPlaying.ViewModels
             if (InstallAverageBps.ContainsKey(installDevice))
             {
                 // take 90/10 average of saved Bps and current value, respectively
-                InstallAverageBps[installDevice] = (9*InstallAverageBps[installDevice] + averageBps) / 10;
+                InstallAverageBps[installDevice] = (9 * InstallAverageBps[installDevice] + averageBps) / 10;
             }
             else
             {
@@ -286,7 +290,7 @@ namespace NowPlaying.ViewModels
                 {
                     plugin.PopupError("LoadCacheRootsFromJson failed");
                 }
-                
+
                 foreach (var root in roots)
                 {
                     if (DirectoryUtils.ExistsAndIsWritable(root.Directory) || DirectoryUtils.MakeDir(root.Directory))
@@ -410,9 +414,9 @@ namespace NowPlaying.ViewModels
             private bool cancelOnMaxFill;
             public InstallCallbacks
                 (
-                    GameCacheManager manager, 
+                    GameCacheManager manager,
                     GameCacheViewModel gameCache,
-                    Action<GameCacheJob> installDone, 
+                    Action<GameCacheJob> installDone,
                     Action<GameCacheJob> installCancelled
                 )
             {
@@ -442,9 +446,9 @@ namespace NowPlaying.ViewModels
                     manager.eJobCancelled -= this.Cancelled;
                     manager.eJobStatsUpdated -= this.MaxFillLevelCanceller;
 
-                    if (cancelOnMaxFill) 
-                    { 
-                        job.cancelledOnMaxFill = true; 
+                    if (cancelOnMaxFill)
+                    {
+                        job.cancelledOnMaxFill = true;
                     }
                     InstallCancelled(job);
                 }
@@ -465,10 +469,10 @@ namespace NowPlaying.ViewModels
 
         public void InstallGameCache
             (
-                GameCacheViewModel gameCache, 
-                RoboStats jobStats, 
-                Action<GameCacheJob> installDone, 
-                Action<GameCacheJob> installCancelled, 
+                GameCacheViewModel gameCache,
+                RoboStats jobStats,
+                Action<GameCacheJob> installDone,
+                Action<GameCacheJob> installCancelled,
                 int interPacketGap = 0
             )
         {
@@ -494,9 +498,9 @@ namespace NowPlaying.ViewModels
 
             public UninstallCallbacks
                 (
-                    GameCacheManager manager, 
-                    GameCacheViewModel gameCache, 
-                    Action<GameCacheJob> uninstallDone, 
+                    GameCacheManager manager,
+                    GameCacheViewModel gameCache,
+                    Action<GameCacheJob> uninstallDone,
                     Action<GameCacheJob> uninstallCancelled
                 )
             {
@@ -512,7 +516,7 @@ namespace NowPlaying.ViewModels
                 {
                     manager.eJobDone -= this.Done;
                     manager.eJobCancelled -= this.Cancelled;
-                    
+
                     UninstallDone(job);
                 }
             }
@@ -530,9 +534,9 @@ namespace NowPlaying.ViewModels
 
         public void UninstallGameCache
             (
-                GameCacheViewModel gameCache, 
-                bool cacheWriteBackOption, 
-                Action<GameCacheJob> uninstallDone, 
+                GameCacheViewModel gameCache,
+                bool cacheWriteBackOption,
+                Action<GameCacheJob> uninstallDone,
                 Action<GameCacheJob> uninstallCancelled
             )
         {
@@ -543,10 +547,46 @@ namespace NowPlaying.ViewModels
             gameCacheManager.StartEvictGameCacheJob(gameCache.Id, cacheWriteBackOption);
         }
 
-        public GameCacheManager.DirtyCheckResult CheckCacheDirty(string cacheId)
+        public DirtyCheckResult CheckCacheDirty(string cacheId)
         {
-            return gameCacheManager.CheckCacheDirty(cacheId);
-        }
+            DirtyCheckResult result = new DirtyCheckResult();
 
+            var diff = gameCacheManager.CheckCacheDirty(cacheId);
+
+            // . focus is on New/Newer files in the cache vs install directory only
+            //   -> Old/missing files will be ignored
+            //
+            result.isDirty = diff != null && (diff.NewerFiles.Count > 0 || diff.NewFiles.Count > 0);
+
+            if (result.isDirty)
+            {
+                string nl = Environment.NewLine;
+                if (diff.NewerFiles.Count > 0)
+                {
+                    result.summary += plugin.FormatResourceString("LOCNowPlayingDirtyCacheModifiedFilesFmt", diff.NewerFiles.Count) + nl;
+                    foreach (var file in diff.NewerFiles) result.summary += "• " + file + nl;
+                    result.summary += nl;
+                }
+                if (diff.NewFiles.Count > 0)
+                {
+                    result.summary += plugin.FormatResourceString("LOCNowPlayingDirtyCacheNewFilesFmt", diff.NewFiles.Count) + nl; 
+                    foreach (var file in diff.NewFiles) result.summary += "• " + file + nl;
+                    result.summary += nl;
+                }
+                if (diff.ExtraFiles.Count > 0)
+                {
+                    result.summary += plugin.FormatResourceString("LOCNowPlayingDirtyCacheMissingFilesFmt", diff.ExtraFiles.Count) + nl; 
+                    foreach (var file in diff.ExtraFiles) result.summary += "• " + file + nl;
+                    result.summary += nl;
+                }
+                if (diff.OlderFiles.Count > 0)
+                {
+                    result.summary += plugin.FormatResourceString("LOCNowPlayingDirtyCacheOutOfDateFilesFmt", diff.OlderFiles.Count) + nl;
+                    foreach (var file in diff.OlderFiles) result.summary += "• " + file + nl;
+                    result.summary += nl;
+                }
+            }
+            return result;
+        }
     }
 }

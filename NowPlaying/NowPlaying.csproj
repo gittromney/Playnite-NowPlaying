@@ -60,7 +60,6 @@
     <Compile Include="Utils\GridViewSort.cs" />
     <Compile Include="Utils\RollingAverage.cs" />
     <Compile Include="Utils\SmartUnits.cs" />
-    <Compile Include="Exceptions\RoboCacherException.cs" />
     <Compile Include="Models\CacheRoot.cs" />
     <Compile Include="Models\GameCacheEntry.cs" />
     <Compile Include="Models\GameCacheJob.cs" />

@@ -13,6 +13,7 @@ namespace NowPlaying
 {
     public class NowPlayingInstallController : InstallController
     {
+        private readonly ILogger logger;
         private readonly NowPlayingSettings settings;
         private readonly IPlayniteAPI PlayniteApi;
         private readonly Game nowPlayingGame;
@@ -32,6 +33,7 @@ namespace NowPlaying
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
+            this.logger = NowPlaying.logger;
             this.settings = plugin.Settings;
             this.PlayniteApi = plugin.PlayniteApi;
             this.cacheManager = plugin.cacheManager;
@@ -74,7 +76,7 @@ namespace NowPlaying
                     else
                     {
                         plugin.UpdateInstallQueueStatuses();
-                        NowPlaying.logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache queued ({gameCache.InstallQueueStatus}).");
+                        logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache queued ({gameCache.InstallQueueStatus}).");
                     }
                 }
             }
@@ -93,11 +95,11 @@ namespace NowPlaying
                 plugin.UpdateInstallQueueStatuses();
                 if (speedLimitIPG > 0)
                 {
-                    NowPlaying.logger.Info($"NowPlaying speed limited installation of '{gameCache.Title}' game cache started (IPG={speedLimitIPG}).");
+                    logger.Info($"NowPlaying speed limited installation of '{gameCache.Title}' game cache started (IPG={speedLimitIPG}).");
                 }
                 else
                 {
-                    NowPlaying.logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache started.");
+                    logger.Info($"NowPlaying installation of '{gameCache.Title}' game cache started.");
                 }
 
                 nowPlayingGame.IsInstalling = true;
@@ -111,7 +113,7 @@ namespace NowPlaying
             }
             else
             {
-                plugin.NotifyError($"Skipped NowPlaying installation of '{gameCache.Title}' because not enough space on root device.");
+                plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingInstallSkippedFmt", gameCache.Title));
                 plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
             }
         }
@@ -135,7 +137,7 @@ namespace NowPlaying
             
             InvokeOnInstalled(new GameInstalledEventArgs());
 
-            plugin.NotifyInfo($"NowPlaying game cache installed for '{gameCache.Title}'.");
+            plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingInstallDoneFmt", gameCache.Title));
 
             plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
         }
@@ -166,7 +168,14 @@ namespace NowPlaying
 
             if (deleteCacheOnJobCancelled)
             {
-                plugin.NotifyInfo($"NowPlaying installation cancelled for '{gameCache.Title}'.");
+                if (settings.NotifyOnInstallCancelled)
+                {
+                    plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
+                }
+                else
+                {
+                    logger.Info($"NowPlaying installation cancelled for '{gameCache.Title}'.");
+                }
 
                 // . enter uninstalling state
                 nowPlayingGame.IsUninstalling = true;
@@ -185,7 +194,7 @@ namespace NowPlaying
                     }
                     else
                     {
-                        plugin.PopupError($"Deletion of game cache '{gameCache.CacheDir}' failed.");
+                        plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingDeleteCacheFailedFmt", gameCache.CacheDir));
                     }
 
                     // exit uninstalling state
@@ -209,27 +218,33 @@ namespace NowPlaying
                     PlayniteApi.Database.Games.Update(nowPlayingGame);
                 }
 
-                string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".install.txt");
-
                 if (job.cancelledOnMaxFill)
                 {
-                    plugin.NotifyError($"Installation of '{gameCache.Title}' game cache paused because max fill level exceeded.");
+                    plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedMaxFillFmt", gameCache.Title));
                 }
                 else if (job.cancelledOnDiskFull)
                 {
-                    plugin.NotifyError($"Installation of '{gameCache.Title}' game cache paused because disk was full.");
+                    plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedDiskFullFmt", gameCache.Title));
                 }
                 else if (job.cancelledOnError)
                 {
-                    plugin.PopupError($"Installation of '{gameCache.Title}' game cache terminated because of an error.", seeLogFile);
+                    string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".install.txt");
+                    plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingInstallTerminatedFmt", gameCache.Title) + seeLogFile);
                 }
                 else if (plugin.cacheInstallQueuePaused && speedLimitChangeOnPaused == null)
                 {
-                    NowPlaying.logger.Info($"Game started; NowPlaying installation paused for '{gameCache.Title}'.");
+                    if (settings.NotifyOnInstallWhilePlayingActivity)
+                    {
+                        plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
+                    }
+                    else
+                    {
+                        logger.Info(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
+                    }
                 }
                 else
                 {
-                    NowPlaying.logger.Info($"NowPlaying installation paused for '{gameCache.Title}'.");
+                    logger.Info($"NowPlaying installation paused for '{gameCache.Title}'.");
                 }
             }
 
