@@ -2,8 +2,8 @@
 
 This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows to keep your games hosted on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and can create & mangage cached copies of those games where there can be played from your fast storage device(s). 
 
-Games must meet the following requirements to be eligible for game caching:
-- Must be locally installed (added via Add Game -> Manually / Scan Automatically)
+### Games must meet the following requirements to be eligible for game caching:
+- Must be locally installed (e.g. added via Add Game -> Manually or Scan Automatically)
 - Are playable from the installation directory on the big-and-slow host device (i.e. not in an archived state).
 - Are listed under the 'Playnite' library.
 - Have an empty Source (see Game Details -> General -> Source).
@@ -11,21 +11,21 @@ Games must meet the following requirements to be eligible for game caching:
 - Have a single Play Action (see Game Details -> Actions).
 - Platform is 'PC (Windows)'.
 
-Example use case:
+### Example use case:
 
 1. Import PC Windows games into Playnite from your big-and-slow storage devices (Add Game -> Manually, or Add Game -> Scan Automatically)
 
-    ***Make sure each game's Install Directory points to its main folder.*** 
+    ***Make sure each game's Installation Folder points to its main folder.*** 
     
-    A good way to check this at a glance is to see if the Install Size seems reasonable. Sometimes Playnite sets the Install Directory to a subdirectory where the game executable lives. When that happens, the Install Size reported will be way too small. Edit the game's Install directory and Play action path, if needed.
+    A good way to check this at a glance is to see if the Install Size seems reasonable. Sometimes Playnite sets the Installation Folder to a subdirectory where the game executable lives. When that happens, the Install Size reported will be way too small. Edit the game's Install Folder and Play action path, if needed.
 
-    Incorrect 😒🚫
+    #### Incorrect 😒🚫
 
     - Installation Folder:  E:\Games\My Favorite Abandonware Game\Some subdirectory\bin
     - Install Size: 50 KB
     - Play action, Path:  {InstallDir}\MyFaveAbondonwareGame.exe
 
-    Correct 😁👍
+    #### Correct 😁👍
 
     - Installation Folder:  E:\Games\My Favorite Abandonware Game
     - Install Size: 5 GB
