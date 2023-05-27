@@ -1,6 +1,6 @@
-# NowPlaying Game Cacher, an extension for Playnite
+# NowPlaying Game Cacher, an extension for [Playnite](https://github.com/JosefNemec/Playnite)
 
-This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows to keep your games hosted on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and can create & mangage cached copies of those games where there can be played from your fast storage device(s). 
+This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
 
 ### Games must meet the following requirements to be eligible for game caching:
 - Must be locally installed (e.g. added via Add Game -> Manually or Scan Automatically)
@@ -40,17 +40,20 @@ This extension may be useful if you have a local library of PC Windows games, su
    Definitely set this < 100% if using your C:\ drive for game caches, for example.**
 
 
-5. Enable game caching for the games you imported in step 1.  If you specified more than one Cache Root, you will be able to select which Root each game will be cached to, in this step.  
+5. Enable caching for the games you imported in step 1.  If you specified more than one Cache Root, you will be able to select which Root each game will be cached to, in this step.  There are two ways to enable games for caching:
 
-    Two ways to enable games for caching:
-    - From the NowPlaying Game Cacher view (click on sidebar icon), click on the "+" under the NowPlaying Game Caches list. In the popup,
+    - From the NowPlaying Game Cacher view (via sidebar), click on the "+" under the NowPlaying Game Caches list. In the popup,
     filter/select from the list of cache-eligible games.
     - From Playnite's main (Library) view, right click on a game that is eligible for game caching, select "NowPlaying: Enable caching for selected game", and select a cache root if multiple cache roots are defined. 
 
 
-6. Installing a game cache.
+6. Installing/uninstalling a game cache; there are several ways:
 
-    Several ways:
-    - Playnite's main view: use all of the normal mechanisms to Install a library game.
+    - Use Playnite's built-in install/uninstall mechanisms for your cache enabled games (those listed under the NowPlaying Game Cacher library).
+    - From the NowPlaying Game Cacher view (via sidebar), use install/uninstall buttons or right-mouse options to manage your game caches.
 
+### A few notes about cache installation: 
+- At most one active game cache installation can occur at a time. Any additional game cache install requests are queued up if there is already an active install underway.
+- An active cache installation can be paused or cancelled, and queued installations can be cancelled (via right mouse menu). Game caches in a paused state can be resumed (or uninstalled) at a later time. 
+- If you launch a Playnite game, your active/queued cache intallations can continue in the background, as normal, but you also have the option of pausing all installations or shifting them to a speed limited mode while you are actively playing games. (See NowPlaying Settings.) Paused or speed limited cache installations will automatically be resumed (at full speed) once you are done playing.
 
