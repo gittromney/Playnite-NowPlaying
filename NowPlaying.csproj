@@ -118,6 +118,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="source\app.config" />
     <None Include="source\extension.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -11,6 +11,8 @@
 
 using NowPlaying;
 using NowPlaying.Utils;
+using Playnite.SDK.Controls;
+using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
 using System.Windows;

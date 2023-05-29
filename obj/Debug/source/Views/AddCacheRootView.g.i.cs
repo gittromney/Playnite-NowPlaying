@@ -9,6 +9,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Playnite.SDK.Controls;
+using Playnite.SDK.Models;
 using System;
 using System.Diagnostics;
 using System.Windows;
