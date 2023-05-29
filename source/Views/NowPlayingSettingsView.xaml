@@ -34,11 +34,6 @@
                         IsChecked="{Binding Settings.ConfirmUninstall}"
                         Margin="0,0,0,10"/>
                     <CheckBox
-                        Content="{DynamicResource LOCNowPlayingSettingsNotifyOnInstallCancel}"
-                        Foreground="{DynamicResource TextBrush}"
-                        IsChecked="{Binding Settings.NotifyOnInstallCancelled}"
-                        Margin="0,0,0,10"/>
-                    <CheckBox
                         Content="{DynamicResource LOCNowPlayingSettingsNotifyOnInstallWhilePlaying}"
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"

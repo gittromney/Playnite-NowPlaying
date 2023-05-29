@@ -67,12 +67,5 @@ namespace NowPlaying.Views
             }
         }
 
-        private void RootsButton_MouseEnter(object sender, MouseEventArgs e)
-        {
-        }
-
-        private void RootsButton_MouseLeave(object sender, MouseEventArgs e)
-        {
-        }
     }
 }

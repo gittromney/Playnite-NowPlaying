@@ -8,7 +8,6 @@ namespace NowPlaying
     public class NowPlayingSettings : ObservableObject
     {
         public bool ConfirmUninstall { get; set; }
-        public bool NotifyOnInstallCancelled { get; set; }
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
 
         private DoWhen syncDirtyCache_DoWhen;
@@ -58,7 +57,6 @@ namespace NowPlaying
         public NowPlayingSettings()
         {
             this.ConfirmUninstall = true;
-            this.NotifyOnInstallCancelled = false;
             this.NotifyOnInstallWhilePlayingActivity = false;
 
             this.SyncDirtyCache_DoWhen = DoWhen.Always;

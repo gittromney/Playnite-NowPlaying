@@ -167,14 +167,7 @@ namespace NowPlaying
 
             if (deleteCacheOnJobCancelled)
             {
-                if (settings.NotifyOnInstallCancelled)
-                {
-                    plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
-                }
-                else
-                {
-                    logger.Info($"NowPlaying installation cancelled for '{gameCache.Title}'.");
-                }
+                logger.Info(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
 
                 // . enter uninstalling state
                 nowPlayingGame.IsUninstalling = true;
