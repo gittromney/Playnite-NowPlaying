@@ -22,6 +22,7 @@ namespace NowPlaying
         private readonly Game nowPlayingGame;
         private readonly string cacheDirectory;
         private readonly string installDirectory;
+        private bool syncSkippedByUser;
 
         public readonly GameCacheViewModel gameCache;
 
@@ -36,15 +37,34 @@ namespace NowPlaying
             this.gameCache = gameCache;
             this.cacheDirectory = gameCache.CacheDir;
             this.installDirectory = gameCache.InstallDir;
+            this.syncSkippedByUser = false;
         }
 
         public override void Uninstall(UninstallActionArgs args)
         {
-            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir))
+            if (settings.SyncDirtyCache_DoWhen != DoWhen.Never)
             {
-                nowPlayingGame.IsUninstalling = false;
-                PlayniteApi.Database.Games.Update(nowPlayingGame);
-                return;
+                // . Sync on uninstall Always | Ask selected.
+                if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir, silentMode: true))
+                {
+                    // Game's install dir not readable:
+                    // . See if user wants to continue uninstall without Syncing
+                    string nl = System.Environment.NewLine;
+                    string message = plugin.FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", gameCache.Title, gameCache.InstallDir);
+                    message += nl + nl + plugin.FormatResourceString("LOCNowPlayingUnistallWithoutSyncFmt", gameCache.Title);
+                    MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:", MessageBoxButton.YesNo);
+
+                    if (userChoice == MessageBoxResult.Yes)
+                    {
+                        syncSkippedByUser = true;
+                    }
+                    else
+                    {
+                        nowPlayingGame.IsUninstalling = false;
+                        PlayniteApi.Database.Games.Update(nowPlayingGame);
+                        return;
+                    }
+                }
             }
 
             // . enqueue our controller (but don't add more than once)
@@ -68,7 +88,7 @@ namespace NowPlaying
 
         public void NowPlayingUninstall()
         {
-            bool cacheWriteBackOption = settings.SyncDirtyCache_DoWhen == DoWhen.Always;
+            bool cacheWriteBackOption = !syncSkippedByUser && settings.SyncDirtyCache_DoWhen == DoWhen.Always;
             bool cancelUninstall = false;
             string gameTitle = nowPlayingGame.Name;
 
@@ -81,7 +101,7 @@ namespace NowPlaying
                 cancelUninstall = userChoice == MessageBoxResult.No;
             }
 
-            if (!cancelUninstall && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
+            if (!cancelUninstall && !syncSkippedByUser && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
             {
                 DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
                 if (result.isDirty)

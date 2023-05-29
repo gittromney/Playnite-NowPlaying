@@ -616,11 +616,14 @@ namespace NowPlaying
         }
 
         // . Sanity check: make sure game's InstallDir is accessable (e.g. disk mounted, decrypted, etc?)
-        public bool CheckIfGameInstallDirIsAccessible(string title, string installDir)
+        public bool CheckIfGameInstallDirIsAccessible(string title, string installDir, bool silentMode = false)
         {
             if (!Directory.Exists(installDir))
             {
-                PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
+                if (!silentMode)
+                {
+                    PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
+                }
                 return false;
             }
             return true;
