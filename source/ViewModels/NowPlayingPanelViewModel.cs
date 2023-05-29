@@ -13,14 +13,18 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using MenuItem = System.Windows.Controls.MenuItem;
 using UserControl = System.Windows.Controls.UserControl;
-using System.Windows.Controls;
-using System;
+using System.Windows.Media.Imaging;
+using NowPlaying.Properties;
 
 namespace NowPlaying.ViewModels
 {
     public class NowPlayingPanelViewModel : ViewModelBase
     {
+        private readonly ILogger logger = NowPlaying.logger;
         private readonly NowPlaying plugin;
+        private readonly BitmapImage rootsIcon;
+
+        public BitmapImage RootsIcon => rootsIcon;
 
         public NowPlayingPanelViewModel(NowPlaying plugin)
         {
@@ -34,6 +38,8 @@ namespace NowPlaying.ViewModels
             this.SelectedGameCaches = new List<GameCacheViewModel>();
             this.selectionContext = new SelectedCachesContext();
             this.RerootCachesSubMenuItems = new List<MenuItem>();
+
+            this.rootsIcon = ImageUtils.BitmapToBitmapImage(Resources.roots_icon);
 
             this.RefreshCachesCommand = new RelayCommand(() => RefreshGameCaches());
             this.InstallCachesCommand = new RelayCommand(() => InstallSelectedCaches(SelectedGameCaches), () => InstallCachesCanExecute);
@@ -94,7 +100,7 @@ namespace NowPlaying.ViewModels
                 {
                     foreach (var error in errors)
                     {
-                        NowPlaying.logger.Error(error);
+                        logger.Error(error);
                         plugin.PlayniteApi.Dialogs.ShowErrorMessage(error, "NowPlaying Settings Error");
                     }
                 }

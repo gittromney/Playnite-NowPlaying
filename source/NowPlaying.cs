@@ -1,23 +1,25 @@
-﻿using Playnite.SDK;
-using Playnite.SDK.Events;
-using Playnite.SDK.Models;
-using Playnite.SDK.Plugins;
-using System;
-using System.Windows.Controls;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Path = System.IO.Path;
-using NowPlaying.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
-using NowPlaying.ViewModels;
-using UserControl = System.Windows.Controls.UserControl;
-using NowPlaying.Utils;
-using NowPlaying.Models;
 using System.IO;
 using System.Diagnostics;
 using System.Data;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using System.Windows.Controls;
+using Path = System.IO.Path;
+using Playnite.SDK;
+using Playnite.SDK.Events;
+using Playnite.SDK.Models;
+using Playnite.SDK.Plugins;
+using NowPlaying.Utils;
+using NowPlaying.Models;
+using NowPlaying.Properties;
+using NowPlaying.Views;
+using NowPlaying.ViewModels;
 
 namespace NowPlaying
 {
@@ -41,6 +43,7 @@ namespace NowPlaying
         public readonly TopPanelView topPanelView;
         public readonly TopPanelItem topPanelItem;
 
+        public readonly Rectangle sidebarIcon;
         public readonly SidebarItem sidebarItem;
 
         public readonly NowPlayingPanelViewModel panelViewModel;
@@ -58,6 +61,7 @@ namespace NowPlaying
         public Queue<NowPlayingUninstallController> cacheUninstallQueue;
         public bool cacheInstallQueuePaused;
 
+
         public NowPlaying(IPlayniteAPI api) : base(api)
         {
             Properties = new LibraryPluginProperties
@@ -67,10 +71,9 @@ namespace NowPlaying
                 HasSettings = true
             };
 
-
             cacheManager = new GameCacheManagerViewModel(this, logger);
 
-            formatStringXofY = GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}"; 
+            formatStringXofY = GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
             gameEnablerQueue = new Queue<NowPlayingGameEnabler>();
             cacheInstallQueue = new Queue<NowPlayingInstallController>();
             cacheUninstallQueue = new Queue<NowPlayingUninstallController>();
@@ -91,23 +94,35 @@ namespace NowPlaying
             topPanelView = new TopPanelView(topPanelViewModel);
             topPanelItem = new TopPanelItem()
             {
-                Title = "NowPlaying game cache activity",
+                Title = GetResourceString("LOCNowPlayingTopPanelToolTip"),
                 Icon = new TopPanelView(topPanelViewModel),
                 Visible = false
+            };
+
+            this.sidebarIcon = new Rectangle()
+            {
+                Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush"),
+                Width = 256,
+                Height = 256,
+                OpacityMask = new ImageBrush()
+                {
+                    ImageSource = ImageUtils.BitmapToBitmapImage(Resources.now_playing_icon)
+                }
             };
 
             this.sidebarItem = new SidebarItem()
             {
                 Type = SiderbarItemType.View,
-                Title = this.Name,
+                Title = GetResourceString("LOCNowPlayingSideBarToolTip"),
                 Visible = true,
                 ProgressValue = 0,
-                Icon = new TextBlock
+                Icon = sidebarIcon,
+                Opened = () =>
                 {
-                    TextAlignment = TextAlignment.Center,
-                    Text = "NP"
+                    sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
+                    return panelView;
                 },
-                Opened = () => panelView
+                Closed = () => sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush")
             };
         }
 

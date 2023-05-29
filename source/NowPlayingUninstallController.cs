@@ -14,8 +14,8 @@ namespace NowPlaying
 {
     public class NowPlayingUninstallController : UninstallController
     {
+        private readonly ILogger logger = NowPlaying.logger;
         private readonly NowPlaying plugin;
-        private readonly ILogger logger;
         private readonly NowPlayingSettings settings;
         private readonly IPlayniteAPI PlayniteApi;
         private readonly GameCacheManagerViewModel cacheManager;
@@ -29,7 +29,6 @@ namespace NowPlaying
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
-            this.logger = NowPlaying.logger;
             this.settings = plugin.Settings;
             this.PlayniteApi = plugin.PlayniteApi;
             this.cacheManager = plugin.cacheManager;

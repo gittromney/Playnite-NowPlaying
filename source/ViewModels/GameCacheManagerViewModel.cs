@@ -66,7 +66,7 @@ namespace NowPlaying.ViewModels
                 CacheRoots.Add(new CacheRootViewModel(this, root));
 
                 SaveCacheRootsToJson();
-                NowPlaying.logger.Info($"Added cache root '{rootDirectory}' with {maximumFillLevel}% max fill.");
+                logger.Info($"Added cache root '{rootDirectory}' with {maximumFillLevel}% max fill.");
             }
         }
 
@@ -81,7 +81,7 @@ namespace NowPlaying.ViewModels
                 CacheRoots.Remove(FindCacheRoot(rootDirectory));
 
                 SaveCacheRootsToJson();
-                NowPlaying.logger.Info($"Removed cache root '{rootDirectory}'.");
+                logger.Info($"Removed cache root '{rootDirectory}'.");
             }
         }
 
@@ -141,7 +141,7 @@ namespace NowPlaying.ViewModels
                 cacheRoot.UpdateGameCaches();
 
                 SaveGameCacheEntriesToJson();
-                NowPlaying.logger.Info($"Added game cache: '{entry}'");
+                logger.Info($"Added game cache: '{entry}'");
 
                 // . return the games cache directory (or null)
                 return entry.CacheDir;
@@ -169,7 +169,7 @@ namespace NowPlaying.ViewModels
                 gameCache.cacheRoot.UpdateGameCaches();
 
                 SaveGameCacheEntriesToJson();
-                NowPlaying.logger.Info($"Removed game cache: '{gameCache.entry}'");
+                logger.Info($"Removed game cache: '{gameCache.entry}'");
             }
         }
 

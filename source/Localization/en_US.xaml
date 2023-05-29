@@ -46,6 +46,10 @@
     <sys:String x:Key="LOCNowPlayingTermsQueuedForInstall">Queued for install</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsQueuedForUninstall">Queued for uninstall</sys:String>
 
+    <!--topPanel and sidebarItem-->
+    <sys:String x:Key="LOCNowPlayingTopPanelToolTip">NowPlaying game cache activity</sys:String>
+    <sys:String x:Key="LOCNowPlayingSideBarToolTip">Manage NowPlaying game caches</sys:String>
+    
     <!--InstallProgressViewModel-->
     <sys:String x:Key="LOCNowPlayingProgressSpeedLimitTitleFmt2">Installing Game Cache w/Speed Limit (IPG={0}) for '{1}'...</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressTitleFmt">Installing Game Cache for '{0}'...</sys:String>

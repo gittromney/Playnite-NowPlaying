@@ -1,11 +1,8 @@
 ﻿using NowPlaying.ViewModels;
 using Playnite.SDK.Models;
 using Playnite.SDK;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
@@ -13,6 +10,7 @@ namespace NowPlaying
 {
     public class NowPlayingGameEnabler
     {
+        private readonly ILogger logger = NowPlaying.logger;
         private readonly NowPlaying plugin;
         private readonly IPlayniteAPI PlayniteApi;
         private readonly GameCacheManagerViewModel cacheManager;
@@ -45,7 +43,7 @@ namespace NowPlaying
                 else
                 {
                     var queueStatus = string.Format("{0} of {1}", plugin.gameEnablerQueue.ToList().IndexOf(this), plugin.gameEnablerQueue.Count());
-                    NowPlaying.logger.Info($"Enabling of '{game.Name}' for NowPlaying game caching queued ({queueStatus}).");
+                    logger.Info($"Enabling of '{game.Name}' for NowPlaying game caching queued ({queueStatus}).");
                 }
             }
         }

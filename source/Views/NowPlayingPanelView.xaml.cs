@@ -4,9 +4,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Drawing;
-using System.IO;
 using System.Windows.Media.Imaging;
+using NowPlaying.Utils;
 
 namespace NowPlaying.Views
 {
@@ -16,19 +15,12 @@ namespace NowPlaying.Views
     public partial class NowPlayingPanelView : UserControl
     {
         NowPlayingPanelViewModel viewModel;
-        BitmapImage rootsIcon;
-        BitmapImage rootsHover;
 
         public NowPlayingPanelView(NowPlayingPanelViewModel viewModel)
         {
             InitializeComponent();
             this.viewModel = viewModel;
             DataContext = viewModel;
-
-            // . setup Roots icon (default and mouse-over/hover versions)
-            this.rootsIcon = BitmapToBitmapImage(Properties.Resources.roots_icon);
-            this.rootsHover = BitmapToBitmapImage(Properties.Resources.roots_hover);
-            RootsButtonImage.Source = rootsIcon;
         }
 
         public void GameCaches_OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -75,37 +67,12 @@ namespace NowPlaying.Views
             }
         }
 
-        BitmapImage BitmapToBitmapImage(Bitmap bitmap)
-        {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                stream.Position = 0;
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = stream;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                return bitmapImage;
-            }
-        }
-
         private void RootsButton_MouseEnter(object sender, MouseEventArgs e)
         {
-            var image = RootsButtonImage;
-            if (image != null && image.Source != rootsHover)
-            {
-                image.Source = rootsHover;
-            }
         }
 
         private void RootsButton_MouseLeave(object sender, MouseEventArgs e)
         {
-            var image = RootsButtonImage;
-            if (image != null && image.Source != rootsIcon)
-            {
-                image.Source = rootsIcon;
-            }
         }
     }
 }

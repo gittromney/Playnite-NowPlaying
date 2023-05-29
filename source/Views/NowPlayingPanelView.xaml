@@ -33,14 +33,24 @@
                     <Button
                         Command="{Binding ToggleShowCacheRoots}"
                         ToolTip="{Binding ShowCacheRootsToolTip}"
-                        Style="{DynamicResource TopPanelButton}"
-                        MouseEnter="RootsButton_MouseEnter"
-                        MouseLeave="RootsButton_MouseLeave">
-                        <StackPanel Background="Transparent">
-                            <Image Name="RootsButtonImage" Width="28" Height="28">
-                                <!--Source set in code-behind-->
-                            </Image>
-                        </StackPanel>
+                        Style="{DynamicResource TopPanelButton}">
+                        <Rectangle 
+                            Width="22"
+                            Height="22">
+                            <Rectangle.Style>
+                                <Style TargetType="Rectangle">
+                                    <Setter Property="Fill" Value="{DynamicResource GlyphBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="Fill" Value="{DynamicResource TextBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Rectangle.Style>
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="{Binding RootsIcon}"/>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
                     </Button>
                 </StackPanel>
                 <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}"/>

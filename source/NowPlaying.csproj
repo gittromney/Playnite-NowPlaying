@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\DirectoryUtils.cs" />
     <Compile Include="Utils\DynamicResourceBinding.cs" />
     <Compile Include="Utils\EnumToBoolConverter.cs" />
@@ -182,8 +183,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Images\roots-hover.png" />
     <EmbeddedResource Include="Resources\Images\roots-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Images\now-playing-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

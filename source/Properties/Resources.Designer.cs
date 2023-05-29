@@ -63,9 +63,9 @@ namespace NowPlaying.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap roots_hover {
+        public static System.Drawing.Bitmap now_playing_icon {
             get {
-                object obj = ResourceManager.GetObject("roots_hover", resourceCulture);
+                object obj = ResourceManager.GetObject("now_playing_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
