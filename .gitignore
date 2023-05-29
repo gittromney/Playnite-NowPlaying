@@ -3,7 +3,7 @@
 ################################################################################
 
 /bin
-/.vs
+/.vs/NowPlaying
 /packages
 /obj
 /source/.vs/NowPlaying
@@ -11,3 +11,5 @@
 /source/obj
 /source/packages
 /packages
+/.vs/NowPlaying/v17/.suo
+/.vs/NowPlaying/v17/.suo
