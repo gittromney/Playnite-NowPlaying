@@ -13,7 +13,9 @@ This extension may be useful if you have a local library of PC Windows games, su
 ### How it works
 
 When you enable a game for caching, it gets subsumed under the NowPlaying Game Cacher library. (If game caching is later disabled, the game is released back to the Playnite library.)
+
 To play a game from the NowPlaying Game Cacher library, you will first install it, which creates a game cache on your fast storage device. As an alternative, you can also 'Preview' the game -- play it directly from the game's installation directory without creating a game cache, aka, play it from the big-and-slow storage device. Right-click on a game to access the 'Preview' game action.
+
 Once you are no longer playing a game anymore, you can uninstall it to delete its game cache and free up space for other game caches.      
 
 #### Changes made to a Playnite game when game caching is enabled:
