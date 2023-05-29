@@ -1,8 +1,8 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
-  - Version: 1.0
+  - Version: 0.9.1
     RequiredApiVersion: 6.9.0
-    ReleaseDate: 2023-05-27
-    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v0.9.0/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_0.pext
+    ReleaseDate: 2023-05-29
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v0.9.1/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_0.pext
     Changelog:
-    - 'Initial release'
+    - 'Initial, beta release'
