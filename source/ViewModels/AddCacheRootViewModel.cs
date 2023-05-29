@@ -1,7 +1,5 @@
 ﻿using NowPlaying.Utils;
-using NowPlaying.Models;
 using Playnite.SDK;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,13 +7,12 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Playnite.SDK.Plugins;
-using Playnite.SDK.Models;
 
 namespace NowPlaying.ViewModels
 {
     public class AddCacheRootViewModel : ViewModelBase
     {
+        private readonly NowPlaying plugin;
         private readonly GameCacheManagerViewModel cacheManager;
         private Dictionary<string, string> rootDevices;
         private List<string> existingRoots;
@@ -79,6 +76,7 @@ namespace NowPlaying.ViewModels
 
         public AddCacheRootViewModel(NowPlaying plugin, Window popup, bool isFirstAdded = false)
         {
+            this.plugin = plugin;
             this.cacheManager = plugin.cacheManager;
             this.popup = popup;
 
@@ -105,6 +103,9 @@ namespace NowPlaying.ViewModels
                 {
                     RootDirectory = value;
                 }
+                UpdateRootDirectoryStatus();
+                UpdateSpaceAvailableForCaches();
+                OnPropertyChanged(null);
             });
 
             this.AddCommand = new RelayCommand(() =>
@@ -145,11 +146,11 @@ namespace NowPlaying.ViewModels
             RootIsValid = false;
             if (string.IsNullOrEmpty(RootDirectory))
             {
-                RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusSpecify");
+                RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusSpecify");
             }
             else if (!Directory.Exists(RootDirectory))
             {
-                RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotFound");
+                RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotFound");
             }
             else
             {
@@ -159,25 +160,19 @@ namespace NowPlaying.ViewModels
 
                 if (!DirectoryUtils.IsEmptyDirectory(RootDirectory))
                 {
-                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotEmpty");
+                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotEmpty");
                 }
                 else if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
                 {
-                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusNotWritable");
+                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotWritable");
                 }
                 else if (existingRoots.Contains(RootDirectory))
                 {
-                    RootStatus = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusDirIsRoot");
+                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusDirIsRoot");
                 }
                 else if (rootDevices.ContainsKey(device))
                 {
-                    string otherRootDir = rootDevices[device];
-                    string formatString = (string)popup.TryFindResource("LOCNowPlayingAddCacheRootStatusDevIsRootFmt");
-                    if (string.IsNullOrEmpty(formatString) || !formatString.Contains("{0}"))
-                    {
-                        formatString = "** same device as existing cache root '{0}' **";
-                    }
-                    RootStatus = string.Format(formatString, otherRootDir);
+                    RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevIsRootFmt", rootDevices[device]);
                 }
                 else
                 {

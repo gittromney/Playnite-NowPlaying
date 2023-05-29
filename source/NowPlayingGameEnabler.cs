@@ -55,7 +55,7 @@ namespace NowPlaying
             string installDir = game.InstallDirectory;
             var sourcePlayAction = plugin.GetSourcePlayAction(game);
             string exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
-            string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.AdditionalArguments);
+            string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
 
             if (plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
             {
@@ -66,31 +66,34 @@ namespace NowPlaying
                 game.InstallDirectory = cacheDir;
                 game.IsInstalled = cacheManager.IsGameCacheInstalled(cacheId);
                 game.PluginId = plugin.Id;
-                game.SourceId = plugin.Id;
-                game.GameActions = new ObservableCollection<GameAction>
-                {
-                    // Play from Game Cache (default play action)
+
+                // replace source Play action w/ NowPlaying Play and Preview play actions:
+                // -> Play from Game Cache (default play action)
+                // -> Preview - play game from source install directory (playable via right mouse menu)
+                //
+                game.GameActions = new ObservableCollection<GameAction>( game.GameActions.Where(a => !a.IsPlayAction) );
+                game.GameActions.Add
+                (
                     new GameAction()
                     {
                         Name = NowPlaying.nowPlayingActionName,
                         Path = Path.Combine(cacheDir, exePath),
                         WorkingDir = cacheDir,
-                        AdditionalArguments = xtraArgs?.Replace(installDir, cacheDir),
+                        Arguments = xtraArgs?.Replace(installDir, cacheDir),
                         IsPlayAction = true
-                    },
-
-                    // Preview - play game from source install directory
-                    // -> disabled as nowPlayingGame sourcePlayAction (but playable via right mouse menu)
-                    //
+                    }
+                );
+                game.GameActions.Add
+                (
                     new GameAction()
                     {
                         Name = NowPlaying.previewPlayActionName,
                         Path = Path.Combine(installDir, exePath),
                         WorkingDir = installDir,
-                        AdditionalArguments = xtraArgs,
+                        Arguments = xtraArgs,
                         IsPlayAction = false
                     }
-                };
+                );
 
                 PlayniteApi.Database.Games.Update(game);
                 plugin.NotifyInfo($"Enabled '{title}' for game caching.");

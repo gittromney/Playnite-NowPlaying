@@ -1,5 +1,4 @@
-﻿using Microsoft.SqlServer.Server;
-using NowPlaying.Models;
+﻿using NowPlaying.Models;
 using NowPlaying.ViewModels;
 using Playnite.SDK;
 using Playnite.SDK.Models;
@@ -8,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using static NowPlaying.Models.GameCacheManager;
-using static NowPlaying.NowPlayingSettings;
 
 namespace NowPlaying
 {

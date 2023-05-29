@@ -549,7 +549,6 @@ namespace NowPlaying
         {
             bool eligible = (game != null
                 && game.PluginId == Guid.Empty
-                && game.SourceId == Guid.Empty
                 && game.IsInstalled
                 && game.IsCustomGame
                 && game.Platforms?.Count == 1 && game.Platforms?.First().SpecificationId == "pc_windows"
@@ -666,39 +665,42 @@ namespace NowPlaying
 
         public bool DisableNowPlayingGameCaching(Game game, string installDir = null, string exePath = null, string xtraArgs = null)
         {
+            var previewPlayAction = GetPreviewPlayAction(game);
+
             // . attempt to extract original install and play action parameters, if not provided by caller
             if (installDir == null || exePath == null)
             {
-                var previewPlayAction = GetPreviewPlayAction(game);
                 if (previewPlayAction != null)
                 {
                     exePath = GetIncrementalExePath(previewPlayAction);
                     installDir = previewPlayAction.WorkingDir;
                     if (xtraArgs == null)
                     {
-                        xtraArgs = previewPlayAction.AdditionalArguments;
+                        xtraArgs = previewPlayAction.Arguments;
                     }
                 }
             }
 
-            // . restore game with original (or functionally equivalent) play action
+            // . restore the game to Playnite library
             if (installDir != null && exePath != null)
             {
                 game.InstallDirectory = installDir;
                 game.IsInstalled = true;
                 game.PluginId = Guid.Empty;
-                game.SourceId = Guid.Empty;
-                game.GameActions = new ObservableCollection<GameAction>
-                {
-                    new GameAction()
-                    {
-                        Name = game.Name,
-                        Path = Path.Combine("{InstallDir}", exePath),
-                        WorkingDir = "{InstallDir}",
-                        AdditionalArguments = xtraArgs?.Replace(installDir, "{InstallDir}"),
-                        IsPlayAction = true
-                    }
-                };
+
+                // restore original Play action (or functionally equivalent):
+                game.GameActions = new ObservableCollection<GameAction>(game.GameActions.Where(a => !a.IsPlayAction && a != previewPlayAction));
+                game.GameActions.Add
+                (
+                     new GameAction()
+                     {
+                         Name = game.Name,
+                         Path = Path.Combine("{InstallDir}", exePath),
+                         WorkingDir = "{InstallDir}",
+                         Arguments = xtraArgs?.Replace(installDir, "{InstallDir}"),
+                         IsPlayAction = true
+                     }
+                );
 
                 PlayniteApi.Database.Games.Update(game);
                 return true;

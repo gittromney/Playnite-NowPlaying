@@ -20,6 +20,7 @@ namespace NowPlaying.ViewModels
         public string CacheDir => entry.CacheDir;
         public string InstallDir => entry.InstallDir;
         public string ExePath => entry.ExePath;
+        public string XtraArgs => entry.XtraArgs;
         public long InstallSize => entry.InstallSize;
         public long CacheSize => entry.CacheSize;
 

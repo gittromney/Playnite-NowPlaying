@@ -805,7 +805,7 @@ namespace NowPlaying.ViewModels
             Game nowPlayingGame = plugin.FindNowPlayingGame(gameCache.Id);
             if (nowPlayingGame != null)
             {
-                plugin.DisableNowPlayingGameCaching(nowPlayingGame, gameCache.InstallDir, gameCache.ExePath);
+                plugin.DisableNowPlayingGameCaching(nowPlayingGame, gameCache.InstallDir, gameCache.ExePath, gameCache.XtraArgs);
             }
             else
             {
