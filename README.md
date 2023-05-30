@@ -33,9 +33,9 @@ Playnite's built in interface can be used for basic game cache management (insta
 ### Initial setup: choose a cache root
 After installing this extension, you'll want to specify at least one cache root directory/storage device and then you'll be able to enable games for caching.  This is done from the NowPlaying Game Cacher view (via sidebar). 
 
-- Choose a new, empty ***directory*** on a fast storage device to create game caches in, such as "C:\Games\NowPlaying".  Note, you can specify multiple cache roots but only one is allowed per storage device.
+- Choose a new, empty ***Directory*** on a fast storage device to create game caches in, such as "C:\Games\NowPlaying".  Note, you can specify multiple cache roots but only one is allowed per storage device.
 
-- Set the ***maximum fill level*** allowed for the storage device when installing game caches, in a range of 50-100%.  This will limit the space used for game caches on the device and reserve a portion of it for other use.  It's recommended to set the maximum fill level to, at most, 75-85% (or so) for a cache root on your system disk (C:).  If the device is used exclusively for gaming, it can be set as high as 100%.
+- Set the ***Maximum fill level*** allowed for the storage device when installing game caches, in a range of 50-100%.  This will limit the space used for game caches on the device and reserve a portion of it for other use.  It's recommended to set the maximum fill level to, at most, 75-85% (or so) for a cache root on your system disk (C:).  If the device is used exclusively for gaming, it can be set as high as 100%.
 
 
 ### A few notes about cache installation
