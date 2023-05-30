@@ -18,7 +18,7 @@ To play a game from the NowPlaying library, you first ***Install*** it to create
 
 While a game's cache is being created (which can take awhile depending on the size of the game, speed of the storage devices, etc), you are still able to browse and play games in Playnite; and you can also schedule cache installation for additional games (in a queue).  Depending on NowPlaying's settings, cache installation can continue in the background while you are playing games.
 
-Playite's built in interface can be used for basic game cache management (install/uninstall, as well as enable/disable game caching via right-mouse).  More advanced management is available from the NowPlaying Game Cacher view (via the sidebar). NowPlaying's settings are also accessible there, too.
+Playnite's built in interface can be used for basic game cache management (install/uninstall, as well as enable/disable game caching via right-mouse).  More advanced management is available from the NowPlaying Game Cacher view (via the sidebar). NowPlaying's settings are also accessible there, too.
 
 #### Changes made to a Playnite Game when caching is enabled:
 - Install Directory → points to the game's cache directory, under a NowPlaying cache root directory/device (i.e. on a fast storage device)  
