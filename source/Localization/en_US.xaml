@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -137,13 +137,12 @@
     <sys:String x:Key="LOCNowPlayingAddGamesHeading">Enable games for NowPlaying game caching</sys:String>
     <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirementsHeading">Note, games must meet the following requirements to be eligible for game caching:</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement1">Locally installed (added via Add Game -> Manually / Scan Automatically)</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement2">Listed under the 'Playnite' library.</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement3">Have an empty Source (see Game Details -> General -> Source).</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement4">Playable from the installation directory (i.e. not in archived state).</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement5">Have no Roms.</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement6">Have a single Play Action (see Game Details -> Actions).</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement7">Platform is 'PC (Windows)'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement1">Are locally installed (added via Add Game → Manually or Scan Automatically)</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement2">Are playable from the installation directory (i.e. not archived).</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement3">Are listed under the 'Playnite' library.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement4">Have a single Play Action (see Game Details → Actions).</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement5">Platform is 'PC (Windows)'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement6">Have no Roms.</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Show only games with titles matching search terms entered here</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>
@@ -219,6 +218,8 @@
     </sys:String>
     
     <!--NowPlaying-->
+    <sys:String x:Key="LOCNowPlayingRemovedEnabledGameNonEmptyCacheFmt">NowPlaying enabled game '{0}' was removed; caching disabled and deleting game cache.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRemovedEnabledGameFmt">NowPlaying enabled game '{0}' was removed; caching disabled</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2">Unknown/orphaned directory '{0}' found under NowPlaying cache root '{1}'</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryCaption">NowPlaying: unknown or orphaned cache directory</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryMsgFmt">Do you want to delete '{0}'?</sys:String>

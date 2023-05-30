@@ -4,8 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using NowPlaying.Utils;
 
 namespace NowPlaying.Views
 {
@@ -21,6 +19,20 @@ namespace NowPlaying.Views
             InitializeComponent();
             this.viewModel = viewModel;
             DataContext = viewModel;
+            GameCaches.PreviewMouseWheel += PassOnPreviewMouseWheelToParent;
+        }
+
+        private void PassOnPreviewMouseWheelToParent(object sender, MouseWheelEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                e.Handled = true;
+                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
+                eventArg.RoutedEvent = UIElement.MouseWheelEvent;
+                eventArg.Source = sender;
+                var parent = ((Control)sender).Parent as UIElement;
+                parent.RaiseEvent(eventArg);
+            }
         }
 
         public void GameCaches_OnMouseUp(object sender, MouseButtonEventArgs e)

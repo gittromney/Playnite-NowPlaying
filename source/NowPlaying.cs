@@ -20,12 +20,15 @@ using NowPlaying.Models;
 using NowPlaying.Properties;
 using NowPlaying.Views;
 using NowPlaying.ViewModels;
+using System.Reflection;
 
 namespace NowPlaying
 {
     public class NowPlaying : LibraryPlugin
     {
         public override Guid Id { get; } = Guid.Parse("0dbead64-b7ed-47e5-904c-0ccdb5d5ff59");
+        public override string LibraryIcon { get; }
+
         public override string Name => "NowPlaying Game Cacher";
         public static readonly ILogger logger = LogManager.GetLogger();
 
@@ -71,6 +74,8 @@ namespace NowPlaying
                 HasSettings = true
             };
 
+            LibraryIcon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"icon.png");
+
             cacheManager = new GameCacheManagerViewModel(this, logger);
 
             formatStringXofY = GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
@@ -99,7 +104,7 @@ namespace NowPlaying
                 Visible = false
             };
 
-            this.sidebarIcon = new Rectangle()
+            this.sidebarIcon = new System.Windows.Shapes.Rectangle()
             {
                 Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush"),
                 Width = 256,
@@ -247,12 +252,31 @@ namespace NowPlaying
             CheckForBrokenNowPlayingGames();
             cacheRootsViewModel.RefreshCacheRoots();
 
-            // TODO: look at adding callback for database changes (Games removed????)  similar to....
-            //
-            // PlayniteApi.Database.Games.ItemCollectionChanged += (_, args) =>
-            //{
-            //    PlayniteApi.Dialogs.ShowMessage(args.AddedItems.Count + " items added into the library.");
-            //};
+            PlayniteApi.Database.Games.ItemCollectionChanged += CheckForRemovedNowPlayingGames;
+        }
+
+        public void CheckForRemovedNowPlayingGames(object o, ItemCollectionChangedEventArgs<Game> args)
+        {
+            if (args.RemovedItems.Count > 0)
+            {
+                foreach (var game in args.RemovedItems)
+                {
+                    if (game != null && cacheManager.GameCacheExists(game.Id.ToString()))
+                    {
+                        var gameCache = cacheManager.FindGameCache(game.Id.ToString());
+                        if (gameCache.CacheSize > 0)
+                        {
+                            NotifyWarning(FormatResourceString("LOCNowPlayingRemovedEnabledGameNonEmptyCacheFmt", game.Name));
+                        }
+                        else
+                        {
+                            NotifyWarning(FormatResourceString("LOCNowPlayingRemovedEnabledGameFmt", game.Name));
+                        }
+                        DirectoryUtils.DeleteDirectory(gameCache.CacheDir);
+                        cacheManager.RemoveGameCache(gameCache.Id);
+                    }
+                }
+            }
         }
 
         public void CheckForOrphanedCacheDirectories()

@@ -105,15 +105,13 @@
         <StackPanel
             Grid.Row="2"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center" 
             Visibility="{Binding NoEligibleGamesVisibility}">
             <TextBlock 
                 Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
                 Foreground="{DynamicResource WarningBrush}" 
                 FontSize="{DynamicResource FontSizeLarge}"
-                HorizontalAlignment="Center"
                 TextWrapping="Wrap"
-                Margin="0,0,0,50"/>
+                Margin="0,10,0,20"/>
             <StackPanel HorizontalAlignment="Center">
                 <StackPanel.Resources>
                     <Style TargetType="Label" BasedOn="{StaticResource BulletedLabel}">
@@ -128,7 +126,6 @@
                     <Label Content="{DynamicResource LOCNowPlayingRequirement4}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement5}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement6}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement7}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
