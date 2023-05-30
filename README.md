@@ -34,7 +34,7 @@ More advanced management is available from the NowPlaying Game Cacher view (via 
 - Plugin ID → 'empty' ID (will be listed under the Playnite library)
 - Game Actions: the game's original Play action is restored.
 
-#### Initial setup: choose a cache root
+### Initial setup: choose a cache root
 After installing this extension, you'll want to specify at least one cache root directory/storage device and then you'll be able to enable games for caching.
 This is done from the NowPlaying Game Cacher view (via sidebar). 
 
@@ -43,12 +43,12 @@ This is done from the NowPlaying Game Cacher view (via sidebar).
 - Set the maximum fill level allowed for the storage device when installing game caches, in a range of 50-100%. This will limit the space used for game caches on the device and reserve a portion of it for other use. It's recommended to set the maximum fill level to, at most, 75-85% (or so) for a cache root on your system disk (C:). If the device is used exclusively for gaming, it can be set as high as 100%.
 
 
-#### A few notes about cache installation: 
+### A few notes about cache installation
 - At most one active game cache installation can occur at a time. Any additional game cache install requests are queued up if there is already an active install underway.
 - An active cache installation can be paused or cancelled, and queued installations can be cancelled (via right mouse menu). Game caches in a paused state can be resumed (or uninstalled) at a later time. 
 - If you launch a Playnite game, your active/queued cache intallations can continue in the background, as normal, but you also have the option of pausing all installations or shifting them to a speed limited mode while you are actively playing games. (See NowPlaying Settings.) Paused or speed limited cache installations will automatically be resumed (at full speed) once you are done playing.
 
-#### Uninstalling 'dirty' game caches
+### Uninstalling 'dirty' game caches
 Some games save settings and game save data locally. 
 While playing one of these games, the cache can become 'dirty', or different than the installed files.
 When a dirty game cache is uninstalled, you have the option of syncing updated game settings/save data back
