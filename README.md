@@ -1,5 +1,10 @@
 ## NowPlaying Game Cacher, a library extension for [Playnite](https://github.com/JosefNemec/Playnite)
 
+[![Downloads](https://img.shields.io/github/downloads/gittromney/Playnite-NowPlaying/total)](https://github.com/gittromney/Playnite-NowPlaying/archive/refs/heads/master.zip)
+[![LatestVersion](https://img.shields.io/github/v/release/gittromney/Playnite-NowPlaying?include_prereleases)](https://github.com/gittromney/Playnite-NowPlaying/releases)
+[![LastCommit](https://img.shields.io/github/last-commit/gittromney/Playnite-NowPlaying)](https://github.com/gittromney/Playnite-NowPlaying/commits/master)
+[![License](https://img.shields.io/github/license/gittromney/Playnite-NowPlaying)](https://github.com/gittromney/Playnite-NowPlaying/blob/master/LICENSE.txt)
+
 This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
 
 ### Games must meet the following requirements to be eligible for game caching:
