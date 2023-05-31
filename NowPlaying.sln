@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manifests", "manifests", "{46313F0A-8304-4271-A4C6-40F69E879E53}"
 	ProjectSection(SolutionItems) = preProject
+		manifests\gittromney_NowPlayingLibrary.yaml = manifests\gittromney_NowPlayingLibrary.yaml
 		manifests\Library_NowPlaying.yaml = manifests\Library_NowPlaying.yaml
 	EndProjectSection
 EndProject
