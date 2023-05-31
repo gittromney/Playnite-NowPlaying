@@ -1,8 +1,14 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.0.0
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2023-05-31
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.0.0/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_0.pext
+    Changelog:
+    - "It's go time... (fingers crossed)"
   - Version: 0.9.2
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2023-05-29
     PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v0.9.2/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_0.pext
     Changelog:
-    - 'Initial, beta release'
+    - "Initial, beta release"
