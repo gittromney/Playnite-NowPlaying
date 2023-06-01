@@ -37,16 +37,55 @@
                 </Grid.RowDefinitions>
 
                 <!--top row-->
-                <TextBlock 
+                <TextBlock
                     Grid.Row="0" Grid.Column="0"
                     Text="{DynamicResource LOCNowPlayingAddCacheRootDirLabel}"
                     Foreground="{DynamicResource GlyphBrush}"
                     VerticalAlignment="Center" 
-                    Margin="0,0,10,0"/>
-                <TextBox 
-                    Grid.Row="0" Grid.Column="1" 
-                    Text="{Binding RootDirectory, UpdateSourceTrigger=PropertyChanged}"
-                    Margin="0,0,10,0"/>
+                    Margin="0,0,15,0"/>
+                <Grid 
+                    Grid.Row="0" Grid.Column="1"
+                    Margin="0,0,10,0">
+                    <TextBox
+                        Name="DirTextBox"
+                        Text="{Binding RootDirectory, UpdateSourceTrigger=PropertyChanged}"
+                        Padding="5,0,25,0">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsVisible}" Value="True">
+                                        <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ElementName=MkdirButton, Path=IsMouseOver}" Value="True">
+                                        <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <Button
+                        Name="MkdirButton"
+                        Visibility="{Binding MakeDirCommandVisibility}"
+                        ToolTip="Create this cache root directory"
+                        Command="{Binding MakeDirCommand}"
+                        Style="{DynamicResource InTextBoxButton}"
+                        HorizontalAlignment="Right"
+                        Margin="10,0,4,0">
+                        <Grid>
+                            <!--overlay/superimpose two ascii icons-->
+                            <TextBlock 
+                                Text="+" FontSize="14" Padding="0,4,0,0"
+                                Foreground="{Binding ElementName=DirTextBox, Path=Foreground}"
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center"/>
+                            <TextBlock 
+                                Text="📁" FontSize="15" 
+                                Foreground="{Binding ElementName=DirTextBox, Path=Foreground}"
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center"/>
+                        </Grid>
+                    </Button>
+                </Grid>
                 <Button 
                     Grid.Row="0" Grid.Column="2" 
                     Content="📁" FontSize="15"

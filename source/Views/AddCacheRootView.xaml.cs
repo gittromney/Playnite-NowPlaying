@@ -4,11 +4,11 @@ using System.Windows.Controls;
 namespace NowPlaying.Views
 {
     /// <summary>
-    /// Interaction logic for EditMaxFillViewModel.xaml
+    /// Interaction logic for AddCacheRootView.xaml
     /// </summary>
-    public partial class EditMaxFillView : UserControl
+    public partial class AddCacheRootView : UserControl
     {
-        public EditMaxFillView(EditMaxFillViewModel viewModel)
+        public AddCacheRootView(AddCacheRootViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;

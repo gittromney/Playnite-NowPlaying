@@ -1,8 +1,10 @@
 ﻿using NowPlaying.Utils;
 using Playnite.SDK;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -18,6 +20,7 @@ namespace NowPlaying.ViewModels
         private List<string> existingRoots;
         public Window popup { get; set; }
 
+        public bool DeviceIsValid { get; private set; }
         public bool RootIsValid { get; private set; }
         public bool HasSpaceForCaches { get; private set; }
 
@@ -39,12 +42,12 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public string DeviceName => RootIsValid ? Directory.GetDirectoryRoot(RootDirectory) : "-";
-        public string DeviceCapacity => RootIsValid ? SmartUnits.Bytes(DirectoryUtils.GetRootDeviceCapacity(RootDirectory)) : "-";
-        public string SpaceAvailable => RootIsValid ? SmartUnits.Bytes(DirectoryUtils.GetAvailableFreeSpace(RootDirectory)) : "-";
+        public string DeviceName => DeviceIsValid ? Directory.GetDirectoryRoot(RootDirectory) : "-";
+        public string DeviceCapacity => DeviceIsValid ? SmartUnits.Bytes(DirectoryUtils.GetRootDeviceCapacity(RootDirectory)) : "-";
+        public string SpaceAvailable => DeviceIsValid ? SmartUnits.Bytes(DirectoryUtils.GetAvailableFreeSpace(RootDirectory)) : "-";
 
-        public string SpaceAvailableVisibility => !RootIsValid || HasSpaceForCaches ? "Visible" : "Hidden";
-        public string NoSpaceAvailableVisibility => RootIsValid && !HasSpaceForCaches ? "Visible" : "Hidden";
+        public string SpaceAvailableVisibility => !DeviceIsValid || HasSpaceForCaches ? "Visible" : "Hidden";
+        public string NoSpaceAvailableVisibility => DeviceIsValid && !HasSpaceForCaches ? "Visible" : "Hidden";
 
         private double maximumFillLevel;
         public double MaximumFillLevel
@@ -67,12 +70,15 @@ namespace NowPlaying.ViewModels
         public string SpaceAvailableForCaches { get; private set; }
 
 
-        public bool AddCommandCanExecute { get; private set; }
 
+        public ICommand MakeDirCommand { get; private set; }
         public ICommand SelectFolderCommand { get; private set; }
         public ICommand AddCommand { get; private set; }
         public ICommand CancelCommand { get; private set; }
 
+        public bool MakeDirCanExecute { get; private set; }
+        public string MakeDirCommandVisibility => MakeDirCanExecute ? "Visible" : "Collapsed";
+        public bool AddCommandCanExecute { get; private set; }
 
         public AddCacheRootViewModel(NowPlaying plugin, Window popup, bool isFirstAdded = false)
         {
@@ -96,6 +102,20 @@ namespace NowPlaying.ViewModels
                 }
             }
 
+            this.MakeDirCommand = new RelayCommand(() =>
+            {
+                if (DirectoryUtils.MakeDir(RootDirectory))
+                {
+                    UpdateRootDirectoryStatus();
+                    UpdateSpaceAvailableForCaches();
+                    OnPropertyChanged(null);
+                }
+                else
+                {
+                    plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingAddCacheRootMakeDirErrorFmt", RootDirectory));
+                }
+            });
+
             this.SelectFolderCommand = new RelayCommand(() => 
             {
                 var value = plugin.PlayniteApi.Dialogs.SelectFolder();
@@ -114,7 +134,7 @@ namespace NowPlaying.ViewModels
                     plugin.cacheRootsViewModel.RefreshCacheRoots();
                     CloseWindow();
                 },
-                () => RootIsValid && HasSpaceForCaches
+                () => AddCommandCanExecute
             );
 
             this.CancelCommand = new RelayCommand(() =>
@@ -140,49 +160,79 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(null);
         }
 
-
         private void UpdateRootDirectoryStatus()
         {
+            MakeDirCanExecute = false;
+            DeviceIsValid = false;
             RootIsValid = false;
+
             if (string.IsNullOrEmpty(RootDirectory))
             {
                 RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusSpecify");
             }
-            else if (!Directory.Exists(RootDirectory))
-            {
-                RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotFound");
-            }
             else
             {
-                // . make sure directory root name is always upper case (c:\mydir -> C:\mydir)
-                string device = Directory.GetDirectoryRoot(RootDirectory).ToUpper();
-                RootDirectory = device + RootDirectory.Substring(device.Length);
+                // . check for rooted path name, with no invalid character, redirects, pipes, etc.
+                bool dirIsValid = DirectoryUtils.IsValidRootedDirName(RootDirectory);
 
-                if (!DirectoryUtils.IsEmptyDirectory(RootDirectory))
+                if (!dirIsValid)
                 {
-                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotEmpty");
-                }
-                else if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
-                {
-                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotWritable");
-                }
-                else if (existingRoots.Contains(RootDirectory))
-                {
-                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusDirIsRoot");
-                }
-                else if (rootDevices.ContainsKey(device))
-                {
-                    RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevIsRootFmt", rootDevices[device]);
+                    RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusInvalid");
                 }
                 else
                 {
-                    RootIsValid = true;
-                    RootStatus = "";
+                    string rootDevice = Directory.GetDirectoryRoot(RootDirectory);
+                    DeviceIsValid = Directory.Exists(rootDevice);
+
+                    // . make sure root device name is upper case (c:\my\dir -> C:\my\dir)
+                    if (rootDevice != rootDevice.ToUpper())
+                    {
+                        rootDevice = rootDevice.ToUpper();
+                        RootDirectory = rootDevice + RootDirectory.Substring(rootDevice.Length);
+                    }
+
+                    if (rootDevices.ContainsKey(rootDevice))
+                    {
+                        RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevIsRootFmt", rootDevices[rootDevice]);
+                    }
+                    else if (!Directory.Exists(rootDevice))
+                    {
+                        RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevNotFoundFmt", rootDevice);
+                    }
+                    else if (!Directory.Exists(RootDirectory))
+                    {
+                        RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotFound");
+                        MakeDirCanExecute = true;
+                    }
+                    else
+                    {
+                        if (!DirectoryUtils.IsEmptyDirectory(RootDirectory))
+                        {
+                            RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotEmpty");
+                        }
+                        else if (!DirectoryUtils.ExistsAndIsWritable(RootDirectory))
+                        {
+                            RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusNotWritable");
+                        }
+                        else if (existingRoots.Contains(RootDirectory))
+                        {
+                            RootStatus = plugin.GetResourceString("LOCNowPlayingAddCacheRootStatusDirIsRoot");
+                        }
+                        else
+                        {
+                            RootIsValid = true;
+                            RootStatus = string.Empty;
+                        }
+                    }
                 }
             }
+            OnPropertyChanged(nameof(DeviceIsValid));
+            OnPropertyChanged(nameof(DeviceName));
+
             OnPropertyChanged(nameof(RootIsValid));
             OnPropertyChanged(nameof(RootStatus));
             UpdateAddCommandCanExectue();
+            OnPropertyChanged(nameof(MakeDirCommandVisibility));
         }
 
         private void UpdateAddCommandCanExectue()
@@ -193,11 +243,12 @@ namespace NowPlaying.ViewModels
                 AddCommandCanExecute = value;
                 CommandManager.InvalidateRequerySuggested();
             }
+            OnPropertyChanged(nameof(AddCommandCanExecute));
         }
 
         private string GetSpaceToReserve()
         {
-            if (RootIsValid)
+            if (DeviceIsValid)
             {
                 long deviceSize = DirectoryUtils.GetRootDeviceCapacity(RootDirectory);
                 long reservedSize = (long) (deviceSize * (1.0 - MaximumFillLevel / 100.0));
@@ -211,7 +262,7 @@ namespace NowPlaying.ViewModels
 
         private void UpdateSpaceAvailableForCaches()
         {
-            if (RootIsValid)
+            if (DeviceIsValid)
             {
                 long availableForCaches = CacheRootViewModel.GetAvailableSpaceForCaches(RootDirectory, MaximumFillLevel);
                 if (availableForCaches > 0)

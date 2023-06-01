@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Markup;
 
 namespace NowPlaying.Utils
 {
@@ -37,6 +38,47 @@ namespace NowPlaying.Utils
         public static string ToSafeFileName(string fileName)
         {
             return Path.GetInvalidFileNameChars().Aggregate(fileName, (f, c) => f.Replace(c, '-'));
+        }
+
+        // Returns:
+        // <root device name> - if path name is rooted (e.g. returns "C:\\" if path is "C:\\My\\Path\\Name"
+        // null - If path name is long enough to contain a root, but it either does not or
+        //        it is invalid (e.g. contains redirects or pipes)
+        public static string TryGetRootDevice(string pathName)
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(pathName);  // this checks for redirects/pipes, etc.
+                string device = TrimEndingSlash(Directory.GetDirectoryRoot(fullPath));
+                if (device.Length > pathName.Length)
+                {
+                    return null;
+                }
+                else 
+                {
+                    return device.Equals(pathName.Substring(0, device.Length)) ? device : null;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static bool IsValidRootedDirName(string pathName)
+        {
+            string device = TryGetRootDevice(pathName);
+            bool isValid = !string.IsNullOrEmpty(device);
+            if (isValid) 
+            {
+                // . check each subdir, file name following the device root name for invalid chars.
+                pathName = pathName.Substring(device.Length);
+                foreach (string s in pathName.Split(Path.DirectorySeparatorChar))
+                {
+                    isValid &= s.Equals(ToSafeFileName(s));
+                }
+            }
+            return isValid;
         }
 
         /// <summary>
@@ -149,5 +191,6 @@ namespace NowPlaying.Utils
                 return false;
             }
         }
+
     }
 }
