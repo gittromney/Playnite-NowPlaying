@@ -168,12 +168,15 @@
     <sys:String x:Key="LOCNowPlayingAddCacheRootReservedLabel">Space reserved for other use:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootCacheAvailLabel">Space available for caches:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootNoSpaceWarning">** none **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusInvalid">** invalid directory name **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusSpecify">** please specify a root directory **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotFound">** specified directory not found **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotEmpty">** specified directory is not empty **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusNotWritable">** specified directory is not user writable **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDirIsRoot">** specified directory is already a cache root **</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDevIsRootFmt">** same device as existing cache root '{0}' **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootStatusDevNotFoundFmt">** root device '{0}' not found **</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootMakeDirErrorFmt">Could not create cache root directory '{0}'.</sys:String>
 
     <!--CacheRootsView, CacheRootViewModel-->
     <sys:String x:Key="LOCNowPlayingCacheRootsHeading">NowPlaying Cache Roots</sys:String>
