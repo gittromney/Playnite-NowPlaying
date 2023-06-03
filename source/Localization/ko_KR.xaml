@@ -142,7 +142,7 @@
     <sys:String x:Key="LOCNowPlayingRequirement4">Have a single Play Action (see Game Details → Actions).</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement5">Platform is 'PC (Windows)'.</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement6">Have no Roms.</sys:String>
-    <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Show only games with titles matching search terms entered here</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Game title search terms</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>
     
@@ -160,6 +160,7 @@
         If the device is used exclusively for gaming, it can be set as high as 100%.
     </sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDirLabel">Cache root directory:</sys:String>
+    <sys:String x:Key="LOCNowPlayingAddCacheRootMakeDirToolTip">Create this cache root directory</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootBrowseToolTip">Browse for cache root directory</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootDeviceLabel">Cache root device:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootCapacityLabel">Device capacity:</sys:String>
