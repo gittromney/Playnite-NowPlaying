@@ -11,7 +11,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <DockPanel Margin="30,0,30,0" VerticalAlignment="Stretch">
+    <DockPanel Margin="25,0,25,0" VerticalAlignment="Stretch">
 
         <StackPanel DockPanel.Dock="Top">
             <TextBlock 
@@ -87,7 +87,7 @@
             Orientation="Horizontal" 
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
-            Margin="0,0,0,45">
+            Margin="0,0,0,25">
             <Button Content="Save" Height="35" Width="70" Command="{Binding SaveCommand}" Margin="0,0,10,0"/>
             <Button Content="Cancel" Height="35" Width="70" Command="{Binding CancelCommand}"/>
         </StackPanel>

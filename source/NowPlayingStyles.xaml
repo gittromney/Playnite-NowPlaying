@@ -83,7 +83,7 @@
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
-    
+
     <Style x:Key="SubheadingText" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource GlyphBrush}"/>
         <Setter Property="FontSize" Value="15"/>
@@ -113,6 +113,7 @@
         <Setter Property="Height" Value="20"/>
         <Setter Property="Padding" Value="0,0,0,0"/>
         <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="ToolTipService.InitialShowDelay" Value="150"/>
         <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
         <Setter Property="BorderBrush" Value="Transparent"/>

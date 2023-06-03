@@ -1,10 +1,8 @@
 ﻿using NowPlaying.Utils;
 using Playnite.SDK;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;

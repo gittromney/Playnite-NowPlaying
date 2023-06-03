@@ -34,26 +34,33 @@
             Margin="0,0,0,5"
             ItemsSource="{Binding CacheRoots}"
             SelectionMode="Single"
+            PreviewMouseWheel="PreviewMouseWheelToParent"
             SelectedItem="{Binding SelectedCacheRoot}"
-            Visibility="{Binding NonEmptyRootsVisible}">
+            Visibility="{Binding NonEmptyRootsVisible}"
+            Loaded="CacheRoots_ResizeColumns"
+            utils:GridViewUtils.AutoSort="True">
 
             <ListView.View>
                 <GridView>
                     <GridViewColumn 
-                        Width="70" 
-                        DisplayMemberBinding="{Binding Device}">
+                        DisplayMemberBinding="{Binding Device}"
+                        utils:GridViewUtils.MinWidth="70">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDevice}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}"/>
                     </GridViewColumn>
                     <GridViewColumn 
-                        Width="250" 
-                        DisplayMemberBinding="{Binding Directory}">
+                        DisplayMemberBinding="{Binding Directory}"
+                        utils:GridViewUtils.AutoWidth="True"
+                        utils:GridViewUtils.MinWidth="220">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDirectory}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDirectoryToolTip}"/>
                     </GridViewColumn>
-                    <GridViewColumn Width="120">
+                    <GridViewColumn 
+                        utils:GridViewUtils.PropertyName="SpaceAvailableForCaches" 
+                        utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
+                        utils:GridViewUtils.MinWidth="125">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}"/>
@@ -83,13 +90,16 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn 
-                        Width="70"
-                        DisplayMemberBinding="{Binding GamesEnabled}">
+                        DisplayMemberBinding="{Binding GamesEnabled}"
+                        utils:GridViewUtils.MinWidth="70">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsGames}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}"/>
                     </GridViewColumn>
-                    <GridViewColumn Width="120">
+                    <GridViewColumn
+                        utils:GridViewUtils.PropertyName="CachesInstalledAndSize" 
+                        utils:GridViewUtils.CustomSort="{Binding CustomCachesInstalledSort}"
+                        utils:GridViewUtils.MinWidth="120">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsInstalled}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsInstalledToolTip}"/>
@@ -115,7 +125,10 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="300">
+                    <GridViewColumn 
+                        utils:GridViewUtils.PropertyName="MaxFillAndReserved"
+                        utils:GridViewUtils.CustomSort="{Binding CustomMaxFillReservedSort}"
+                        utils:GridViewUtils.MinWidth="250">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsMaxFillLevel}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}"/>

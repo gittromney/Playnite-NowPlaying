@@ -1,4 +1,5 @@
-﻿using NowPlaying.ViewModels;
+﻿using NowPlaying.Utils;
+using NowPlaying.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
@@ -35,6 +36,11 @@ namespace NowPlaying.Views
         {
             EligibleGames.SelectAll();
             viewModel.SelectedGames = viewModel.EligibleGames;
+        }
+
+        private void PreviewMouseWheelToParent(object sender, MouseWheelEventArgs e)
+        {
+            GridViewUtils.MouseWheelToParent(sender, e);
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using NowPlaying.ViewModels;
+﻿using NowPlaying.Utils;
+using NowPlaying.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace NowPlaying.Views
 {
@@ -19,25 +22,14 @@ namespace NowPlaying.Views
             CacheRoots.UnselectAll();
         }
 
-        public void CacheRoots_AutoResizeDirectoryColumn()
+        private void CacheRoots_ResizeColumns(object sender, RoutedEventArgs e)
         {
-            var view = CacheRoots.View as GridView;
-            if (view != null && view.Columns.Count > 0)
-            {
-                foreach (var column in view.Columns)
-                {
-                    var header = column.Header as GridViewColumnHeader;
-                    if (header != null)
-                    {
-                        var content = header.Content as string;
-                        if (content != null && content == "Directory")
-                        {
-                            if (double.IsNaN(column.Width)) column.Width = 1;
-                            column.Width = double.NaN;
-                        }
-                    }
-                }
-            }
+            GridViewUtils.ColumnResize(CacheRoots);
+        }
+
+        private void PreviewMouseWheelToParent(object sender, MouseWheelEventArgs e)
+        {
+            GridViewUtils.MouseWheelToParent(sender, e);
         }
 
     }

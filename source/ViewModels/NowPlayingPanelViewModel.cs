@@ -15,6 +15,7 @@ using MenuItem = System.Windows.Controls.MenuItem;
 using UserControl = System.Windows.Controls.UserControl;
 using System.Windows.Media.Imaging;
 using NowPlaying.Properties;
+using System.Windows;
 
 namespace NowPlaying.ViewModels
 {
@@ -128,11 +129,16 @@ namespace NowPlaying.ViewModels
                 // setup popup and center within the current application window
                 popup.Width = view.MinWidth;
                 popup.MinWidth = view.MinWidth;
-                popup.Height = view.MinHeight;
-                popup.MinHeight = view.MinHeight;
+                popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
-                popup.ContentRendered += (s, e) => viewModel.SelectNoGames();  // clear auto-selection of 1st item
+                popup.ContentRendered += (s, e) =>
+                {
+                    // . clear auto-selection of 1st item
+                    viewModel.SelectNoGames();
+                    GridViewUtils.ColumnResize(view.EligibleGames);
+                };
                 popup.ShowDialog();
             });
 
@@ -143,7 +149,7 @@ namespace NowPlaying.ViewModels
         private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             plugin.panelView.GameCaches_ClearSelected();
-            plugin.panelView.GameCaches_AutoResizeTitleColumn();
+            GridViewUtils.ColumnResize(plugin.panelView.GameCaches);
         }
 
         public class CustomEtaSorter : IComparer
@@ -183,7 +189,6 @@ namespace NowPlaying.ViewModels
         }
         public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }
 
-
         public ICommand ToggleShowCacheRoots { get; private set; }
         public ICommand ToggleShowSettings { get; private set; }
         public ICommand SaveSettingsCommand { get; private set; }
@@ -200,8 +205,6 @@ namespace NowPlaying.ViewModels
         public ICommand CancelInstallCommand { get; private set; }
 
         public ObservableCollection<GameCacheViewModel> GameCaches => plugin.cacheManager.GameCaches;
-
-        public string TitleWidth { get; private set; } = "NaN";
 
         public bool AreCacheRootsNonEmpty => plugin.cacheManager.CacheRoots.Count > 0;
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;

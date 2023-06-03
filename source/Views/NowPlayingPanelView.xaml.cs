@@ -1,4 +1,5 @@
-﻿using NowPlaying.ViewModels;
+﻿using NowPlaying.Utils;
+using NowPlaying.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -19,20 +20,6 @@ namespace NowPlaying.Views
             InitializeComponent();
             this.viewModel = viewModel;
             DataContext = viewModel;
-            GameCaches.PreviewMouseWheel += PassOnPreviewMouseWheelToParent;
-        }
-
-        private void PassOnPreviewMouseWheelToParent(object sender, MouseWheelEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                e.Handled = true;
-                var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
-                eventArg.RoutedEvent = UIElement.MouseWheelEvent;
-                eventArg.Source = sender;
-                var parent = ((Control)sender).Parent as UIElement;
-                parent.RaiseEvent(eventArg);
-            }
         }
 
         public void GameCaches_OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -46,25 +33,9 @@ namespace NowPlaying.Views
             viewModel.SelectedGameCaches = new List<GameCacheViewModel>();
         }
 
-        public void GameCaches_AutoResizeTitleColumn()
+        private void GameCaches_ResizeColumns(object sender, RoutedEventArgs e)
         {
-            var view = GameCaches.View as GridView;
-            if (view != null && view.Columns.Count > 0)
-            {
-                foreach (var column in view.Columns)
-                {
-                    var header = column.Header as GridViewColumnHeader;
-                    if (header != null)
-                    {
-                        var content = header.Content as string;
-                        if (content != null && content == "Title")
-                        {
-                            if (double.IsNaN(column.Width)) column.Width = 1;
-                            column.Width = double.NaN;
-                        }
-                    }
-                }
-            }
+            GridViewUtils.ColumnResize(GameCaches);
         }
 
         public void Reroot_ButtonClick(object sender, RoutedEventArgs e)
@@ -77,6 +48,11 @@ namespace NowPlaying.Views
                 contextMenu.IsOpen = true;
                 e.Handled = true;
             }
+        }
+
+        private void PreviewMouseWheelToParent(object sender, MouseWheelEventArgs e)
+        {
+            GridViewUtils.MouseWheelToParent(sender, e);
         }
 
     }

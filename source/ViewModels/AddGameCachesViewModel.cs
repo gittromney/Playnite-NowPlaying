@@ -27,6 +27,8 @@ namespace NowPlaying.ViewModels
                 if (searchText != value)
                 {
                     searchText = value;
+                    OnPropertyChanged();
+
                     if (string.IsNullOrWhiteSpace(searchText))
                     {
                         EligibleGames = allEligibleGames;
@@ -54,6 +56,7 @@ namespace NowPlaying.ViewModels
         }
         public CustomInstallSizeSorter CustomInstallSizeSort { get; private set; }
 
+        public ICommand ClearSearchTextCommand { get; private set; }
         public ICommand SelectAllCommand { get; private set; }
         public ICommand SelectNoneCommand { get; private set; }
         public ICommand CloseCommand { get; private set; }
@@ -91,9 +94,7 @@ namespace NowPlaying.ViewModels
             var eligibles = plugin.PlayniteApi.Database.Games.Where(g => plugin.IsGameNowPlayingEligible(g));
             this.allEligibleGames = eligibles.Select(g => new GameViewModel(g)).ToList();
 
-            OnPropertyChanged(nameof(EligibleGamesVisibility));
-            OnPropertyChanged(nameof(NoEligibleGamesVisibility));
-
+            ClearSearchTextCommand = new RelayCommand(() => SearchText = string.Empty);
             SelectAllCommand = new RelayCommand(() => SelectAllGames());
             SelectNoneCommand = new RelayCommand(() => SelectNoGames());
             CloseCommand = new RelayCommand(() => CloseWindow());

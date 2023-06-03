@@ -18,12 +18,14 @@ namespace NowPlaying.ViewModels
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
         public long GamesEnabled { get; private set; }
         public int CachesInstalled { get; private set; }
-        public string CachesInstalledSize { get; private set; }
+
+        public long cachesInstalledBytes { get; private set; }
+        public string CachesInstalledSize => cachesInstalledBytes > 0 ? "(" + SmartUnits.Bytes(cachesInstalledBytes) + ")" : "";
         public long BytesAvailableForCaches { get; private set; }
         public string SpaceAvailableForCaches { get; private set; }
         public string SpaceAvailableForCachesColor => BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
 
-        private long bytesReservedOnDevice;
+        public long bytesReservedOnDevice;
         public string ReservedSpaceOnDevice { get; private set; }
 
         public CacheRootViewModel(GameCacheManagerViewModel manager, CacheRoot root)
@@ -31,6 +33,7 @@ namespace NowPlaying.ViewModels
             this.manager = manager;
             this.plugin = manager.plugin;
             this.root = root;
+            this.cachesInstalledBytes = 0;
 
             SetMaxFillLevel(root.MaxFillLevel);
             UpdateGameCaches();
@@ -57,10 +60,11 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(CachesInstalled));
             }
 
-            string sval = GetAggregateCacheSize(GameCaches.Where(gc => IsCacheNonEmpty(gc)).ToList());
-            if (CachesInstalledSize != sval)
+            long lval = GetAggregateCacheSize(GameCaches.Where(gc => IsCacheNonEmpty(gc)).ToList());
+            if (cachesInstalledBytes != lval)
             {
-                CachesInstalledSize = sval;
+                cachesInstalledBytes = lval;
+                OnPropertyChanged(nameof(cachesInstalledBytes));
                 OnPropertyChanged(nameof(CachesInstalledSize));
             }
         }
@@ -91,10 +95,9 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(SpaceAvailableForCachesColor));
         }
 
-        private string GetAggregateCacheSize(List<GameCacheViewModel> gameCaches)
+        private long GetAggregateCacheSize(List<GameCacheViewModel> gameCaches)
         {
-            var aggregateSize = gameCaches.Select(gc => gc.CacheSize).Sum(x => x);
-            return aggregateSize > 0 ? "(" + SmartUnits.Bytes(aggregateSize) + ")" : "";
+            return gameCaches.Select(gc => gc.CacheSize).Sum(x => x);
         }
 
         private bool IsCacheInstalled(GameCacheViewModel gameCache)

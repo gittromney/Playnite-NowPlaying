@@ -35,8 +35,7 @@
                         ToolTip="{Binding ShowCacheRootsToolTip}"
                         Style="{DynamicResource TopPanelButton}">
                         <Rectangle 
-                            Width="22"
-                            Height="22">
+                            Width="22" Height="22">
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
                                     <Setter Property="Fill" Value="{DynamicResource GlyphBrush}"/>
@@ -103,19 +102,24 @@
                             IsSynchronizedWithCurrentItem="True"
                             MouseUp="GameCaches_OnMouseUp"
                             SelectionMode="Extended"
-                            utils:GridViewSort.AutoSort="True">
+                            PreviewMouseWheel="PreviewMouseWheelToParent"
+                            Loaded="GameCaches_ResizeColumns"
+                            utils:GridViewUtils.AutoSort="True">
 
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Width="{Binding TitleWidth}" DisplayMemberBinding="{Binding Title}">
+                                    <GridViewColumn 
+                                        DisplayMemberBinding="{Binding Title}"
+                                        utils:GridViewUtils.AutoWidth="True"
+                                        utils:GridViewUtils.MinWidth="220">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsTitle}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="185" 
-                                        utils:GridViewSort.PropertyName="Status">
+                                        utils:GridViewUtils.PropertyName="Status"
+                                        utils:GridViewUtils.MinWidth="185"> 
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsStatus}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>
@@ -141,8 +145,8 @@
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="95" 
-                                        utils:GridViewSort.PropertyName="CanInstallCache">
+                                        utils:GridViewUtils.PropertyName="CanInstallCache"
+                                        utils:GridViewUtils.MinWidth="97">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsCanInstall}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}"/>
@@ -168,18 +172,18 @@
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="90" 
                                         DisplayMemberBinding="{Binding InstallEta}" 
-                                        utils:GridViewSort.CustomSort="{Binding CustomEtaSort}">
+                                        utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
+                                        utils:GridViewUtils.MinWidth="92">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsInstallEta}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="125" 
-                                        utils:GridViewSort.PropertyName="CacheInstalledSize" 
-                                        utils:GridViewSort.CustomSort="{Binding CustomSizeSort}">
+                                        utils:GridViewUtils.PropertyName="CacheInstalledSize" 
+                                        utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
+                                        utils:GridViewUtils.MinWidth="125">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsSize}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}"/>
@@ -205,16 +209,17 @@
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="{Binding GameCachesRootColumnWidth}" 
-                                        DisplayMemberBinding="{Binding Device}">
+                                        DisplayMemberBinding="{Binding Device}"
+                                        utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsRoot}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}"/>
                                     </GridViewColumn>
 
                                     <GridViewColumn 
-                                        Width="140" 
-                                        utils:GridViewSort.CustomSort="{Binding CustomSpaceAvailableSort}">
+                                        utils:GridViewUtils.PropertyName="CacheRootSpaceAvailable" 
+                                        utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
+                                        utils:GridViewUtils.MinWidth="125">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}"/>

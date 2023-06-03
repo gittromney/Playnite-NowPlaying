@@ -1,8 +1,12 @@
-﻿using NowPlaying.Views;
+﻿using NowPlaying.Utils;
+using NowPlaying.Views;
 using Playnite.SDK;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Windows;
 using System.Windows.Input;
+using static NowPlaying.ViewModels.CacheRootsViewModel;
 
 namespace NowPlaying.ViewModels
 {
@@ -24,6 +28,9 @@ namespace NowPlaying.ViewModels
         public CacheRootsViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
+            this.CustomSpaceAvailableSort = new CustomSpaceAvailableSorter();
+            this.CustomCachesInstalledSort = new CustomCachesInstalledSorter();
+            this.CustomMaxFillReservedSort = new CustomMaxFillReservedSorter();
 
             AddCacheRootCommand = new RelayCommand(() =>
             {
@@ -41,8 +48,8 @@ namespace NowPlaying.ViewModels
                 // setup up popup and center within the current application window
                 popup.Width = view.MinWidth;
                 popup.MinWidth = view.MinWidth;
-                popup.Height = view.MinHeight;
-                popup.MinHeight = view.MinHeight;
+                popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
                 popup.ShowDialog();
@@ -64,8 +71,8 @@ namespace NowPlaying.ViewModels
                     // setup up popup and center within the current application window
                     popup.Width = view.MinWidth;
                     popup.MinWidth = view.MinWidth;
-                    popup.Height = view.MinHeight;
-                    popup.MinHeight = view.MinHeight;
+                    popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                    popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
                     popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                     popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
                     popup.ShowDialog();
@@ -92,7 +99,7 @@ namespace NowPlaying.ViewModels
         private void CacheRoots_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             plugin.cacheRootsView.UnselectCacheRoots();
-            plugin.cacheRootsView.CacheRoots_AutoResizeDirectoryColumn();
+            GridViewUtils.ColumnResize(plugin.cacheRootsView.CacheRoots);
         }
 
         public void RefreshCacheRoots()
@@ -107,5 +114,45 @@ namespace NowPlaying.ViewModels
             plugin.cacheRootsView.UnselectCacheRoots();
             plugin.panelViewModel.UpdateCacheRoots();
         }
+
+        public class CustomSpaceAvailableSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                long spaceX = ((CacheRootViewModel)x).BytesAvailableForCaches;
+                long spaceY = ((CacheRootViewModel)y).BytesAvailableForCaches;
+                return spaceX.CompareTo(spaceY);
+            }
+        }
+        public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }
+
+        public class CustomCachesInstalledSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                // . sort by installed number of caches 1st, and installed cache bytes 2nd
+                int countX = ((CacheRootViewModel)x).CachesInstalled;
+                int countY = ((CacheRootViewModel)y).CachesInstalled;
+                long bytesX = ((CacheRootViewModel)x).cachesInstalledBytes;
+                long bytesY = ((CacheRootViewModel)y).cachesInstalledBytes;
+                return countX != countY ? countX.CompareTo(countY) : bytesX.CompareTo(bytesY);
+            }
+        }
+        public CustomCachesInstalledSorter CustomCachesInstalledSort { get; private set; }
+
+        public class CustomMaxFillReservedSorter : IComparer
+        {
+            public int Compare(object x, object y)
+            {
+                // . sort by max fill level 1st, and reserved bytes (reverse direction) 2nd
+                double fillX = ((CacheRootViewModel)x).MaxFillLevel;
+                double fillY = ((CacheRootViewModel)y).MaxFillLevel;
+                long bytesX = ((CacheRootViewModel)x).bytesReservedOnDevice;
+                long bytesY = ((CacheRootViewModel)y).bytesReservedOnDevice;
+                return fillX != fillY ? fillX.CompareTo(fillY) : bytesY.CompareTo(bytesX);
+            }
+        }
+        public CustomMaxFillReservedSorter CustomMaxFillReservedSort { get; private set; }
+
     }
 }
