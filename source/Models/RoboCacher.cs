@@ -46,7 +46,8 @@ namespace NowPlaying.Models
         private ProcessStartInfo RoboStartInfo(string srcDir, string destDir, bool listOnly=false, bool showClass=false, int interPacketGap=0)
         {
             string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}{5}",
-                srcDir, destDir,
+                DirectoryUtils.TrimEndingSlash(srcDir), 
+                DirectoryUtils.TrimEndingSlash(destDir),
                 "/E /NDL /BYTES /NJH /NJS",
                 showClass ? "" : " /NC",
                 listOnly ? " /L" : "",
@@ -347,11 +348,19 @@ namespace NowPlaying.Models
             string cacheDir = entry.CacheDir;
             string installDir = entry.InstallDir;
             string fileSizeLine = string.Empty;
+            bool firstLine = true;
 
             // while job is in progress: grab robocopy.exe output lines, one at a time...
             string line;
             while (!job.token.IsCancellationRequested && !job.cancelledOnDiskFull && !job.cancelledOnError && (line = rcProcess.StandardOutput.ReadLine()) != null)
             {
+                // On 1st output line, mark cache folder state as InProgress state
+                if (firstLine)
+                {
+                    MarkCacheDirectoryState(cacheDir, GameCacheState.InProgress);
+                    entry.State = GameCacheState.InProgress;
+                    firstLine = false;
+                }
                 switch (RoboParser.GetLineType(line))
                 {
                     case RoboParser.LineType.Empty: continue;
@@ -359,18 +368,13 @@ namespace NowPlaying.Models
 
                     // We get a new cacheInstalledSize/path line...
                     // 1. If we never saw 100% progress on the previous file, assume it completed.
-                    //    a. After 1st completed file, mark cache folder state as InProgress
-                    //    b. Update file/byte counters, accordingly.
+                    //    -> Update file/byte counters, accordingly.
                     // 2. Grab the new file's cacheInstalledSize and path name
                     //
                     case RoboParser.LineType.SizeName:
                         if (stats.CurrFilePct > 0.0)
                         {
-                            if (stats.FilesCopied++ == 0)
-                            {
-                                MarkCacheDirectoryState(cacheDir, GameCacheState.InProgress);
-                                entry.State = GameCacheState.InProgress;
-                            }
+                            stats.FilesCopied++;
                             stats.BytesCopied += stats.CurrFileSize;
                             stats.CurrFileSize = 0;
                             stats.CurrFilePct = 0.0;
@@ -381,18 +385,13 @@ namespace NowPlaying.Models
                         break;
 
                     // We got 100% file progress... 
-                    // 1. After 1st completed file, mark cache folder state as InProgress state
-                    // 2. Update file/byte counters.
-                    // 3. Clear current file cacheInstalledSize in case duplicate 100% line(s) follow it
+                    // 1. Update file/byte counters.
+                    // 2. Clear current file cacheInstalledSize in case duplicate 100% line(s) follow it
                     //
                     case RoboParser.LineType.Prog100:
                         if (stats.CurrFileSize > 0)
                         {
-                            if (stats.FilesCopied++ == 0)
-                            {
-                                entry.State = GameCacheState.InProgress;
-                                MarkCacheDirectoryState(cacheDir, entry.State);
-                            }
+                            stats.FilesCopied++;
                             stats.BytesCopied += stats.CurrFileSize;
                             stats.CurrFileSize = 0;
                             stats.CurrFilePct = 0.0;
@@ -609,7 +608,7 @@ namespace NowPlaying.Models
                 // . delete the Game Cache folder
                 if (Directory.Exists(cacheDir))
                 {
-                    Directory.Delete(entry.CacheDir, recursive: true);
+                    DirectoryUtils.DeleteDirectory(entry.CacheDir);
                 }
                 entry.State = GameCacheState.Empty;
                 entry.CacheSize = 0;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Markup;
 
 namespace NowPlaying.Utils
 {
@@ -133,26 +132,51 @@ namespace NowPlaying.Utils
             }
         }
 
+        // Recursive delete which can handle read only files, unlike Directory.Delete
+        private static void SetAttributesAndDeleteDirectory(string directoryName)
+        {
+            File.SetAttributes(directoryName, FileAttributes.Normal);
+            foreach (var file in Directory.GetFiles(directoryName))
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            } 
+            foreach (var dir in Directory.GetDirectories(directoryName))
+            {
+                SetAttributesAndDeleteDirectory(dir);
+            }
+            Directory.Delete(directoryName, recursive: false);
+        }
+
         public static bool DeleteDirectory(string directoryName, int maxRetries = 0)
         {
-            bool success = false;
-            int maxTries = maxRetries >= 0 ? 1 + maxRetries : 1;
-            for(int tries = 0; !success && tries < maxTries; tries++) 
+            if (Directory.Exists(directoryName))
             {
-                try
+                bool success = false;
+                int maxTries = maxRetries >= 0 ? 1 + maxRetries : 1;
+                for(int tries = 0; !success && tries < maxTries; tries++) 
                 {
-                    if (Directory.Exists(directoryName))
+                    try
                     {
                         Directory.Delete(directoryName, recursive: true);
+                        success = true;
                     }
-                    success = true;
+                    catch
+                    {
+                        try
+                        {
+                            SetAttributesAndDeleteDirectory(directoryName);
+                            success = true;
+                        }
+                        catch 
+                        { 
+                            Thread.Sleep(1);
+                        }
+                    }
                 } 
-                catch 
-                { 
-                    Thread.Sleep(1);
-                }
+                return success;
             }
-            return success;
+            return true;
         }
 
         public static bool ExistsAndIsWritable(string directoryName)

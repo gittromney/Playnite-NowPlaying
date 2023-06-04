@@ -600,8 +600,16 @@ namespace NowPlaying
                 var gameCache = cacheManager.FindGameCache(cacheId);
                 if (gameCache.cacheRoot != cacheRoot)
                 {
-                    if (gameCache.IsUninstalled())
+                    bool noCacheDirOrEmpty = !Directory.Exists(gameCache.CacheDir) || DirectoryUtils.IsEmptyDirectory(gameCache.CacheDir);
+
+                    if (gameCache.IsUninstalled() && noCacheDirOrEmpty)
                     {
+                        // . delete old, empty cache dir, if necessary 
+                        if (Directory.Exists(gameCache.CacheDir))
+                        {
+                            Directory.Delete(gameCache.CacheDir);
+                        }
+
                         // . change cache cacheRoot, get updated cache directory (located under new cacheRoot)
                         string cacheDir = cacheManager.ChangeGameCacheRoot(gameCache, cacheRoot);
 
