@@ -132,6 +132,29 @@ namespace NowPlaying.Utils
             }
         }
 
+        public static bool DeleteFile(string fileName, int maxRetries = 0)
+        {
+            if (File.Exists(fileName))
+            {
+                bool success = false;
+                int maxTries = maxRetries >= 0 ? 1 + maxRetries : 1;
+                for (int tries = 0; !success && tries < maxTries; tries++)
+                {
+                    try
+                    {
+                        File.SetAttributes(fileName, FileAttributes.Normal);
+                        File.Delete(fileName);
+                        success = true;
+                    }
+                    catch
+                    {
+                        Thread.Sleep(1);
+                    }
+                }
+            }
+            return true;
+        }
+
         // Recursive delete which can handle read only files, unlike Directory.Delete
         private static void SetAttributesAndDeleteDirectory(string directoryName)
         {

@@ -63,14 +63,15 @@ namespace NowPlaying.Models
 
         private long installFiles;
         private long installSize;
-        private long cacheSize;
-
+        private long cacheSizeOnDisk;
+        
         public long InstallFiles => installFiles;
         public long InstallSize => installSize;
-        public long CacheSize
+        public long CacheSize { get; set; }
+        public long CacheSizeOnDisk
         {
-            get => cacheSize;
-            set { cacheSize = value; }
+            get => cacheSizeOnDisk;
+            set { cacheSizeOnDisk = value; }
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace NowPlaying.Models
             this.CacheSubDir = cacheSubDir;
             this.installFiles = installFiles;
             this.installSize = installSize;
-            this.cacheSize = cacheSize;
+            this.CacheSize = cacheSize;
             this.State = state;
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -126,7 +127,7 @@ namespace NowPlaying.Models
             this.CacheSubDir = (string)info.GetValue(nameof(CacheSubDir), typeof(string));
             this.installFiles = (long)info.GetValue(nameof(InstallFiles), typeof(long));
             this.installSize = (long)info.GetValue(nameof(InstallSize), typeof(long));
-            this.cacheSize = (long)info.GetValue(nameof(CacheSize), typeof(long));
+            this.CacheSize = (long)info.GetValue(nameof(CacheSize), typeof(long));
             this.State = (GameCacheState)info.GetValue(nameof(State), typeof(GameCacheState));
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -171,7 +172,7 @@ namespace NowPlaying.Models
         {
             long cacheDirs = 0;
             long cacheFiles = 0;
-            cacheSize = 0;
+            cacheSizeOnDisk = 0;
 
             if (Directory.Exists(CacheDir))
             {
@@ -181,7 +182,7 @@ namespace NowPlaying.Models
                     DirectoryUtils.GetDirectoryStats(CacheDir,
                         ref cacheDirs,
                         ref cacheFiles,
-                        ref cacheSize
+                        ref cacheSizeOnDisk
                     );
                 }
                 catch (Exception ex)
@@ -207,11 +208,13 @@ namespace NowPlaying.Models
                     Directory.Delete(CacheDir);
                     State = GameCacheState.Empty;
                     CacheSize = 0;
+                    CacheSizeOnDisk = 0;
                 }
                 catch
                 {
                     State = GameCacheState.Invalid;
                     CacheSize = 0;
+                    CacheSizeOnDisk = 0;
                     throw new InvalidOperationException($"Cannot create cache folder '{CacheDir}'");
                 }
             }
@@ -219,6 +222,7 @@ namespace NowPlaying.Models
             {
                 State = GameCacheState.Empty;
                 CacheSize = 0;
+                CacheSizeOnDisk = 0;
             }
             else
             {

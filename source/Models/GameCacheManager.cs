@@ -334,6 +334,7 @@ namespace NowPlaying.Models
                         DirectoryUtils.DeleteDirectory(cacheEntries[id].CacheDir);
                         entry.State = GameCacheState.Empty;
                         entry.CacheSize = 0;
+                        entry.CacheSizeOnDisk = 0;
                         eJobDone?.Invoke(this, job);
                     }
                     catch (Exception ex)

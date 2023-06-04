@@ -150,12 +150,14 @@ namespace NowPlaying.Models
                 {
                     entry.State = GameCacheState.Empty;
                     entry.CacheSize = 0;
+                    entry.CacheSizeOnDisk = 0;
                 }
                 
                 else if (DirectoryUtils.IsEmptyDirectory(cacheDir))
                 {
                     entry.State = GameCacheState.Empty;
                     entry.CacheSize = 0;
+                    entry.CacheSizeOnDisk = 0;
                 }
 
                 else
@@ -319,7 +321,7 @@ namespace NowPlaying.Models
             int interPacketGap = job.interPacketGap; 
         
             // . make sure there's room for the Game Cache on disk...
-            CheckAvailableSpaceForCache(cacheDir, entry.InstallSize - entry.CacheSize);
+            CheckAvailableSpaceForCache(cacheDir, entry.InstallSize - entry.CacheSizeOnDisk);
 
             // . run robocopy.exe as a background process...
             ProcessStartInfo rcPsi = RoboStartInfo(installDir, cacheDir, interPacketGap: interPacketGap);
@@ -372,7 +374,7 @@ namespace NowPlaying.Models
                     // 2. Grab the new file's cacheInstalledSize and path name
                     //
                     case RoboParser.LineType.SizeName:
-                        if (stats.CurrFilePct > 0.0)
+                        if (stats.CurrFileSize > 0)
                         {
                             stats.FilesCopied++;
                             stats.BytesCopied += stats.CurrFileSize;
@@ -437,7 +439,22 @@ namespace NowPlaying.Models
                 rcProcess.Dispose();
                 activeBackgroundProcesses.Remove(rcProcess);
 
-                // . update InProgress cache stats
+                // . delete an InProgress file, if applicable; there's no advantage of keeping it, because...
+                //   1. Robocopy allocates a file at its full size, even when its incomplete.
+                //   2. Robocopy will start copying from the begining of the file when resuming.
+                //
+                if (stats.CurrFileSize > 0)
+                {
+                    string relativeFilePath = stats.CurrFileName.Substring(DirectoryUtils.TrimEndingSlash(installDir).Length);
+                    string incompleteCacheFile = cacheDir + relativeFilePath;
+                    if (!DirectoryUtils.DeleteFile(incompleteCacheFile, maxRetries: 50))
+                    {
+                        logger.Error($"Robocacher: failed to delete in-progress file '{incompleteCacheFile}'; source was '{stats.CurrFileName}'");
+                    }
+                }
+
+                // . update InProgress cache size (of completed files), and stats (on disk cache size)
+                entry.CacheSize = stats.BytesCopied;
                 entry.UpdateCacheDirStats();
 
                 // notify of job cancelled
@@ -612,6 +629,7 @@ namespace NowPlaying.Models
                 }
                 entry.State = GameCacheState.Empty;
                 entry.CacheSize = 0;
+                entry.CacheSizeOnDisk = 0;
             }
             catch (Exception ex)
             {

@@ -183,6 +183,7 @@ namespace NowPlaying
                     {
                         gameCache.entry.State = GameCacheState.Empty;
                         gameCache.entry.CacheSize = 0;
+                        gameCache.entry.CacheSizeOnDisk = 0;
                     }
                     else
                     {
