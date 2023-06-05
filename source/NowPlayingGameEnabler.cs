@@ -50,55 +50,58 @@ namespace NowPlaying
 
         public void EnableGameForNowPlaying()
         {
-            string cacheId = Id;
-            string title = game.Name;
-            string installDir = game.InstallDirectory;
-            var sourcePlayAction = plugin.GetSourcePlayAction(game);
-            string exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
-            string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
-
-            if (plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
+            // . make sure game isn't already enabled
+            if (!plugin.IsGameNowPlayingEnabled(game))
             {
-                // . create game cache and its view model
-                string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir);
+                string cacheId = Id;
+                string title = game.Name;
+                string installDir = game.InstallDirectory;
+                var sourcePlayAction = plugin.GetSourcePlayAction(game);
+                string exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
+                string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
 
-                // . subsume game into the NowPlaying Game Cache library, install directory => game cache directory
-                game.InstallDirectory = cacheDir;
-                game.IsInstalled = cacheManager.IsGameCacheInstalled(cacheId);
-                game.PluginId = plugin.Id;
+                if (plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
+                {
+                    // . create game cache and its view model
+                    string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir);
 
-                // replace source Play action w/ NowPlaying Play and Preview play actions:
-                // -> Play from Game Cache (default play action)
-                // -> Preview - play game from source install directory (playable via right mouse menu)
-                //
-                game.GameActions = new ObservableCollection<GameAction>( game.GameActions.Where(a => !a.IsPlayAction) );
-                game.GameActions.Add
-                (
-                    new GameAction()
-                    {
-                        Name = NowPlaying.nowPlayingActionName,
-                        Path = Path.Combine(cacheDir, exePath),
-                        WorkingDir = cacheDir,
-                        Arguments = xtraArgs?.Replace(installDir, cacheDir),
-                        IsPlayAction = true
-                    }
-                );
-                game.GameActions.Add
-                (
-                    new GameAction()
-                    {
-                        Name = NowPlaying.previewPlayActionName,
-                        Path = Path.Combine(installDir, exePath),
-                        WorkingDir = installDir,
-                        Arguments = xtraArgs,
-                        IsPlayAction = false
-                    }
-                );
+                    // . subsume game into the NowPlaying Game Cache library, install directory => game cache directory
+                    game.InstallDirectory = cacheDir;
+                    game.IsInstalled = cacheManager.IsGameCacheInstalled(cacheId);
+                    game.PluginId = plugin.Id;
 
-                PlayniteApi.Database.Games.Update(game);
-                plugin.NotifyInfo($"Enabled '{title}' for game caching.");
+                    // replace source Play action w/ NowPlaying Play and Preview play actions:
+                    // -> Play from Game Cache (default play action)
+                    // -> Preview - play game from source install directory (playable via right mouse menu)
+                    //
+                    game.GameActions = new ObservableCollection<GameAction>(game.GameActions.Where(a => !a.IsPlayAction));
+                    game.GameActions.Add
+                    (
+                        new GameAction()
+                        {
+                            Name = NowPlaying.nowPlayingActionName,
+                            Path = Path.Combine(cacheDir, exePath),
+                            WorkingDir = cacheDir,
+                            Arguments = xtraArgs?.Replace(installDir, cacheDir),
+                            IsPlayAction = true
+                        }
+                    );
+                    game.GameActions.Add
+                    (
+                        new GameAction()
+                        {
+                            Name = NowPlaying.previewPlayActionName,
+                            Path = Path.Combine(installDir, exePath),
+                            WorkingDir = installDir,
+                            Arguments = xtraArgs,
+                            IsPlayAction = false
+                        }
+                    );
+
+                    PlayniteApi.Database.Games.Update(game);
+                    plugin.NotifyInfo($"Enabled '{title}' for game caching.");
+                }
             }
-
             plugin.DequeueEnablerAndInvokeNext(Id);
         }
     }

@@ -83,8 +83,14 @@
             <UserControl DockPanel.Dock="Bottom" Content="{Binding InstallProgressView}"/>
             
             <!--Main panel - scroll viewer-->
-            <ScrollViewer HorizontalAlignment="Stretch" Margin="20,10,5,10">
-                <StackPanel Width="auto" Height="auto" Margin="0,0,20,0">
+            <ScrollViewer
+                Margin="20,10,5,10"
+                HorizontalAlignment="Stretch">
+                
+                <StackPanel 
+                    Width="auto" 
+                    Height="auto" 
+                    Margin="0,0,20,0">
 
                     <!--Cache Roots View panel-->
                     <UserControl Content="{Binding CacheRootsView}"/>
@@ -100,10 +106,11 @@
                             Name="GameCaches" Margin="0,0,0,5"
                             ItemsSource="{Binding GameCaches}"
                             IsSynchronizedWithCurrentItem="True"
-                            MouseUp="GameCaches_OnMouseUp"
                             SelectionMode="Extended"
-                            PreviewMouseWheel="PreviewMouseWheelToParent"
+                            MouseUp="GameCaches_OnMouseUp"
                             Loaded="GameCaches_ResizeColumns"
+                            PreviewMouseWheel="PreviewMouseWheelToParent"
+                            utils:GridViewUtils.HorizontalShiftWheelScroll="True"
                             utils:GridViewUtils.AutoSort="True">
 
                             <ListView.View>

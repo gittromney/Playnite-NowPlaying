@@ -4,7 +4,7 @@ using System.Windows.Media.Imaging;
 
 namespace NowPlaying.Utils
 {
-    public class ImageUtils
+    public static class ImageUtils
     {
         public static BitmapImage BitmapToBitmapImage(Bitmap bitmap)
         {

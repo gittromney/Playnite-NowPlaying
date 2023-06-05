@@ -32,12 +32,13 @@
         <ListView 
             Name="CacheRoots" 
             Margin="0,0,0,5"
-            ItemsSource="{Binding CacheRoots}"
             SelectionMode="Single"
-            PreviewMouseWheel="PreviewMouseWheelToParent"
+            ItemsSource="{Binding CacheRoots}"
             SelectedItem="{Binding SelectedCacheRoot}"
             Visibility="{Binding NonEmptyRootsVisible}"
             Loaded="CacheRoots_ResizeColumns"
+            PreviewMouseWheel="PreviewMouseWheelToParent"
+            utils:GridViewUtils.HorizontalShiftWheelScroll="True"
             utils:GridViewUtils.AutoSort="True">
 
             <ListView.View>

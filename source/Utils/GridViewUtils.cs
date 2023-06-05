@@ -14,16 +14,18 @@ using System.Windows.Data;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Input;
+using System;
 
 namespace NowPlaying.Utils
 {
-    public class GridViewUtils
+    public static class GridViewUtils
     {
-        
-        // . Pass ListView/GridView mouse wheel events to parent UIElement for proper scrolling
+        #region Scrolling enhancers
+
+        // . Pass (non-shift-modified) mouse wheel events to parent UIElement, targeting an ancestor ScrollViewer
         public static void MouseWheelToParent(object sender, MouseWheelEventArgs e)
         {
-            if (!e.Handled)
+            if (!e.Handled && Keyboard.Modifiers != ModifierKeys.Shift)
             {
                 e.Handled = true;
                 var eventArg = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta);
@@ -33,6 +35,78 @@ namespace NowPlaying.Utils
                 parent.RaiseEvent(eventArg);
             }
         }
+
+        public static bool GetHorizontalShiftWheelScroll(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(HorizontalShiftWheelScrollProperty);
+        }
+
+        public static void SetHorizontalShiftWheelScroll(DependencyObject obj, bool value)
+        {
+            obj.SetValue(HorizontalShiftWheelScrollProperty, value);
+        }
+
+        public static readonly DependencyProperty HorizontalShiftWheelScrollProperty = DependencyProperty.RegisterAttached
+        (
+            "HorizontalShiftWheelScroll",
+            typeof(bool),
+            typeof(GridViewUtils),
+            new UIPropertyMetadata
+            (
+                false,
+                (o, e) =>
+                {
+                    ListView listView = o as ListView;
+                    if (listView != null)
+                    {
+                        bool oldVal = (bool)e.OldValue;
+                        bool newVal = (bool)e.NewValue;
+                        if (newVal && !oldVal)
+                        {
+                            listView.PreviewMouseWheel += HorizontalScrollOnShiftWheel;
+                        }
+                        if (!newVal && oldVal)
+                        {
+                            listView.PreviewMouseWheel -= HorizontalScrollOnShiftWheel;
+                        }
+                    }
+                }
+            )
+        );
+
+        private static void HorizontalScrollOnShiftWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                var scrollViewer = GetChildOfType<ScrollViewer>(sender as ListView);
+                if (scrollViewer != null)
+                {
+                    if (e.Delta < 0)
+                    {
+                        scrollViewer.LineRight();
+                    }
+                    else
+                    {
+                        scrollViewer.LineLeft();
+                    }
+                }
+            }
+        }
+
+        public static T GetChildOfType<T>(this DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null) return null;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                var child = VisualTreeHelper.GetChild(depObj, i);
+                var result = (child as T) ?? GetChildOfType<T>(child);
+                if (result != null) return result;
+            }
+            return null;
+        }
+
+        #endregion
 
         #region Column auto sorting (AutoSort)
 

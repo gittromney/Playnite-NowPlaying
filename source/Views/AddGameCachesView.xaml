@@ -95,6 +95,7 @@
                 MouseUp="EligibleGames_OnMouseUp"
                 SelectionMode="Extended"
                 PreviewMouseWheel="PreviewMouseWheelToParent"
+                utils:GridViewUtils.HorizontalShiftWheelScroll="True"
                 utils:GridViewUtils.AutoSort="True">
                 <ListView.View>
                     <GridView>
