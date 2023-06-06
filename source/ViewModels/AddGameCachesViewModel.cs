@@ -130,7 +130,16 @@ namespace NowPlaying.ViewModels
                 {
                     foreach (var game in SelectedGames)
                     {
-                        (new NowPlayingGameEnabler(plugin, game.game, cacheRoot.Directory)).Activate();
+                        if (!plugin.IsGameNowPlayingEnabled(game.game))
+                        {
+                            if (plugin.CheckIfGameInstallDirIsAccessible(game.Title, game.InstallDir))
+                            {
+                                if (plugin.CheckAndConfirmEnableIfInstallDirIsProblematic(game.Title, game.InstallDir))
+                                {
+                                    (new NowPlayingGameEnabler(plugin, game.game, cacheRoot.Directory)).Activate();
+                                }
+                            }
+                        }
                     }
                 }
             }

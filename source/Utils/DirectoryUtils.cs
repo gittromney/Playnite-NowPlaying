@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace NowPlaying.Utils
@@ -41,24 +42,36 @@ namespace NowPlaying.Utils
 
         // Returns:
         // <root device name> - if path name is rooted (e.g. returns "C:\\" if path is "C:\\My\\Path\\Name"
-        // null - If path name is long enough to contain a root, but it either does not or
-        //        it is invalid (e.g. contains redirects or pipes)
+        // null - If path name is too short or it contains invalid characters.
+        //
+        // Notes:
+        // 1. Assumes Windows root device naming convention, "<Letter>:\\"
+        // 2. GetFullPath will throw an exception if pathName contains illegal stuff like redirects/pipes/extra colons, etc.
+        //
         public static string TryGetRootDevice(string pathName)
         {
-            try
+            if (pathName.Length > 2 && Regex.IsMatch(pathName.Substring(0, 3), @"[a-zA-Z]:\\")) // Note 1.
             {
-                string fullPath = Path.GetFullPath(pathName);  // this checks for redirects/pipes, etc.
-                string device = TrimEndingSlash(Directory.GetDirectoryRoot(fullPath));
-                if (device.Length > pathName.Length)
+                string device = pathName.Substring(0, 3).ToUpper();
+
+                if (DriveInfo.GetDrives().Any(d => d.Name == device))
+                {
+                    try
+                    {
+                        Path.GetFullPath(pathName); // Note 2.
+                        return device;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+                else
                 {
                     return null;
                 }
-                else 
-                {
-                    return device.Equals(pathName.Substring(0, device.Length)) ? device : null;
-                }
             }
-            catch
+            else
             {
                 return null;
             }

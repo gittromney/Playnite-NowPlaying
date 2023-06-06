@@ -641,15 +641,56 @@ namespace NowPlaying
 
             else if (CheckIfGameInstallDirIsAccessible(game.Name, game.InstallDirectory))
             {
-                // . Enable source game for NowPlaying game caching
-                (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
+                if (CheckAndConfirmEnableIfInstallDirIsProblematic(game.Name, game.InstallDirectory)) 
+                {
+                    // . Enable source game for NowPlaying game caching
+                    (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
+                }
             }
+        }
+
+        // . Applies a heuristic test to screen for whether a game's installation directory might be set too deeply.
+        // . Screening is done by checking for 'problematic' subdirectories (e.g. "bin", "x64", etc.) in the
+        //   install dir path.
+        //   
+        public bool CheckAndConfirmEnableIfInstallDirIsProblematic(string title, string installDirectory)
+        {
+            bool continueWithEnable = true;
+            string[] problematicKeywords = { "bin", "binaries", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
+            List<string> matchedSubdirs = new List<string>();
+            
+            foreach (var subDir in installDirectory.Split(Path.DirectorySeparatorChar))
+            {
+                foreach (var keyword in problematicKeywords)
+                {
+                    if (String.Equals(subDir, keyword, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchedSubdirs.Add(subDir);
+                    }
+                }
+            }
+            if (matchedSubdirs.Count > 0)
+            {
+                // . See if user wants to continue enabling game, anyway
+                string nl = System.Environment.NewLine;
+                string problematicSubdirs = string.Join("', '", matchedSubdirs);
+                string message = FormatResourceString("LOCNowPlayingProblematicInstallDirFmt3", title, installDirectory, problematicSubdirs);
+                message += nl + nl + GetResourceString("LOCNowPlayingProblematicInstallDirConfirm");
+                string caption = GetResourceString("LOCNowPlayingConfirmationCaption");
+                continueWithEnable = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+            }
+            return continueWithEnable;
         }
 
         // . Sanity check: make sure game's InstallDir is accessable (e.g. disk mounted, decrypted, etc?)
         public bool CheckIfGameInstallDirIsAccessible(string title, string installDir, bool silentMode = false)
         {
-            if (!Directory.Exists(installDir))
+            string installDevice = DirectoryUtils.TryGetRootDevice(installDir);
+            if (DriveInfo.GetDrives().Any(d => d.Name == installDevice) && Directory.Exists(installDir))
+            {
+                return true;
+            }
+            else
             {
                 if (!silentMode)
                 {
@@ -657,7 +698,6 @@ namespace NowPlaying
                 }
                 return false;
             }
-            return true;
         }
 
         public bool EnqueueGameEnablerIfUnique(NowPlayingGameEnabler enabler)

@@ -9,6 +9,7 @@ namespace NowPlaying.ViewModels
         public readonly Game game;
 
         public string Title => game.Name;
+        public string InstallDir => game.InstallDirectory;
         public string InstallSize => SmartUnits.Bytes((long)(game.InstallSize ?? 0));
         public long InstallSizeBytes => (long)(game.InstallSize ?? 0);
         public string Genres => game.Genres != null ? string.Join(", ", game.Genres.Select(x => x.Name)) : "";
