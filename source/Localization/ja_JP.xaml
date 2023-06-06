@@ -230,6 +230,14 @@
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitFmt2">Not enough space to install game cache for '{0}' to '{1}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitMsg">(Click on the NowPlaying sidebar for more details)</sys:String>
     <sys:String x:Key="LOCNowPlayingUnabletoRestoreCacheInfoFmt">Unable to find or restore NowPlaying game cache information for '{0}'</sys:String>
+    <sys:String x:Key="LOCNowPlayingConfirmationCaption">NowPlaying Confirmation:</sys:String>
+    <sys:String x:Key="LOCNowPlayingProblematicInstallDirFmt3">
+        {0}'s installation directory '{1}' contains problematic subpath(s) '{2}'.
+        Please confirm that this directory is correct, or choose 'No' and edit the 'Install Directory' and play action 'Path' 
+        (and optionally recalculate 'Install Size') before enabling.
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingProblematicInstallDirConfirm">Do you want to enable game caching anyway?</sys:String>
+
     <sys:String x:Key="LOCNowPlayingGameInstallDirNotFoundFmt2">{0}'s installation directory '{1}' not found; is the disk mounted and decrypted?</sys:String>
     <sys:String x:Key="LOCNowPlayingUnistallWithoutSyncFmt">
         Do you want to uninstall {0}'s game cache, anyway? (You will not have option of syncing locally updated game settings/save data, if it exists.)
