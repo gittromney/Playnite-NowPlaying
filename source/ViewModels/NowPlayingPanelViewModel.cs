@@ -576,7 +576,7 @@ namespace NowPlaying.ViewModels
                 subMenuItems.Add(new MenuItem()
                 {
                     Header = cacheRoot.Directory,
-                    Command = new RelayCommand(() => RerootSelectedCaches(SelectedGameCaches, cacheRoot))
+                    Command = new RelayCommand(() => RerootSelectedCachesAsync(SelectedGameCaches, cacheRoot))
                 });
             }
             return subMenuItems;
@@ -695,7 +695,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private void RerootSelectedCaches(List<GameCacheViewModel> gameCaches, CacheRootViewModel cacheRoot)
+        private async void RerootSelectedCachesAsync(List<GameCacheViewModel> gameCaches, CacheRootViewModel cacheRoot)
         {
             bool saveNeeded = false;
             plugin.panelView.GameCaches_ClearSelected();
@@ -704,7 +704,7 @@ namespace NowPlaying.ViewModels
                 var nowPlayingGame = plugin.FindNowPlayingGame(gameCache.Id);
                 if (nowPlayingGame != null)
                 {
-                    plugin.EnableNowPlayingWithRoot(nowPlayingGame, cacheRoot);
+                    await plugin.EnableNowPlayingWithRootAsync(nowPlayingGame, cacheRoot);
                     saveNeeded = true;
                 }
                 else
@@ -715,7 +715,10 @@ namespace NowPlaying.ViewModels
                     plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingMsgGameNotFoundDisablingFmt", gameCache.Title));
                     if (Directory.Exists(gameCache.CacheDir))
                     {
-                        Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50));
+                        if(!await Task.Run(() => DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50)))
+                        {
+                            plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingDeleteCacheFailedFmt", gameCache.Title));
+                        }
                     }
                     plugin.cacheManager.RemoveGameCache(gameCache.Id);
                 }

@@ -236,8 +236,18 @@ namespace NowPlaying.Models
             }
 
             // . refresh install and cache directory sizes
-            entry.UpdateInstallDirStats();
-            entry.UpdateCacheDirStats();
+            try
+            {
+                entry.UpdateInstallDirStats();
+                entry.UpdateCacheDirStats();
+            }
+            catch (Exception ex)
+            {
+                job.cancelledOnError = true;
+                job.errorLog = new List<string> { $"Error updating install/cache dir stats: {ex.Message}" };
+                eJobCancelled?.Invoke(this, job);
+                return;
+            }
 
             switch (entry.State)
             {

@@ -107,7 +107,7 @@ namespace NowPlaying.ViewModels
                 string cacheSubDir = null
             )
         {
-            if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir) && plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
+            if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir))
             {
                 // . re-encode cacheSubDir as 'null' if it represents the file-safe game title.
                 if (cacheSubDir?.Equals(DirectoryUtils.ToSafeFileName(title)) == true)
@@ -120,8 +120,15 @@ namespace NowPlaying.ViewModels
 
                 // . update install/cache dir stats/sizes
                 var entry = gameCacheManager.GetGameCacheEntry(cacheId);
-                entry.UpdateInstallDirStats();
-                entry.UpdateCacheDirStats();
+                try
+                {
+                    entry.UpdateInstallDirStats();
+                    entry.UpdateCacheDirStats();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error($"Error updating install/cache dir stats for '{title}': {ex.Message}");
+                }
 
                 // . add new game cache view model
                 var cacheRoot = FindCacheRoot(cacheRootDir);
@@ -244,9 +251,9 @@ namespace NowPlaying.ViewModels
             {
                 File.WriteAllText(installAverageBpsJsonPath, Serialization.ToJson(InstallAverageBps));
             }
-            catch
+            catch (Exception ex)
             {
-                plugin.PopupError("SaveInstallAverageBpsToJson failed");
+                logger.Error($"SaveInstallAverageBpsToJson to '{installAverageBpsJsonPath}' failed: {ex.Message}");
             }
         }
 
@@ -258,9 +265,9 @@ namespace NowPlaying.ViewModels
                 {
                     InstallAverageBps = Serialization.FromJsonFile<Dictionary<string, long>>(installAverageBpsJsonPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    plugin.PopupError("LoadInstallAverageBpsFromJson failed");
+                    logger.Error($"LoadInstallAverageBpsFromJson from '{installAverageBpsJsonPath}' failed: {ex.Message}");
                 }
             }
         }
@@ -271,9 +278,9 @@ namespace NowPlaying.ViewModels
             {
                 File.WriteAllText(cacheRootsJsonPath, Serialization.ToJson(gameCacheManager.GetCacheRoots()));
             }
-            catch
+            catch (Exception ex)
             {
-                plugin.PopupError("SaveCacheRootsToJson failed");
+                logger.Error($"SaveCacheRootsToJson to '{cacheRootsJsonPath}' failed: {ex.Message}");
             }
         }
 
@@ -286,9 +293,9 @@ namespace NowPlaying.ViewModels
                 {
                     roots = Serialization.FromJsonFile<List<CacheRoot>>(cacheRootsJsonPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    plugin.PopupError("LoadCacheRootsFromJson failed");
+                    logger.Error($"LoadCacheRootsFromJson from '{cacheRootsJsonPath}' failed: {ex.Message}");
                 }
 
                 foreach (var root in roots)
@@ -313,9 +320,9 @@ namespace NowPlaying.ViewModels
             {
                 File.WriteAllText(gameCacheEntriesJsonPath, Serialization.ToJson(gameCacheManager.GetGameCacheEntries()));
             }
-            catch
+            catch (Exception ex)
             {
-                plugin.PopupError("SaveGameCacheEntriesToJson failed");
+                logger.Error($"SaveGameCacheEntriesToJson to '{gameCacheEntriesJsonPath}' failed: {ex.Message}");
             }
         }
 
@@ -328,9 +335,9 @@ namespace NowPlaying.ViewModels
                 {
                     entries = Serialization.FromJsonFile<List<GameCacheEntry>>(gameCacheEntriesJsonPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    plugin.PopupError("LoadGameCacheEntriesFromJson failed");
+                    logger.Error($"LoadGameCacheEntriesFromJson from '{gameCacheEntriesJsonPath}' failed: {ex.Message}");
                 }
 
                 foreach (var entry in entries)

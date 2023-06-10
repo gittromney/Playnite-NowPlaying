@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Color x:Key="SlowInstallColor">#FFF0D020</Color>
+    <Color x:Key="TopPanelProcessingFgColor">#80F2F2F2</Color>
+    <Color x:Key="TopPanelProcessingBgColor">#FF000000</Color>
     <Color x:Key="TopPanelEnableFgColor">#FF3CB371</Color>
     <Color x:Key="TopPanelEnableBgColor">#FF2E8B57</Color>
     <Color x:Key="TopPanelInstallFgColor">#FF247BA0</Color>
@@ -13,6 +15,8 @@
 
     <SolidColorBrush x:Key="InstallBrush" Color="{DynamicResource GlyphColor}"/>
     <SolidColorBrush x:Key="SlowInstallBrush" Color="{DynamicResource SlowInstallColor}"/>
+    <SolidColorBrush x:Key="TopPanelProcessingFgBrush" Color="{DynamicResource TopPanelProcessingFgColor}"/>
+    <SolidColorBrush x:Key="TopPanelProcessingBgBrush" Color="{DynamicResource TopPanelProcessingBgColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableFgBrush" Color="{DynamicResource TopPanelEnableFgColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableBgBrush" Color="{DynamicResource TopPanelEnableBgColor}"/>
     <SolidColorBrush x:Key="TopPanelInstallFgBrush" Color="{DynamicResource TopPanelInstallFgColor}"/>

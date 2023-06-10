@@ -98,7 +98,7 @@ namespace NowPlaying.ViewModels
             SelectAllCommand = new RelayCommand(() => SelectAllGames());
             SelectNoneCommand = new RelayCommand(() => SelectNoGames());
             CloseCommand = new RelayCommand(() => CloseWindow());
-            EnableSelectedGamesCommand = new RelayCommand(() => EnableSelectedGames(), () => SelectedGames.Count > 0);
+            EnableSelectedGamesCommand = new RelayCommand(() => EnableSelectedGamesAsync(), () => SelectedGames.Count > 0);
 
             SelectedCacheRoot = cacheRoots.First()?.Directory;
             OnPropertyChanged(nameof(SelectedCacheRoot));
@@ -121,8 +121,9 @@ namespace NowPlaying.ViewModels
             view?.EligibleGames_SelectAll();
         }
 
-        private void EnableSelectedGames()
+        private async void EnableSelectedGamesAsync()
         {
+            CloseWindow();
             if (SelectedGames != null)
             {
                 var cacheRoot = plugin.cacheManager.FindCacheRoot(SelectedCacheRoot);
@@ -132,7 +133,7 @@ namespace NowPlaying.ViewModels
                     {
                         if (!plugin.IsGameNowPlayingEnabled(game.game))
                         {
-                            if (plugin.CheckIfGameInstallDirIsAccessible(game.Title, game.InstallDir))
+                            if (await plugin.CheckIfGameInstallDirIsAccessibleAsync(game.Title, game.InstallDir))
                             {
                                 if (plugin.CheckAndConfirmEnableIfInstallDirIsProblematic(game.Title, game.InstallDir))
                                 {
@@ -143,7 +144,6 @@ namespace NowPlaying.ViewModels
                     }
                 }
             }
-            CloseWindow();
         }
 
         public void CloseWindow()

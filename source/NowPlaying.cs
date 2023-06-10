@@ -226,33 +226,12 @@ namespace NowPlaying
             cacheManager.LoadCacheRootsFromJson();
             cacheRootsViewModel.RefreshCacheRoots();
             cacheManager.LoadInstallAverageBpsFromJson();
-
-            try
-            {
-                cacheManager.LoadGameCacheEntriesFromJson();
-            }
-            catch (Exception ex)
-            {
-                logger.Error($"Exception thrown in LoadGameCacheEntriesFromJson: '{ex.Message}'");
-
-                // . attempt to reconstruct Game Cache entries from the Playnite database
-                var nowPlayingGames = PlayniteApi.Database.Games.Where(a => a.PluginId == this.Id);
-                foreach (var nowPlayingGame in nowPlayingGames)
-                {
-                    string cacheId = nowPlayingGame.Id.ToString();
-                    if (!cacheManager.GameCacheExists(cacheId))
-                    {
-                        TryRestoreMissingGameCache(cacheId, nowPlayingGame);
-                    }
-                }
-                cacheManager.SaveGameCacheEntriesToJson();
-            }
-
-            CheckForOrphanedCacheDirectories();
-            CheckForBrokenNowPlayingGames();
+            cacheManager.LoadGameCacheEntriesFromJson();
             cacheRootsViewModel.RefreshCacheRoots();
 
             PlayniteApi.Database.Games.ItemCollectionChanged += CheckForRemovedNowPlayingGames;
+
+            Task.Run(() => CheckForFixableGameCacheIssuesAsync());
         }
 
         public void CheckForRemovedNowPlayingGames(object o, ItemCollectionChangedEventArgs<Game> args)
@@ -279,6 +258,57 @@ namespace NowPlaying
             }
         }
 
+        public async void CheckForFixableGameCacheIssuesAsync()
+        {
+            await CheckForBrokenNowPlayingGamesAsync();
+            CheckForOrphanedCacheDirectories();
+        }
+
+        public async Task CheckForBrokenNowPlayingGamesAsync()
+        {
+            bool foundBroken = false;
+            foreach (var game in PlayniteApi.Database.Games.Where(g => g.PluginId == this.Id))
+            {
+                string cacheId = game.Id.ToString();
+                if (!cacheManager.GameCacheExists(cacheId))
+                {
+                    topPanelViewModel.NowProcessing(true, "Fixing broken caches...");
+
+                    // . NowPlaying game is missing the supporting game cache... attempt to recreate it
+                    if (await TryRecoverMissingGameCacheAsync(cacheId, game))
+                    {
+                        NotifyWarning(FormatResourceString("LOCNowPlayingRestoredCacheInfoFmt", game.Name));
+
+                        // . update installed game cache size to whatever current size on disk is
+                        var gameCache = cacheManager.FindGameCache(cacheId);
+                        gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
+                        gameCache.UpdateCacheSize();
+
+                        foundBroken = true;
+                    }
+                    else 
+                    { 
+                        NotifyWarning(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", game.Name), () =>
+                        {
+                            string caption = $"NowPlaying confimation:";
+                            string message = $"Unable to recover missing game cache information for '{game.Name}'.";
+                            message += " Do you want to disable game caching?";
+                            if (PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                            {
+                                DisableNowPlayingGameCaching(game);
+                            }
+                        });
+                    }
+                }
+            }
+            if (foundBroken)
+            {
+                cacheManager.SaveGameCacheEntriesToJson();
+            }
+
+            topPanelViewModel.NowProcessing(false, "Fixing broken caches...");
+        }
+
         public void CheckForOrphanedCacheDirectories()
         {
             foreach (var root in cacheManager.CacheRoots)
@@ -299,28 +329,6 @@ namespace NowPlaying
                         });
                     }
                 }
-            }
-        }
-
-        public void CheckForBrokenNowPlayingGames()
-        {
-            bool foundBroken = false;
-            foreach (var game in PlayniteApi.Database.Games.Where(g => g.PluginId == this.Id))
-            {
-                if (!cacheManager.GameCacheExists(game.Id.ToString()))
-                {
-                    // . NowPlaying game is missing the supporting game cache... attempt to recreate it
-                    if (!TryRestoreMissingGameCache(game.Id.ToString(), game))
-                    {
-                        NotifyWarning(FormatResourceString("LOCNowPlayingDisableGameCacheMissingInfoFmt", game.Name));
-                        DisableNowPlayingGameCaching(game);
-                        foundBroken = true;
-                    }
-                }
-            }
-            if (foundBroken)
-            {
-                cacheManager.SaveGameCacheEntriesToJson();
             }
         }
 
@@ -352,36 +360,36 @@ namespace NowPlaying
             Game nowPlayingGame = args.Game;
             string cacheId = nowPlayingGame.Id.ToString();
 
-            if (!cacheManager.GameCacheExists(cacheId))
+            if (!CacheHasInstallerQueued(cacheId))
             {
-                TryRestoreMissingGameCache(cacheId, nowPlayingGame);
-            }
-
-            if (cacheManager.GameCacheExists(cacheId))
-            {
-                var gameCache = cacheManager.FindGameCache(cacheId);
-                if (gameCache.CacheWillFit && !CacheHasInstallerQueued(cacheId))
+                if (cacheManager.GameCacheExists(cacheId))
                 {
-                    var controller = new NowPlayingInstallController(this, nowPlayingGame, cacheManager.FindGameCache(cacheId), SpeedLimitIPG);
-                    return new List<InstallController> { controller };
+                    var gameCache = cacheManager.FindGameCache(cacheId);
+                    if (gameCache.CacheWillFit)
+                    {
+                        var controller = new NowPlayingInstallController(this, nowPlayingGame, gameCache, SpeedLimitIPG);
+                        return new List<InstallController> { controller };
+                    }
+                    else
+                    {
+                        string nl = Environment.NewLine;
+                        string message = FormatResourceString("LOCNowPlayingCacheWillNotFitFmt2", gameCache.Title, gameCache.CacheDir);
+                        message += nl + nl + GetResourceString("LOCNowPlayingCacheWillNotFitMsg");
+                        PopupError(message);
+                        return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
+                    }
                 }
                 else
                 {
-                    if (!gameCache.CacheWillFit)
-                    {
-                        string message = FormatResourceString("LOCNowPlayingCacheWillNotFitFmt2", gameCache.Title, gameCache.CacheDir);
-                        message += Environment.NewLine + Environment.NewLine + GetResourceString("LOCNowPlayingCacheWillNotFitMsg");
-                        PopupError(message);
-                    }
+                    logger.Error($"Game cache information missing for '{nowPlayingGame.Name}'; skipping installation.");
                     return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
                 }
             }
             else
             {
-                PopupError(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", args.Game.Name));
                 return new List<InstallController> { new DummyInstaller(nowPlayingGame) };
             }
-        }
+        } 
 
         private class DummyUninstaller : UninstallController 
         {
@@ -401,37 +409,32 @@ namespace NowPlaying
             Game nowPlayingGame = args.Game;
             string cacheId = nowPlayingGame.Id.ToString();
 
-            if (!cacheManager.GameCacheExists(cacheId))
+            if (!CacheHasUninstallerQueued(cacheId))
             {
-                TryRestoreMissingGameCache(cacheId, nowPlayingGame);
-            }
-
-            if (cacheManager.GameCacheExists(cacheId))
-            {
-                if (!CacheHasUninstallerQueued(cacheId)) 
+                if (cacheManager.GameCacheExists(cacheId))
                 { 
                     return new List<UninstallController> { new NowPlayingUninstallController(this, nowPlayingGame, cacheManager.FindGameCache(cacheId)) };
                 }
                 else
                 {
+                    logger.Error($"Game cache information missing for '{nowPlayingGame.Name}'; skipping uninstall.");
                     return new List<UninstallController> { new DummyUninstaller(nowPlayingGame) };
                 }
             }
             else
             {
-                PopupError(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", args.Game.Name));
-                return null;
+                return new List<UninstallController> { new DummyUninstaller(nowPlayingGame) };
             }
         }
 
-        public bool TryRestoreMissingGameCache(string cacheId, Game nowPlayingGame)
+        public async Task<bool> TryRecoverMissingGameCacheAsync(string cacheId, Game nowPlayingGame)
         {
             string title = nowPlayingGame.Name;
             string installDir = GetPreviewPlayAction(nowPlayingGame)?.WorkingDir;
             string exePath = GetIncrementalExePath(GetNowPlayingAction(nowPlayingGame)) ?? GetIncrementalExePath(GetPreviewPlayAction(nowPlayingGame));
             string xtraArgs = GetNowPlayingAction(nowPlayingGame)?.AdditionalArguments ?? GetPreviewPlayAction(nowPlayingGame)?.AdditionalArguments;
 
-            if (!CheckIfGameInstallDirIsAccessible(title, installDir)) return false;
+            if (!await CheckIfGameInstallDirIsAccessibleAsync(title, installDir)) return false;
 
             // . Separate cacheDir into its cacheRootDir and cacheSubDir components, assuming nowPlayingGame matching Cache RootDir exists.
             (string cacheRootDir, string cacheSubDir) = cacheManager.FindCacheRootAndSubDir(nowPlayingGame.InstallDirectory);
@@ -439,7 +442,6 @@ namespace NowPlaying
             if (title != null && installDir != null && exePath != null && cacheRootDir != null && cacheSubDir != null)
             {
                 cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
-                NotifyWarning(FormatResourceString("LOCNowPlayingRestoredCacheInfoFmt", title));
                 return true;
             }
             return false;
@@ -510,7 +512,7 @@ namespace NowPlaying
                         {
                             MenuSection = description,
                             Description = GetResourceString("LOCNowPlayingTermsTo") + " " + cacheRoot.Directory,
-                            Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
+                            Action = async (a) => { foreach (var game in args.Games) { await EnableNowPlayingWithRootAsync(game, cacheRoot); } }
                         });
                     }
                 }
@@ -520,7 +522,7 @@ namespace NowPlaying
                     gameMenuItems.Add(new GameMenuItem
                     {
                         Description = description,
-                        Action = (a) => { foreach (var game in args.Games) { EnableNowPlayingWithRoot(game, cacheRoot); } }
+                        Action = async (a) => { foreach (var game in args.Games) { await EnableNowPlayingWithRootAsync(game, cacheRoot); } }
                     });
                 }
             }
@@ -576,7 +578,7 @@ namespace NowPlaying
                 && game.IsInstalled
                 && game.IsCustomGame
                 && game.Platforms?.Count == 1 && game.Platforms?.First().SpecificationId == "pc_windows"
-                && game.Roms == null || game.Roms?.Count == 0
+                && (game.Roms == null || game.Roms?.Count == 0)
                 && game.GameActions?.Where(a => a.IsPlayAction).Count() == 1
                 && GetIncrementalExePath(game.GameActions?[0], game) != null
             );
@@ -588,7 +590,7 @@ namespace NowPlaying
             return game.PluginId == this.Id && cacheManager.GameCacheExists(game.Id.ToString());
         }
 
-        public void EnableNowPlayingWithRoot(Game game, CacheRootViewModel cacheRoot)
+        public async Task EnableNowPlayingWithRootAsync(Game game, CacheRootViewModel cacheRoot)
         {
             string cacheId = game.Id.ToString();
 
@@ -639,7 +641,7 @@ namespace NowPlaying
                 }
             }
 
-            else if (CheckIfGameInstallDirIsAccessible(game.Name, game.InstallDirectory))
+            else if (await CheckIfGameInstallDirIsAccessibleAsync(game.Name, game.InstallDirectory))
             {
                 if (CheckAndConfirmEnableIfInstallDirIsProblematic(game.Name, game.InstallDirectory)) 
                 {
@@ -683,10 +685,26 @@ namespace NowPlaying
         }
 
         // . Sanity check: make sure game's InstallDir is accessable (e.g. disk mounted, decrypted, etc?)
-        public bool CheckIfGameInstallDirIsAccessible(string title, string installDir, bool silentMode = false)
+        public async Task<bool> CheckIfGameInstallDirIsAccessibleAsync(string title, string installDir, bool silentMode = false)
         {
-            string installDevice = DirectoryUtils.TryGetRootDevice(installDir);
-            if (DriveInfo.GetDrives().Any(d => d.Name == installDevice) && Directory.Exists(installDir))
+            // . This can take awhile (e.g. if the install directory is on a network drive and is having connectivity issues)
+            //   -> display topPanel status, unless caller is already doing so.
+            //
+            bool showInTopPanel = !topPanelViewModel.IsProcessing;
+            if (showInTopPanel)
+            {
+                topPanelViewModel.NowProcessing(true, "Waiting on install device...");
+            }
+            
+            var installRoot = await DirectoryUtils.TryGetRootDeviceAsync(installDir);
+            var dirExists = await Task.Run(() => Directory.Exists(installDir));
+            
+            if (showInTopPanel)
+            {
+                topPanelViewModel.NowProcessing(false, "Waiting on install device...");
+            }
+
+            if (installRoot != null && dirExists)
             {
                 return true;
             }
@@ -717,7 +735,7 @@ namespace NowPlaying
             return gameEnablerQueue.Where(e => e.Id == id).Count() > 0;
         }
 
-        public void DequeueEnablerAndInvokeNext(string id)
+        public async void DequeueEnablerAndInvokeNextAsync(string id)
         {
             // Dequeue the enabler (and sanity check it was ours)
             var activeId = gameEnablerQueue.Dequeue().Id;
@@ -729,7 +747,7 @@ namespace NowPlaying
             // Invoke next in queue's enabler, if applicable.
             if (gameEnablerQueue.Count > 0)
             {
-                gameEnablerQueue.First().EnableGameForNowPlaying();
+                await gameEnablerQueue.First().EnableGameForNowPlayingAsync();
             }
 
             panelViewModel.RefreshGameCaches();
@@ -789,13 +807,13 @@ namespace NowPlaying
             return actions.Count() == 1 ? actions.First() : null;
         }
 
-        private GameAction GetNowPlayingAction(Game game)
+        public GameAction GetNowPlayingAction(Game game)
         {
             var actions = game.GameActions.Where(a => a.IsPlayAction && a.Name == nowPlayingActionName);
             return actions.Count() == 1 ? actions.First() : null;
         }
 
-        private GameAction GetPreviewPlayAction(Game game)
+        public GameAction GetPreviewPlayAction(Game game)
         {
             var actions = game.GameActions.Where(a => a.Name == previewPlayActionName);
             return actions.Count() == 1 ? actions.First() : null;
@@ -949,7 +967,7 @@ namespace NowPlaying
             }
         }
 
-        public void DequeueInstallerAndInvokeNext(string cacheId)
+        public async void DequeueInstallerAndInvokeNextAsync(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
             var activeId = cacheInstallQueue.Dequeue().gameCache.Id;
@@ -962,7 +980,7 @@ namespace NowPlaying
             // Invoke next in queue's controller, if applicable.
             if (cacheInstallQueue.Count > 0 && !cacheInstallQueuePaused)
             {
-                cacheInstallQueue.First().NowPlayingInstall();
+                await cacheInstallQueue.First().NowPlayingInstallAsync();
             }
             else
             {
@@ -970,7 +988,7 @@ namespace NowPlaying
             }
         }
 
-        public void DequeueUninstallerAndInvokeNext(string cacheId)
+        public async void DequeueUninstallerAndInvokeNextAsync(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
             var activeId = cacheUninstallQueue.Dequeue().gameCache.Id;
@@ -983,7 +1001,7 @@ namespace NowPlaying
             // Invoke next in queue's controller, if applicable.
             if (cacheUninstallQueue.Count > 0)
             {
-                cacheUninstallQueue.First().NowPlayingUninstall();
+                await cacheUninstallQueue.First().NowPlayingUninstallAsync();
             }
         }
 
@@ -1046,7 +1064,7 @@ namespace NowPlaying
                 }
 
                 cacheInstallQueue.First().progressViewModel.PrepareToInstall(speedLimitIPG);
-                Task.Run(() => cacheInstallQueue.First().NowPlayingInstall());
+                Task.Run(() => cacheInstallQueue.First().NowPlayingInstallAsync());
             }
         }
 

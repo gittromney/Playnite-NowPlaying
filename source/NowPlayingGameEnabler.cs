@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using System;
 
 namespace NowPlaying
 {
@@ -38,7 +39,7 @@ namespace NowPlaying
                 if (plugin.gameEnablerQueue.First() == this)
                 {
                     // . modify a game to play from the game cache dir, or preview from original install dir
-                    Task.Run(() => EnableGameForNowPlaying());
+                    Task.Run(() => EnableGameForNowPlayingAsync());
                 }
                 else
                 {
@@ -48,8 +49,10 @@ namespace NowPlaying
             }
         }
 
-        public void EnableGameForNowPlaying()
+        public async Task EnableGameForNowPlayingAsync()
         {
+            logger.Info($"EnableGameForNowPlayingAsync called for {game.Name}");
+            
             // . make sure game isn't already enabled
             if (!plugin.IsGameNowPlayingEnabled(game))
             {
@@ -60,7 +63,7 @@ namespace NowPlaying
                 string exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
                 string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
 
-                if (plugin.CheckIfGameInstallDirIsAccessible(title, installDir))
+                if (await plugin.CheckIfGameInstallDirIsAccessibleAsync(title, installDir))
                 {
                     // . create game cache and its view model
                     string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir);
@@ -102,7 +105,8 @@ namespace NowPlaying
                     plugin.NotifyInfo($"Enabled '{title}' for game caching.");
                 }
             }
-            plugin.DequeueEnablerAndInvokeNext(Id);
+
+            plugin.DequeueEnablerAndInvokeNextAsync(Id);
         }
     }
 

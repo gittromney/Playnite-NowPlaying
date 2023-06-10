@@ -1,6 +1,12 @@
 ﻿using NowPlaying.Utils;
+using Playnite.SDK;
 using Playnite.SDK.Plugins;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Configuration;
+using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace NowPlaying.ViewModels
@@ -9,7 +15,7 @@ namespace NowPlaying.ViewModels
 
     public class TopPanelViewModel : ViewModelBase
     {
-        public enum Mode { Enable, Uninstall, Install, SlowInstall };
+        public enum Mode { Processing, Enable, Uninstall, Install, SlowInstall };
 
         private readonly NowPlaying plugin;
 
@@ -27,15 +33,19 @@ namespace NowPlaying.ViewModels
         private long totalBytesInstalled;
         private TimeSpan queuedInstallEta;
 
+        private LinkedList<string> processingMessage;
+        public bool IsProcessing { get; private set; }
         public double PercentDone { get; private set; }
         public string Status { get; private set; }
 
         public string ProgressIsIndeterminate => TopPanelMode==Mode.Install || TopPanelMode==Mode.SlowInstall ? "False" : "True";
-        public string ProgressBarForeground => (TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : 
+        public string ProgressBarForeground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingFgBrush" :
+                                                TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : 
                                                 TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : 
                                                 TopPanelMode==Mode.SlowInstall ? "TopPanelSlowInstallFgBrush" :
                                                 "TopPanelInstallFgBrush");
-        public string ProgressBarBackground => (TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : 
+        public string ProgressBarBackground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingBgBrush" :
+                                                TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : 
                                                 TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" :
                                                 TopPanelMode == Mode.SlowInstall ? "TopPanelSlowInstallBgBrush" :
                                                 "TopPanelInstallBgBrush");
@@ -75,11 +85,14 @@ namespace NowPlaying.ViewModels
         public TopPanelViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
+            this.processingMessage = new LinkedList<string>();
             Reset();
         }
 
         private void Reset()
         {
+            processingMessage.Clear();
+            IsProcessing = false;
             gamesToEnable = 0;
             gamesEnabled = 0;
             cachesToUninstall = 0;
@@ -120,16 +133,32 @@ namespace NowPlaying.ViewModels
 
         public void UpdateStatus()
         {
-            TopPanelMode = (gamesEnabled < gamesToEnable ? Mode.Enable : 
-                            cachesUninstalled < cachesToUninstall ? Mode.Uninstall : 
-                            isSlowInstall ? Mode.SlowInstall : 
-                            Mode.Install);
-            TopPanelVisible = gamesEnabled < gamesToEnable || cachesUninstalled < cachesToUninstall || cachesInstalled < cachesToInstall;
+            TopPanelMode = 
+            (
+                IsProcessing ? Mode.Processing :
+                gamesEnabled < gamesToEnable ? Mode.Enable : 
+                cachesUninstalled < cachesToUninstall ? Mode.Uninstall : 
+                isSlowInstall ? Mode.SlowInstall : 
+                Mode.Install
+            );
+            
+            TopPanelVisible = 
+            (
+                IsProcessing || 
+                gamesEnabled < gamesToEnable || 
+                cachesUninstalled < cachesToUninstall || 
+                cachesInstalled < cachesToInstall
+            );
 
             if (TopPanelVisible)
             {
                 switch (TopPanelMode)
                 {
+                    case Mode.Processing:
+                        Status = processingMessage.First() ?? "Processing...";
+                        OnPropertyChanged(nameof(Status));
+                        break;
+
                     case Mode.Enable:
                         Status = plugin.GetResourceString("LOCNowPlayingTermsEnabling") + " ";
                         Status += string.Format(formatStringXofY, gamesEnabled + 1, gamesToEnable) + "...";
@@ -239,6 +268,27 @@ namespace NowPlaying.ViewModels
         public void EnablerDoneOrCancelled()
         {
             gamesEnabled++;
+            UpdateStatus();
+        }
+
+        // . Processing messages work as a pseudo-stack.
+        // . Latest message is displayed until it is removed or a new message is pushed in.
+        //
+        public void NowProcessing(bool value, string message = null)
+        {
+            if (value)
+            {
+                if (!processingMessage.Contains(message))
+                {
+                    processingMessage.AddFirst(message);
+                }
+                IsProcessing = true;
+            }
+            else
+            {
+                processingMessage.Remove(message);
+                IsProcessing = processingMessage.Count > 0;
+            }
             UpdateStatus();
         }
     }

@@ -16,6 +16,8 @@ This extension may be useful if you have a local library of PC Windows games, su
 - Platform is 'PC (Windows)'.
 - Have no Roms.
 
+***Note, the Play action's 'Path' must point to an executable/shortcut/symlink that is somewhere under the 'Work' directory.*** 
+
 ### How it works
 
 When you enable a game for caching, it gets subsumed under the NowPlaying Game Cacher library. (If game caching is later disabled, the game is released back to the Playnite library.)

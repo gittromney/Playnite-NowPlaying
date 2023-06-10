@@ -2,9 +2,11 @@
 using NowPlaying.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace NowPlaying.Views
 {
@@ -29,7 +31,14 @@ namespace NowPlaying.Views
 
         public void GameCaches_ClearSelected()
         {
-            GameCaches.SelectedItems.Clear();
+            if (Dispatcher.CheckAccess())
+            {
+                GameCaches.SelectedItems.Clear();
+            }
+            else
+            {
+                Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(() => GameCaches.SelectedItems.Clear()));
+            }
             viewModel.SelectedGameCaches = new List<GameCacheViewModel>();
         }
 

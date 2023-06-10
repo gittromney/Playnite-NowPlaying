@@ -227,7 +227,6 @@
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2">Unknown/orphaned directory '{0}' found under NowPlaying cache root '{1}'</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryCaption">NowPlaying: unknown or orphaned cache directory</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryMsgFmt">Do you want to delete '{0}'?</sys:String>
-    <sys:String x:Key="LOCNowPlayingDisableGameCacheMissingInfoFmt">NowPlaying game cache information missing; disabling game caching for '{0}'</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitFmt2">Not enough space to install game cache for '{0}' to '{1}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheWillNotFitMsg">(Click on the NowPlaying sidebar for more details)</sys:String>
     <sys:String x:Key="LOCNowPlayingUnabletoRestoreCacheInfoFmt">Unable to find or restore NowPlaying game cache information for '{0}'</sys:String>

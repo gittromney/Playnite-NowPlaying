@@ -6,6 +6,7 @@ using Playnite.SDK.Plugins;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
 using static NowPlaying.Models.GameCacheManager;
 
 namespace NowPlaying
@@ -18,9 +19,8 @@ namespace NowPlaying
         private readonly IPlayniteAPI PlayniteApi;
         private readonly GameCacheManagerViewModel cacheManager;
         private readonly Game nowPlayingGame;
-        private readonly string cacheDirectory;
-        private readonly string installDirectory;
-        private bool syncSkippedByUser;
+        private readonly string cacheDir;
+        private readonly string installDir;
 
         public readonly GameCacheViewModel gameCache;
 
@@ -33,38 +33,12 @@ namespace NowPlaying
             this.cacheManager = plugin.cacheManager;
             this.nowPlayingGame = nowPlayingGame;
             this.gameCache = gameCache;
-            this.cacheDirectory = gameCache.CacheDir;
-            this.installDirectory = gameCache.InstallDir;
-            this.syncSkippedByUser = false;
+            this.cacheDir = gameCache.CacheDir;
+            this.installDir = gameCache.InstallDir;
         }
 
         public override void Uninstall(UninstallActionArgs args)
         {
-            if (settings.SyncDirtyCache_DoWhen != DoWhen.Never)
-            {
-                // . Sync on uninstall Always | Ask selected.
-                if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir, silentMode: true))
-                {
-                    // Game's install dir not readable:
-                    // . See if user wants to continue uninstall without Syncing
-                    string nl = System.Environment.NewLine;
-                    string message = plugin.FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", gameCache.Title, gameCache.InstallDir);
-                    message += nl + nl + plugin.FormatResourceString("LOCNowPlayingUnistallWithoutSyncFmt", gameCache.Title);
-                    MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:", MessageBoxButton.YesNo);
-
-                    if (userChoice == MessageBoxResult.Yes)
-                    {
-                        syncSkippedByUser = true;
-                    }
-                    else
-                    {
-                        nowPlayingGame.IsUninstalling = false;
-                        PlayniteApi.Database.Games.Update(nowPlayingGame);
-                        return;
-                    }
-                }
-            }
-
             // . enqueue our controller (but don't add more than once)
             if (plugin.EnqueueCacheUninstallerIfUnique(this))
             {
@@ -74,7 +48,7 @@ namespace NowPlaying
                 //   
                 if (plugin.cacheUninstallQueue.First() == this)
                 {
-                    Task.Run(() => NowPlayingUninstall());
+                    Task.Run(() => NowPlayingUninstallAsync());
                 }
                 else
                 {
@@ -84,9 +58,9 @@ namespace NowPlaying
             }
         }
 
-        public void NowPlayingUninstall()
+        public async Task NowPlayingUninstallAsync()
         {
-            bool cacheWriteBackOption = !syncSkippedByUser && settings.SyncDirtyCache_DoWhen == DoWhen.Always;
+            bool cacheWriteBackOption = settings.SyncDirtyCache_DoWhen == DoWhen.Always;
             bool cancelUninstall = false;
             string gameTitle = nowPlayingGame.Name;
 
@@ -99,14 +73,37 @@ namespace NowPlaying
                 cancelUninstall = userChoice == MessageBoxResult.No;
             }
 
-            if (!cancelUninstall && !syncSkippedByUser && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
+            if (!cancelUninstall && settings.SyncDirtyCache_DoWhen != DoWhen.Never)
+            {
+                // . Sync on uninstall Always | Ask selected.
+                if (!await plugin.CheckIfGameInstallDirIsAccessibleAsync(gameTitle, installDir, silentMode: true))
+                {
+                    // Game's install dir not readable:
+                    // . See if user wants to continue uninstall without Syncing
+                    string nl = System.Environment.NewLine;
+                    string message = plugin.FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", gameTitle, installDir);
+                    message += nl + nl + plugin.FormatResourceString("LOCNowPlayingUnistallWithoutSyncFmt", gameTitle);
+                    MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, "NowPlaying Error:", MessageBoxButton.YesNo);
+
+                    if (userChoice == MessageBoxResult.Yes)
+                    {
+                        cacheWriteBackOption = false;
+                    }
+                    else
+                    {
+                        cancelUninstall = true;
+                    }
+                }
+            }
+
+            if (!cancelUninstall && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
             {
                 DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
                 if (result.isDirty)
                 {
                     string nl = System.Environment.NewLine;
                     string caption = plugin.GetResourceString("LOCNowPlayingSyncOnUninstallCaption");
-                    string message = plugin.FormatResourceString("LOCNowPlayingSyncOnUninstallDiffHeadingFmt3", gameTitle, cacheDirectory, installDirectory) + nl + nl;
+                    string message = plugin.FormatResourceString("LOCNowPlayingSyncOnUninstallDiffHeadingFmt3", gameTitle, cacheDir, installDir) + nl + nl;
                     message += result.summary;
                     message += plugin.GetResourceString("LOCNowPlayingSyncOnUninstallPrompt");
                     MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNoCancel);
@@ -136,14 +133,14 @@ namespace NowPlaying
                 // Restore some items that Playnite's uninstall flow may have changed automatically.
                 // . NowPlaying Game's InstallDirectory
                 //
-                nowPlayingGame.InstallDirectory = cacheDirectory;
+                nowPlayingGame.InstallDirectory = cacheDir;
                 nowPlayingGame.IsUninstalling = false; // needed if invoked from Panel View
                 nowPlayingGame.IsInstalled = true;
                 PlayniteApi.Database.Games.Update(nowPlayingGame);
 
                 gameCache.UpdateNowUninstalling(false);
 
-                plugin.DequeueUninstallerAndInvokeNext(gameCache.Id);
+                plugin.DequeueUninstallerAndInvokeNextAsync(gameCache.Id);
             }
         }
 
@@ -157,7 +154,7 @@ namespace NowPlaying
             // Restore some items that Playnite's uninstall flow may have changed automatically.
             // . NowPlaying Game's InstallDirectory
             //
-            nowPlayingGame.InstallDirectory = cacheDirectory;
+            nowPlayingGame.InstallDirectory = cacheDir;
             nowPlayingGame.IsUninstalling = false; // needed if invoked from Panel View
             nowPlayingGame.IsInstalled = false;
             PlayniteApi.Database.Games.Update(nowPlayingGame);
@@ -170,7 +167,7 @@ namespace NowPlaying
             // . update state to JSON file 
             cacheManager.SaveGameCacheEntriesToJson();
 
-            plugin.DequeueUninstallerAndInvokeNext(gameCache.Id);
+            plugin.DequeueUninstallerAndInvokeNextAsync(gameCache.Id);
         }
 
         private void OnUninstallCancelled(GameCacheJob job)
@@ -192,7 +189,7 @@ namespace NowPlaying
             // . update state in JSON file 
             cacheManager.SaveGameCacheEntriesToJson();
 
-            plugin.DequeueUninstallerAndInvokeNext(gameCache.Id);
+            plugin.DequeueUninstallerAndInvokeNextAsync(gameCache.Id);
         }
 
     }

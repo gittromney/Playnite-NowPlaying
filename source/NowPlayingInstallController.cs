@@ -49,13 +49,6 @@ namespace NowPlaying
         {
             if (plugin.cacheInstallQueuePaused) return;
 
-            if (!plugin.CheckIfGameInstallDirIsAccessible(gameCache.Title, gameCache.InstallDir))
-            {
-                nowPlayingGame.IsInstalling = false;
-                PlayniteApi.Database.Games.Update(nowPlayingGame);
-                return;
-            }
-
             // . Workaround: prevent (accidental) install while install|uninstall in progress
             //   -> Note, better solution requires a Playnite fix => Play CanExecute=false while IsInstalling=true||IsUninstalling=true
             //   -> Also, while we're at it: Playnite's Install/Uninstall CanExecute=false while IsInstalling=true||IsUninstalling=true
@@ -70,7 +63,7 @@ namespace NowPlaying
                     //   
                     if (plugin.cacheInstallQueue.First() == this)
                     {
-                        Task.Run(() => NowPlayingInstall());
+                        Task.Run(() => NowPlayingInstallAsync());
                     }
                     else
                     {
@@ -81,13 +74,15 @@ namespace NowPlaying
             }
         }
 
-        public void NowPlayingInstall()
+        public async Task NowPlayingInstallAsync()
         {
+            bool isAccessible = await plugin.CheckIfGameInstallDirIsAccessibleAsync(gameCache.Title, gameCache.InstallDir);
+            
             plugin.topPanelViewModel.NowInstalling(gameCache, isSpeedLimited: speedLimitIPG > 0);
 
             gameCache.UpdateCacheSpaceWillFit();
-
-            if (gameCache.CacheWillFit)
+            
+            if (isAccessible && gameCache.CacheWillFit)
             {
                 deleteCacheOnJobCancelled = false;
  
@@ -112,8 +107,13 @@ namespace NowPlaying
             }
             else
             {
-                plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingInstallSkippedFmt", gameCache.Title));
-                plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
+                if (!gameCache.CacheWillFit)
+                {
+                    plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingInstallSkippedFmt", gameCache.Title));
+                }
+                nowPlayingGame.IsInstalling = false;
+                PlayniteApi.Database.Games.Update(nowPlayingGame);
+                plugin.DequeueInstallerAndInvokeNextAsync(gameCache.Id);
             }
         }
 
@@ -138,7 +138,7 @@ namespace NowPlaying
 
             plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingInstallDoneFmt", gameCache.Title));
 
-            plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
+            plugin.DequeueInstallerAndInvokeNextAsync(gameCache.Id);
         }
 
         public void RequestPauseInstall(Action speedLimitChangeOnPaused = null)
@@ -249,7 +249,7 @@ namespace NowPlaying
 
             if (!plugin.cacheInstallQueuePaused) 
             { 
-                plugin.DequeueInstallerAndInvokeNext(gameCache.Id);
+                plugin.DequeueInstallerAndInvokeNextAsync(gameCache.Id);
             }
             else
             {

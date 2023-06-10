@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NowPlaying.Utils
 {
@@ -75,6 +76,11 @@ namespace NowPlaying.Utils
             {
                 return null;
             }
+        }
+
+        public static async Task<string> TryGetRootDeviceAsync(string pathName)
+        {
+            return await Task.Run(() => TryGetRootDevice(pathName));
         }
 
         public static bool IsValidRootedDirName(string pathName)

@@ -48,7 +48,7 @@ namespace NowPlaying.Models
             string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}{5}",
                 DirectoryUtils.TrimEndingSlash(srcDir), 
                 DirectoryUtils.TrimEndingSlash(destDir),
-                "/E /NDL /BYTES /NJH /NJS",
+                "/E /SL /NDL /BYTES /NJH /NJS",
                 showClass ? "" : " /NC",
                 listOnly ? " /L" : "",
                 interPacketGap > 0 ? $" /IPG:{interPacketGap}" : ""
@@ -613,8 +613,22 @@ namespace NowPlaying.Models
                     }
                     else
                     {
-                        // . Installation directory status have potentially changed
-                        entry.UpdateInstallDirStats();
+                        try
+                        {
+                            // . Installation directory status have potentially changed
+                            entry.UpdateInstallDirStats();
+                        }
+                        catch (Exception ex) 
+                        {
+                            job.cancelledOnError = true;
+                            job.errorLog = new List<string> { $"Error updating install dir stats: {ex.Message}" };
+                            foreach (var err in job.errorLog)
+                            {
+                                logger.Error(err);
+                            }
+                            eJobCancelled?.Invoke(this, job);
+                            return;
+                        }
                     }
                 }
             }
