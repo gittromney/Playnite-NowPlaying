@@ -214,6 +214,8 @@
     <sys:String x:Key="LOCNowPlayingDeleteCacheFailedFmt">Deletion of game cache '{0}' failed.</sys:String>
     
     <!--NowPlayingUninstallController-->
+    <sys:String x:Key="LOCNowPlayingUninstallNotifyFmt">Uninstalled game cache for '{0}'.</sys:String>
+    <sys:String x:Key="LOCNowPlayingUninstallCancelledOnErrorFmt">Uninstall of '{0}' game cache terminated because of an error.</sys:String>
     <sys:String x:Key="LOCNowPlayingSyncOnUninstallCaption">NowPlaying: Sync on uninstall?</sys:String>
     <sys:String x:Key="LOCNowPlayingSyncOnUninstallDiffHeadingFmt3">{0}'s game cache ({1}) differs from its installation directory ({2}).</sys:String>
     <sys:String x:Key="LOCNowPlayingSyncOnUninstallPrompt">
@@ -221,6 +223,8 @@
     </sys:String>
     
     <!--NowPlaying-->
+    <sys:String x:Key="LOCNowPlayingCheckBrokenGamesProgress">Fixing broken caches...</sys:String>
+    <sys:String x:Key="LOCNowPlayingCheckInstallDirAccessibleProgress">Waiting on install device...</sys:String>
     <sys:String x:Key="LOCNowPlayingRemovedEnabledGameNonEmptyCacheFmt">NowPlaying enabled game '{0}' was removed; caching disabled and deleting game cache.</sys:String>
     <sys:String x:Key="LOCNowPlayingRemovedEnabledGameFmt">NowPlaying enabled game '{0}' was removed; caching disabled</sys:String>
     <sys:String x:Key="LOCNowPlayingUnknownOrphanedDirectoryFoundFmt2">Unknown/orphaned directory '{0}' found under NowPlaying cache root '{1}'</sys:String>
@@ -236,6 +240,7 @@
         (and optionally recalculate 'Install Size') before enabling.
     </sys:String>
     <sys:String x:Key="LOCNowPlayingProblematicInstallDirConfirm">Do you want to enable game caching anyway?</sys:String>
+    <sys:String x:Key="LOCNowPlayingDisableBrokenGameCachingPrompt">Do you want to disable game caching for it?</sys:String>
 
     <sys:String x:Key="LOCNowPlayingGameInstallDirNotFoundFmt2">{0}'s installation directory '{1}' not found; is the disk mounted and decrypted?</sys:String>
     <sys:String x:Key="LOCNowPlayingUnistallWithoutSyncFmt">
