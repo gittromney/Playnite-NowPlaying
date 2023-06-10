@@ -272,7 +272,7 @@ namespace NowPlaying
                 string cacheId = game.Id.ToString();
                 if (!cacheManager.GameCacheExists(cacheId))
                 {
-                    topPanelViewModel.NowProcessing(true, "Fixing broken caches...");
+                    topPanelViewModel.NowProcessing(true, GetResourceString("LOCNowPlayingCheckBrokenGamesProgress"));
 
                     // . NowPlaying game is missing the supporting game cache... attempt to recreate it
                     if (await TryRecoverMissingGameCacheAsync(cacheId, game))
@@ -290,9 +290,10 @@ namespace NowPlaying
                     { 
                         NotifyWarning(FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", game.Name), () =>
                         {
-                            string caption = $"NowPlaying confimation:";
-                            string message = $"Unable to recover missing game cache information for '{game.Name}'.";
-                            message += " Do you want to disable game caching?";
+                            string nl = Environment.NewLine;
+                            string caption = GetResourceString("LOCNowPlayingConfirmationCaption");
+                            string message = FormatResourceString("LOCNowPlayingUnabletoRestoreCacheInfoFmt", game.Name) + "." + nl + nl;
+                            message += GetResourceString("LOCNowPlayingDisableBrokenGameCachingPrompt");
                             if (PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                             {
                                 DisableNowPlayingGameCaching(game);
@@ -306,7 +307,7 @@ namespace NowPlaying
                 cacheManager.SaveGameCacheEntriesToJson();
             }
 
-            topPanelViewModel.NowProcessing(false, "Fixing broken caches...");
+            topPanelViewModel.NowProcessing(false, GetResourceString("LOCNowPlayingCheckBrokenGamesProgress"));
         }
 
         public void CheckForOrphanedCacheDirectories()
@@ -693,7 +694,7 @@ namespace NowPlaying
             bool showInTopPanel = !topPanelViewModel.IsProcessing;
             if (showInTopPanel)
             {
-                topPanelViewModel.NowProcessing(true, "Waiting on install device...");
+                topPanelViewModel.NowProcessing(true, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
             }
             
             var installRoot = await DirectoryUtils.TryGetRootDeviceAsync(installDir);
@@ -701,7 +702,7 @@ namespace NowPlaying
             
             if (showInTopPanel)
             {
-                topPanelViewModel.NowProcessing(false, "Waiting on install device...");
+                topPanelViewModel.NowProcessing(false, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
             }
 
             if (installRoot != null && dirExists)

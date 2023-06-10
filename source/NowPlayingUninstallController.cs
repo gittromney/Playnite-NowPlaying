@@ -6,7 +6,6 @@ using Playnite.SDK.Plugins;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Markup;
 using static NowPlaying.Models.GameCacheManager;
 
 namespace NowPlaying
@@ -146,7 +145,7 @@ namespace NowPlaying
 
         private void OnUninstallDone(GameCacheJob job)
         {
-            plugin.NotifyInfo($"Uninstalled game cache for '{gameCache.Title}'.");
+            plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingUninstallNotifyFmt", gameCache.Title));
 
             // . exit uninstalling state
             InvokeOnUninstalled(new GameUninstalledEventArgs());
@@ -183,7 +182,7 @@ namespace NowPlaying
             if (job.cancelledOnError)
             {
                 string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".uninstall.txt");
-                plugin.PopupError($"Uninstall of '{gameCache.Title}' game cache terminated because of an error." + seeLogFile);
+                plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingUninstallCancelledOnErrorFmt", gameCache.Title) + seeLogFile);
             }
 
             // . update state in JSON file 
