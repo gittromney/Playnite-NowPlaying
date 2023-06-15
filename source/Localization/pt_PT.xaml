@@ -7,6 +7,7 @@
     <sys:String x:Key="LOCNowPlayingTermsTo">To</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsGame">Game</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsGames">Games</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsGigabytes">Gigabytes</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsTitle">Title</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsStatus">Status</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSize">Size</sys:String>
@@ -50,11 +51,12 @@
     <sys:String x:Key="LOCNowPlayingSideBarToolTip">Manage NowPlaying game caches</sys:String>
     
     <!--InstallProgressViewModel-->
-    <sys:String x:Key="LOCNowPlayingProgressSpeedLimitTitleFmt2">Installing Game Cache w/Speed Limit (IPG={0}) for '{1}'...</sys:String>
-    <sys:String x:Key="LOCNowPlayingProgressTitleFmt">Installing Game Cache for '{0}'...</sys:String>
+    <sys:String x:Key="LOCNowPlayingProgressSpeedLimitTitleFmt2">Installing game cache w/speed limit (IPG={0}) for '{1}'...</sys:String>
+    <sys:String x:Key="LOCNowPlayingProgressTitleFmt">Installing game cache for '{0}'...</sys:String>
     <sys:String x:Key="LOCNowPlayingPreparingToInstall">Preparing to install...</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressXofYFmt2">{0} of {1}</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressFilesAndBytesFmt2">{0} files,  {1} copied</sys:String>
+    <sys:String x:Key="LOCNowPlayingWithPartialFileResume">w/partial file resume</sys:String>
 
     <!--NowPlayingPanelView, GameCacheViewModel-->
     <sys:String x:Key="LOCNowPlayingHideCacheRoots">Hide cache roots</sys:String>
@@ -131,6 +133,20 @@
         You may need to experiment to dial in a reasonable setting on your hardware.
         See example scenarios, below, as a rough guideline.
     </sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeTab">Partial file resume</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeHeading">Partial file resume mode (PFR) when installing cache files (over a network)</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeDescr">
+        Normally when a cache installation is paused and resumed, or it changed speeds (see Install while playing), 
+        the interrupted file must be copied over again from the beginning.
+        When the game's install directory is on a network mapped drive, 
+        you have the option of copying all/some files in partial file resume mode (PFR). 
+        PFR copied files are able to be resumed from exactly where they were interrupted, 
+        at the cost of slightly slower transfer speeds.
+    </sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeRadio">When copying files over a network...</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeNever">Never use partial file resume mode</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeThresh">Use partial file resume mode on files larger than</sys:String>
+    <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeAlways">Always use partial file resume mode</sys:String>
 
     <!--AddGameCachesView-->
     <sys:String x:Key="LOCNowPlayingAddGamesHeading">Enable games for NowPlaying game caching</sys:String>
@@ -186,7 +202,7 @@
     <sys:String x:Key="LOCNowPlayingCacheRootsDirectoryToolTip">Directory on root device where game caches will be installed</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsSpaceToolTip">Space available for game caches on the root device</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsGamesToolTip">Number of games enabled for caching to the root device</sys:String>
-    <sys:String x:Key="LOCNowPlayingCacheRootsInstalledToolTip">Number (and size) of game caches installed on the root device</sys:String>
+    <sys:String x:Key="LOCNowPlayingCacheRootsInstalledToolTip">Number of game caches installed (and size) on the root device</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsMaxFillToolTip">Maximum fill level allowed on the device when installing game caches</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsEditMaxFill">Edit max fill level</sys:String>
     <sys:String x:Key="LOCNowPlayingCacheRootsRefreshToolTip">Refresh cache roots list</sys:String>
