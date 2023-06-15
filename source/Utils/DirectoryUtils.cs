@@ -258,5 +258,22 @@ namespace NowPlaying.Utils
             }
         }
 
+        public static bool IsOnNetworkDrive(string directoryName)
+        {
+            var rootDev = TryGetRootDevice(directoryName);
+            if (rootDev != null)
+            {
+                try
+                {
+                    var driveInfo = new DriveInfo(rootDev);
+                    return driveInfo != null && driveInfo.DriveType == DriveType.Network;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 }

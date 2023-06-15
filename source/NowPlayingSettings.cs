@@ -4,6 +4,7 @@ namespace NowPlaying
 {
     public enum DoWhen { Always, Ask, Never };
     public enum WhilePlaying { Pause, SpeedLimit, Normal };
+    public enum EnDisThresh { Enabled, Disabled, Threshold };
 
     public class NowPlayingSettings : ObservableObject
     {
@@ -54,6 +55,34 @@ namespace NowPlaying
             } 
         }
 
+        private EnDisThresh partialFileResume;
+        public EnDisThresh PartialFileResume
+        {
+            get => partialFileResume;
+            set
+            {
+                if (partialFileResume != value)
+                {
+                    partialFileResume = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double pfrThresholdGigaBytes;
+        public double PfrThresholdGigaBytes
+        {
+            get => pfrThresholdGigaBytes;
+            set
+            {
+                if (pfrThresholdGigaBytes != value)
+                {
+                    pfrThresholdGigaBytes = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public NowPlayingSettings()
         {
             this.ConfirmUninstall = true;
@@ -62,6 +91,8 @@ namespace NowPlaying
             this.SyncDirtyCache_DoWhen = DoWhen.Always;
             this.WhilePlayingMode = WhilePlaying.SpeedLimit;
             this.SpeedLimitIPG = 75;
+            this.PartialFileResume = EnDisThresh.Threshold;
+            this.PfrThresholdGigaBytes = 0.025;
         }
     }
 }

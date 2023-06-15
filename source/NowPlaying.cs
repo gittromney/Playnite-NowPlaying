@@ -131,48 +131,39 @@ namespace NowPlaying
             };
         }
 
-        public string GetResourceString(string key)
-        {
-            return key != null ? PlayniteApi.Resources.GetString(key) : null;
-        }
-
-        public string GetResourceFormatString(string key, int formatItemCount)
-        {
-            if (key != null)
-            {
-                string formatString = PlayniteApi.Resources.GetString(key);
-                bool validFormat = !string.IsNullOrEmpty(formatString);
-                for (int fi = 0; validFormat && fi < formatItemCount; fi++) {
-                    validFormat &= formatString.Contains("{" + fi + "}");
-                }    
-                if (validFormat) {
-                    return formatString;
-                }
-                else if (formatItemCount > 1)
-                {
-                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}} - '{{{formatItemCount-1}}}' patterns");
-                    return null;
-                }
-                else
-                {
-                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}}' pattern");
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        public string FormatResourceString(string key, params object[] formatItems)
-        {
-            string formatString = GetResourceFormatString(key, formatItems.Count());
-            return formatString != null ? string.Format(formatString, formatItems) : null;
-        }
-
-
         public void UpdateSettings(NowPlayingSettings settings)
         {
             Settings = settings;
             settingsViewModel.Settings = settings;
+        }
+
+        public override ISettings GetSettings(bool firstRunSettings)
+        {
+            return new NowPlayingSettingsViewModel(this);
+        }
+
+        public override UserControl GetSettingsView(bool firstRunSettings)
+        {
+            return new NowPlayingSettingsView(null);
+        }
+
+        public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
+        {
+            cacheManager.LoadCacheRootsFromJson();
+            cacheRootsViewModel.RefreshCacheRoots();
+            cacheManager.LoadInstallAverageBpsFromJson();
+            cacheManager.LoadGameCacheEntriesFromJson();
+            cacheRootsViewModel.RefreshCacheRoots();
+
+            PlayniteApi.Database.Games.ItemCollectionChanged += CheckForRemovedNowPlayingGames;
+
+            Task.Run(() => CheckForFixableGameCacheIssuesAsync());
+        }
+
+        public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
+        {
+            // Add code to be executed when Playnite is shutting down.
+            cacheManager.Shutdown();
         }
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
@@ -208,30 +199,20 @@ namespace NowPlaying
         {
             base.OnGameStopped(args);
 
-            IsGamePlaying = false;
-
-            if (WhilePlayingMode == WhilePlaying.Pause)
+            if (IsGamePlaying)
             {
-                ResumeCacheInstallQueue();
+                IsGamePlaying = false;
+
+                if (WhilePlayingMode == WhilePlaying.Pause)
+                {
+                    ResumeCacheInstallQueue();
+                }
+                else if (SpeedLimitIPG > 0)
+                {
+                    SpeedLimitIPG = 0;
+                    ResumeFullSpeedCacheInstalls();
+                }
             }
-            else if (SpeedLimitIPG > 0)
-            {
-                SpeedLimitIPG = 0;
-                ResumeFullSpeedCacheInstalls();
-            }
-        }
-
-        public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
-        {
-            cacheManager.LoadCacheRootsFromJson();
-            cacheRootsViewModel.RefreshCacheRoots();
-            cacheManager.LoadInstallAverageBpsFromJson();
-            cacheManager.LoadGameCacheEntriesFromJson();
-            cacheRootsViewModel.RefreshCacheRoots();
-
-            PlayniteApi.Database.Games.ItemCollectionChanged += CheckForRemovedNowPlayingGames;
-
-            Task.Run(() => CheckForFixableGameCacheIssuesAsync());
         }
 
         public void CheckForRemovedNowPlayingGames(object o, ItemCollectionChangedEventArgs<Game> args)
@@ -278,12 +259,6 @@ namespace NowPlaying
                     if (await TryRecoverMissingGameCacheAsync(cacheId, game))
                     {
                         NotifyWarning(FormatResourceString("LOCNowPlayingRestoredCacheInfoFmt", game.Name));
-
-                        // . update installed game cache size to whatever current size on disk is
-                        var gameCache = cacheManager.FindGameCache(cacheId);
-                        gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
-                        gameCache.UpdateCacheSize();
-
                         foundBroken = true;
                     }
                     else 
@@ -331,22 +306,6 @@ namespace NowPlaying
                     }
                 }
             }
-        }
-
-        public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
-        {
-            // Add code to be executed when Playnite is shutting down.
-            cacheManager.Shutdown();
-        }
-
-        public override ISettings GetSettings(bool firstRunSettings)
-        {
-            return new NowPlayingSettingsViewModel(this);
-        }
-
-        public override UserControl GetSettingsView(bool firstRunSettings)
-        {
-            return new NowPlayingSettingsView(null);
         }
 
         private class DummyInstaller : InstallController
@@ -443,6 +402,13 @@ namespace NowPlaying
             if (title != null && installDir != null && exePath != null && cacheRootDir != null && cacheSubDir != null)
             {
                 cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
+
+                // . the best we can do is assume the current size on disk are all installed bytes (completed files)
+                var gameCache = cacheManager.FindGameCache(cacheId);
+                gameCache.entry.UpdateCacheDirStats();
+                gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
+                gameCache.UpdateCacheSize();
+
                 return true;
             }
             return false;
@@ -1078,6 +1044,46 @@ namespace NowPlaying
         {
             PauseCacheInstallQueue(() => ResumeCacheInstallQueue(resumeFromSpeedLimitedMode: true));
         }
+
+        public string GetResourceString(string key)
+        {
+            return key != null ? PlayniteApi.Resources.GetString(key) : null;
+        }
+
+        public string GetResourceFormatString(string key, int formatItemCount)
+        {
+            if (key != null)
+            {
+                string formatString = PlayniteApi.Resources.GetString(key);
+                bool validFormat = !string.IsNullOrEmpty(formatString);
+                for (int fi = 0; validFormat && fi < formatItemCount; fi++)
+                {
+                    validFormat &= formatString.Contains("{" + fi + "}");
+                }
+                if (validFormat)
+                {
+                    return formatString;
+                }
+                else if (formatItemCount > 1)
+                {
+                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}} - '{{{formatItemCount - 1}}}' patterns");
+                    return null;
+                }
+                else
+                {
+                    PopupError($"Bad resource: key='{key}', value='{formatString}'; must contain '{{0}}' pattern");
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        public string FormatResourceString(string key, params object[] formatItems)
+        {
+            string formatString = GetResourceFormatString(key, formatItems.Count());
+            return formatString != null ? string.Format(formatString, formatItems) : null;
+        }
+
 
         public void NotifyInfo(string message)
         {

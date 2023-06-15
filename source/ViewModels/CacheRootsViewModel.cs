@@ -133,8 +133,8 @@ namespace NowPlaying.ViewModels
                 // . sort by installed number of caches 1st, and installed cache bytes 2nd
                 int countX = ((CacheRootViewModel)x).CachesInstalled;
                 int countY = ((CacheRootViewModel)y).CachesInstalled;
-                long bytesX = ((CacheRootViewModel)x).cachesInstalledBytes;
-                long bytesY = ((CacheRootViewModel)y).cachesInstalledBytes;
+                long bytesX = ((CacheRootViewModel)x).cachesAggregateSizeOnDisk;
+                long bytesY = ((CacheRootViewModel)y).cachesAggregateSizeOnDisk;
                 return countX != countY ? countX.CompareTo(countY) : bytesX.CompareTo(bytesY);
             }
         }

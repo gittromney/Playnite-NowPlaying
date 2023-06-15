@@ -33,7 +33,15 @@ namespace NowPlaying.Utils
 
             this.index = 0;
             this.values = new T[depth];
-            for (int i=0; i < depth; i++) { this.values[i] = initValue; }
+            Init(initValue);
+        }
+
+        public void Init(T value)
+        {
+            for (int i = 1; i < Depth; i++)
+            {
+                values[i] = value;
+            }
         }
 
         public void Push(T value)

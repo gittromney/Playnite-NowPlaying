@@ -47,6 +47,21 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private bool partialFileResume;
+        public bool PartialFileResume
+        {
+            get => partialFileResume;
+            set
+            {
+                if (partialFileResume != value)
+                {
+                    partialFileResume = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CurrentFile));
+                }
+            }
+        }
+
         public RelayCommand PauseInstallCommand { get; private set; }
         public RelayCommand CancelInstallCommand { get; private set; }
 
@@ -57,6 +72,7 @@ namespace NowPlaying.ViewModels
         // Real-time GameCacheJob Statistics
         //
         private string formatStringCopyingFile;
+        private string formatStringCopyingFilePfr;
         private string formatStringXofY;
         private string formatStringFilesAndBytes;
         private string formatStringSpeedDurationEta;
@@ -68,21 +84,21 @@ namespace NowPlaying.ViewModels
         private string copiedFilesOfFiles;
         private string copiedBytesOfBytes;
         private string currentFile;
+        private long   currentFileSize;
         private string duration;
         private string timeRemaining;
         private string averageSpeed;
 
         // . rolling average of 'average bytes per second'
-        private RollingAverage<long> rollAvgAvgBps;
+        public RollingAvgLong rollAvgAvgBps;
         private int rollAvgDepth;
         private int rollAvgRefreshCnt;
         private int rollAvgRefreshRate;
 
         public string ProgressPanelTitle =>
         (
-            speedLimitIpg > 0
-            ? plugin.FormatResourceString("LOCNowPlayingProgressSpeedLimitTitleFmt2", speedLimitIpg, GameTitle)
-            : plugin.FormatResourceString("LOCNowPlayingProgressTitleFmt", GameTitle)
+            speedLimitIpg > 0 ? plugin.FormatResourceString("LOCNowPlayingProgressSpeedLimitTitleFmt2", speedLimitIpg, GameTitle) :
+            plugin.FormatResourceString("LOCNowPlayingProgressTitleFmt", GameTitle)
         );
         
         public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "GlyphBrush";
@@ -97,13 +113,34 @@ namespace NowPlaying.ViewModels
             : string.Format(formatStringFilesAndBytes, copiedFilesOfFiles, copiedBytesOfBytes)
         );
 
-        public string CurrentFile => PreparingToInstall ? "" : string.Format(formatStringCopyingFile, currentFile);
+        private long fileToResumeSize;
+        public long FileToResumeSize 
+        { 
+            get => fileToResumeSize;
+            set 
+            {
+                if (fileToResumeSize != value)
+                {
+                    fileToResumeSize = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CurrentFile));
+                }
+            }
+        }
+
+        public string CurrentFile =>
+        (
+            PreparingToInstall ? "" :
+            partialFileResume ? string.Format(formatStringCopyingFilePfr, currentFile, SmartUnits.Bytes(FileToResumeSize)) :
+            string.Format(formatStringCopyingFile, currentFile, SmartUnits.Bytes(currentFileSize))
+        );
+
         public string SpeedDurationEta =>
         (
             PreparingToInstall ? "" : string.Format(formatStringSpeedDurationEta, averageSpeed, duration, timeRemaining)
         );
 
-        public InstallProgressViewModel(NowPlayingInstallController controller, int speedLimitIpg = 0)
+        public InstallProgressViewModel(NowPlayingInstallController controller, int speedLimitIpg=0, bool partialFileResume=false)
         {
             this.plugin = controller.plugin;
             this.controller = controller;
@@ -113,29 +150,33 @@ namespace NowPlaying.ViewModels
             this.PauseInstallCommand = new RelayCommand(() => controller.RequestPauseInstall());
             this.CancelInstallCommand = new RelayCommand(() => controller.RequestCancellInstall());
 
-            this.formatStringCopyingFile = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}'...";
+            this.formatStringCopyingFile = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1})...";
+            this.formatStringCopyingFilePfr = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1}) ";
+            this.formatStringCopyingFilePfr += (plugin.GetResourceString("LOCNowPlayingWithPartialFileResume") ?? "w/partial file resume") + "...";
             this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
             this.formatStringFilesAndBytes = plugin.GetResourceFormatString("LOCNowPlayingProgressFilesAndBytesFmt2", 2) ?? "{0} files,  {1} copied";
             this.formatStringSpeedDurationEta = (plugin.GetResourceString("LOCNowPlayingTermsSpeed") ?? "Speed") + ": {0},   ";
             this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsDuration") ?? "Duration") + ": {1},   ";
             this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsEta") ?? "ETA") + ": {2}";
             
-            PrepareToInstall(speedLimitIpg);
+            PrepareToInstall(speedLimitIpg, partialFileResume);
         }
 
-        public void PrepareToInstall(int speedLimitIpg = 0)
+        public void PrepareToInstall(int speedLimitIpg=0, bool partialFileResume=false)
         {
             // . Start in "Preparing to install..." state; until job is underway & statistics are updated 
             this.PreparingToInstall = true;
             this.speedLimitIpg = speedLimitIpg;
+            this.partialFileResume = partialFileResume;
 
             cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
             cacheManager.gameCacheManager.eJobCancelled += OnJobDone;
             cacheManager.gameCacheManager.eJobDone += OnJobDone;
 
             // . initialize any rolling average stats
+            long avgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIpg, partialFileResume);
             this.rollAvgDepth = 50;
-            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIpg));
+            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, avgBps);
             this.rollAvgRefreshCnt = 0;
             this.rollAvgRefreshRate = 50;
 
@@ -199,6 +240,7 @@ namespace NowPlaying.ViewModels
                 if (currentFile != sval)
                 {
                     currentFile = sval;
+                    currentFileSize = jobStats.CurrFileSize;
                     OnPropertyChanged(nameof(CurrentFile));
                 }
 

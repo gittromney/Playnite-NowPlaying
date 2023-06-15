@@ -97,15 +97,14 @@ namespace NowPlaying.ViewModels
         }
 
         public string AddGameCache
-            (
-                string cacheId,
-                string title,
-                string installDir,
-                string exePath,
-                string xtraArgs,
-                string cacheRootDir,
-                string cacheSubDir = null
-            )
+        (
+            string cacheId,
+            string title,
+            string installDir,
+            string exePath,
+            string xtraArgs,
+            string cacheRootDir,
+            string cacheSubDir = null)
         {
             if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir))
             {
@@ -205,7 +204,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public long GetInstallAverageBps(string installDir, int speedLimitIpg = 0)
+        public long GetInstallAverageBps(string installDir, int speedLimitIpg=0, bool partialFileResume=false)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
             if (speedLimitIpg > 0)
@@ -213,18 +212,27 @@ namespace NowPlaying.ViewModels
                 int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
                 installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
             }
-
+            if (partialFileResume)
+            {
+                installDevice += "(PFR)";
+            }
             if (InstallAverageBps.ContainsKey(installDevice))
             {
                 return InstallAverageBps[installDevice];
             }
             else
             {
-                return speedLimitIpg > 0 ? 5242880 : 52428800; // initial default: 50 MB/s (or speed limited => 5 MB/s) 
+                // initial defaults: (normal/PFR/speedLimited) = (50/25/5) MB/s 
+                return speedLimitIpg > 0 ? 5242880 : partialFileResume ? 26214400 : 52428800;
             }
         }
 
-        public void UpdateInstallAverageBps(string installDir, long averageBps, int speedLimitIpg = 0)
+        public void UpdateInstallAverageBps
+        (
+            string installDir, 
+            long averageBps, 
+            int speedLimitIpg = 0, 
+            bool partialFileResume = false)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
             if (speedLimitIpg > 0)
@@ -232,7 +240,10 @@ namespace NowPlaying.ViewModels
                 int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
                 installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
             }
-
+            if (partialFileResume)
+            {
+                installDevice += "(PFR)";
+            }
             if (InstallAverageBps.ContainsKey(installDevice))
             {
                 // take 90/10 average of saved Bps and current value, respectively
@@ -328,6 +339,8 @@ namespace NowPlaying.ViewModels
 
         public void LoadGameCacheEntriesFromJson()
         {
+            List<string> needToUpdateCacheStats = new List<string>();
+            
             if (File.Exists(gameCacheEntriesJsonPath))
             {
                 var entries = new List<GameCacheEntry>();
@@ -347,6 +360,10 @@ namespace NowPlaying.ViewModels
                         var cacheRoot = FindCacheRoot(entry.CacheRoot);
                         if (cacheRoot != null)
                         {
+                            if (entry.CacheSizeOnDisk < entry.CacheSize)
+                            {
+                                needToUpdateCacheStats.Add(entry.Id);
+                            }
                             gameCacheManager.AddGameCacheEntry(entry);
                             GameCaches.Add(new GameCacheViewModel(this, entry, cacheRoot));
                         }
@@ -363,6 +380,19 @@ namespace NowPlaying.ViewModels
                 }
                 plugin.panelViewModel.RefreshGameCaches();
             }
+
+            if (needToUpdateCacheStats.Count > 0)
+            {
+                plugin.topPanelViewModel.NowProcessing(true, "Updating cache sizes...");
+                foreach (var id in needToUpdateCacheStats)
+                {
+                    var gameCache = FindGameCache(id);
+                    gameCache?.entry.UpdateCacheDirStats();
+                    gameCache?.UpdateCacheSpaceWillFit();
+                }
+                plugin.topPanelViewModel.NowProcessing(false, "Updating cache sizes...");
+            }
+
             SaveGameCacheEntriesToJson();
 
             // . notify cache roots of updates to their resective game caches
@@ -475,20 +505,20 @@ namespace NowPlaying.ViewModels
         }
 
         public void InstallGameCache
-            (
-                GameCacheViewModel gameCache,
-                RoboStats jobStats,
-                Action<GameCacheJob> installDone,
-                Action<GameCacheJob> installCancelled,
-                int interPacketGap = 0
-            )
+        (
+            GameCacheViewModel gameCache,
+            RoboStats jobStats,
+            Action<GameCacheJob> installDone,
+            Action<GameCacheJob> installCancelled,
+            int interPacketGap = 0,
+            PartialFileResumeOpts pfrOpts = null)
         {
             var callbacks = new InstallCallbacks(gameCacheManager, gameCache, installDone, installCancelled);
             gameCacheManager.eJobDone += callbacks.Done;
             gameCacheManager.eJobCancelled += callbacks.Cancelled;
             gameCacheManager.eJobStatsUpdated += callbacks.MaxFillLevelCanceller;
 
-            gameCacheManager.StartPopulateGameCacheJob(gameCache.Id, jobStats, interPacketGap);
+            gameCacheManager.StartPopulateGameCacheJob(gameCache.Id, jobStats, interPacketGap, pfrOpts);
         }
 
         public void CancelInstall(string cacheId)
@@ -504,12 +534,11 @@ namespace NowPlaying.ViewModels
             private readonly Action<GameCacheJob> UninstallCancelled;
 
             public UninstallCallbacks
-                (
-                    GameCacheManager manager,
-                    GameCacheViewModel gameCache,
-                    Action<GameCacheJob> uninstallDone,
-                    Action<GameCacheJob> uninstallCancelled
-                )
+            (
+                GameCacheManager manager,
+                GameCacheViewModel gameCache,
+                Action<GameCacheJob> uninstallDone,
+                Action<GameCacheJob> uninstallCancelled)
             {
                 this.manager = manager;
                 this.gameCache = gameCache;
@@ -540,12 +569,11 @@ namespace NowPlaying.ViewModels
         }
 
         public void UninstallGameCache
-            (
-                GameCacheViewModel gameCache,
-                bool cacheWriteBackOption,
-                Action<GameCacheJob> uninstallDone,
-                Action<GameCacheJob> uninstallCancelled
-            )
+        (
+            GameCacheViewModel gameCache,
+            bool cacheWriteBackOption,
+            Action<GameCacheJob> uninstallDone,
+            Action<GameCacheJob> uninstallCancelled)
         {
             var callbacks = new UninstallCallbacks(gameCacheManager, gameCache, uninstallDone, uninstallCancelled);
             gameCacheManager.eJobDone += callbacks.Done;

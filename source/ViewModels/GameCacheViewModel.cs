@@ -23,6 +23,7 @@ namespace NowPlaying.ViewModels
         public string XtraArgs => entry.XtraArgs;
         public long InstallSize => entry.InstallSize;
         public long CacheSize => entry.CacheSize;
+        public long CacheSizeOnDisk => entry.CacheSizeOnDisk;
 
         public GameCacheState State => entry.State;
 
@@ -81,6 +82,8 @@ namespace NowPlaying.ViewModels
         public string CacheRootSpaceAvailable { get; private set; }
         public string CacheRootSpaceAvailableColor => cacheRoot.BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
 
+        public bool PartialFileResume { get; set; }
+
         public GameCacheViewModel(GameCacheManagerViewModel manager, GameCacheEntry entry, CacheRootViewModel cacheRoot)
         {
             this.manager = manager;
@@ -89,6 +92,7 @@ namespace NowPlaying.ViewModels
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
             this.speedLimitIpg = 0;
+            this.PartialFileResume = false;
 
             this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
             this.cacheInstalledSize = GetCacheInstalledSize(entry);
@@ -210,7 +214,7 @@ namespace NowPlaying.ViewModels
 
         public void UpdateCacheSpaceWillFit()
         {
-            bool bval = cacheRoot.BytesAvailableForCaches > (InstallSize - CacheSize);
+            bool bval = cacheRoot.BytesAvailableForCaches > (InstallSize - CacheSizeOnDisk);
             if (CacheWillFit != bval)
             {
                 CacheWillFit = bval;
@@ -232,7 +236,8 @@ namespace NowPlaying.ViewModels
         {
             if (value == null)
             {
-                value = GetInstallEtaTimeSpan(entry, manager.GetInstallAverageBps(entry.InstallDir, speedLimitIpg));
+                var avgBps = manager.GetInstallAverageBps(entry.InstallDir, speedLimitIpg, PartialFileResume);
+                value = GetInstallEtaTimeSpan(entry, avgBps);
             }
             if (InstallEtaTimeSpan != value || InstallEta == null)
             {

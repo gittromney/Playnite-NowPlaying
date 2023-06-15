@@ -141,7 +141,7 @@ namespace NowPlaying.Models
                 entry.CacheSubDir = GetUniqueCacheSubDir(entry.CacheRoot, entry.Title, entry.Id);
             }
             entry.GetQuickCacheDirState();
-
+            
             cacheEntries.Add(entry.Id, entry);
             uniqueCacheDirs.Add(entry.CacheDir, entry.Id);
         }
@@ -154,10 +154,29 @@ namespace NowPlaying.Models
                 string exePath, 
                 string xtraArgs, 
                 string cacheRoot, 
-                string cacheSubDir = null
+                string cacheSubDir = null,
+                long installFiles = 0,
+                long installSize = 0,
+                long cacheSize = 0,
+                long cacheSizeOnDisk = 0,
+                GameCacheState state = GameCacheState.Unknown
             )
         {
-            AddGameCacheEntry(new GameCacheEntry(id, title, installDir, exePath, xtraArgs, cacheRoot, cacheSubDir));
+            AddGameCacheEntry(new GameCacheEntry
+            (
+                id, 
+                title, 
+                installDir, 
+                exePath, 
+                xtraArgs, 
+                cacheRoot, 
+                cacheSubDir,
+                installFiles: installFiles,
+                installSize: installSize,
+                cacheSize: cacheSize,
+                cacheSizeOnDisk: cacheSizeOnDisk,
+                state: state
+            ));
         }
 
         public void ChangeGameCacheRoot(string id, string cacheRoot)
@@ -206,7 +225,7 @@ namespace NowPlaying.Models
             return cachePopulateJobs.ContainsKey(id);
         }
 
-        public void StartPopulateGameCacheJob(string id, RoboStats jobStats, int interPacketGap = 0)
+        public void StartPopulateGameCacheJob(string id, RoboStats jobStats, int interPacketGap = 0, PartialFileResumeOpts pfrOpts = null)
         {
             if (!cacheEntries.ContainsKey(id))
             {
@@ -217,7 +236,7 @@ namespace NowPlaying.Models
                 throw new InvalidOperationException($"Cache populate already in progress for Id={id}");
             }
             GameCacheEntry entry = cacheEntries[id];
-            GameCacheJob job = new GameCacheJob(entry, jobStats, interPacketGap);
+            GameCacheJob job = new GameCacheJob(entry, jobStats, interPacketGap, pfrOpts);
 
             // if necessary, analyze the current cache directory contents to determine its state.
             if (entry.State == GameCacheState.Unknown)

@@ -38,8 +38,9 @@ namespace NowPlaying
             this.cacheManager = plugin.cacheManager;
             this.nowPlayingGame = nowPlayingGame;
             this.gameCache = gameCache;
-            this.jobStats = new RoboStats();
-            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG);
+            bool partialFileResume = plugin.Settings.PartialFileResume == EnDisThresh.Enabled;
+            this.jobStats = new RoboStats(partialFileResume: partialFileResume);
+            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG, partialFileResume);
             this.progressView = new InstallProgressView(progressViewModel);
             this.speedLimitChangeOnPaused = null;
             this.speedLimitIPG = speedLimitIPG;
@@ -102,8 +103,27 @@ namespace NowPlaying
                 // update speed and display the progress panel
                 progressViewModel.SpeedLimitIpg = speedLimitIPG;
                 plugin.panelViewModel.InstallProgressView = progressView;
-                
-                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIPG);
+
+                // . Partial file resume option (over network only)
+                //
+                PartialFileResumeOpts pfrOpts = null;
+
+                if (DirectoryUtils.IsOnNetworkDrive(gameCache.InstallDir))
+                {
+                    // . partial file resume settings
+                    pfrOpts = new PartialFileResumeOpts
+                    {
+                        Mode = plugin.Settings.PartialFileResume,
+                        FileSizeThreshold = (long)(plugin.Settings.PfrThresholdGigaBytes * 1073741824),
+                        OnModeChange = OnPartialFileResumeModeChange
+                    };
+
+                    // . initial partial file resume enable (at start of job)
+                    gameCache.PartialFileResume = pfrOpts.Mode == EnDisThresh.Enabled || pfrOpts.Mode == EnDisThresh.Threshold && pfrOpts.FileSizeThreshold <= 0;
+                    jobStats.PartialFileResume = gameCache.PartialFileResume;
+                }
+
+                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIPG, pfrOpts);
             }
             else
             {
@@ -115,6 +135,26 @@ namespace NowPlaying
                 PlayniteApi.Database.Games.Update(nowPlayingGame);
                 plugin.DequeueInstallerAndInvokeNextAsync(gameCache.Id);
             }
+        }
+
+        private void OnPartialFileResumeModeChange(bool newPfrValue, long fileToResumeSize, bool saveAvgBps)
+        {
+            // . update averageBps for this install device and save to JSON file
+            if (saveAvgBps)
+            {
+                var avgBps = jobStats.GetAvgBytesPerSecond();
+                if (avgBps > 0)
+                {
+                    cacheManager.UpdateInstallAverageBps(gameCache.InstallDir, avgBps, speedLimitIPG, !newPfrValue);
+                }
+            }
+            gameCache.PartialFileResume = newPfrValue;
+            progressViewModel.FileToResumeSize = fileToResumeSize;
+            progressViewModel.PartialFileResume = newPfrValue;
+
+            // . initiallize rolling average for PFR mode change
+            var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIPG, gameCache.PartialFileResume);
+            progressViewModel.rollAvgAvgBps.Init(initAvgBps);
         }
 
         private void InstallDone(GameCacheJob job)
@@ -132,7 +172,8 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), speedLimitIPG);
+            bool partialFileResume = gameCache.PartialFileResume;
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, jobStats.GetAvgBytesPerSecond(), speedLimitIPG, partialFileResume);
             
             InvokeOnInstalled(new GameInstalledEventArgs());
 
@@ -245,7 +286,8 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, job.stats.GetAvgBytesPerSecond(), speedLimitIPG);
+            bool partialFileResume = gameCache.PartialFileResume;
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, jobStats.GetAvgBytesPerSecond(), speedLimitIPG, partialFileResume);
 
             if (!plugin.cacheInstallQueuePaused) 
             { 

@@ -1,6 +1,7 @@
 ﻿using NowPlaying.Utils;
 using System;
 using System.IO;
+using System.Management.Instrumentation;
 using System.Runtime.Serialization;
 
 namespace NowPlaying.Models
@@ -99,6 +100,7 @@ namespace NowPlaying.Models
             long installFiles = 0,
             long installSize = 0,
             long cacheSize = 0,
+            long cacheSizeOnDisk = 0,
             GameCacheState state = GameCacheState.Unknown)
         {
             this.Id = id;
@@ -111,6 +113,7 @@ namespace NowPlaying.Models
             this.installFiles = installFiles;
             this.installSize = installSize;
             this.CacheSize = cacheSize;
+            this.CacheSizeOnDisk = cacheSizeOnDisk;
             this.State = state;
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -128,6 +131,15 @@ namespace NowPlaying.Models
             this.installFiles = (long)info.GetValue(nameof(InstallFiles), typeof(long));
             this.installSize = (long)info.GetValue(nameof(InstallSize), typeof(long));
             this.CacheSize = (long)info.GetValue(nameof(CacheSize), typeof(long));
+            // . handle backwards compatibility with older JSON files (prior to version 1.2)
+            try
+            {
+                this.CacheSizeOnDisk = (long)info.GetValue(nameof(CacheSizeOnDisk), typeof(long));
+            }
+            catch
+            {
+                this.CacheSizeOnDisk = 0;
+            }
             this.State = (GameCacheState)info.GetValue(nameof(State), typeof(GameCacheState));
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -144,6 +156,7 @@ namespace NowPlaying.Models
             info.AddValue(nameof(InstallFiles), InstallFiles);
             info.AddValue(nameof(InstallSize), InstallSize);
             info.AddValue(nameof(CacheSize), CacheSize);
+            info.AddValue(nameof(CacheSizeOnDisk), CacheSizeOnDisk);
             info.AddValue(nameof(State), State);
         }
 
@@ -238,11 +251,10 @@ namespace NowPlaying.Models
                 else if (File.Exists(CacheDir + $@"\.NowPlaying.InProgress"))
                 {
                     State = GameCacheState.InProgress;
-                    UpdateCacheDirStats();
                 }
                 else
                 {
-                    // wait to have RoboCacher analyze the cache folder contents 
+                    // wait for RoboCacher analysis of the cache folder contents 
                     State = GameCacheState.Unknown;
                 }
             }
@@ -251,10 +263,11 @@ namespace NowPlaying.Models
         public override string ToString()
         {
             return string.Format(
-                "Id:{0} Title:{1} Install:{2} Exe:{3} Xtra:{4} Cache:{5} IFiles:{6} ISize:{7} CSize:{8} State:{9}",
+                "Id:{0} Title:{1} Install:{2} Exe:{3} Xtra:{4} Cache:{5} IFiles:{6} ISize:{7} CSize:{8} CSzOnDisk:{9} State:{10}",
                 Id, Title, InstallDir, ExePath, XtraArgs, CacheDir, InstallFiles, 
                 SmartUnits.Bytes(InstallSize, decimals:1), 
                 SmartUnits.Bytes(CacheSize, decimals:1), 
+                SmartUnits.Bytes(CacheSizeOnDisk, decimals:1), 
                 State
             );
         }

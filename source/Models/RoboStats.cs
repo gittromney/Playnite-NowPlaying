@@ -19,7 +19,9 @@ namespace NowPlaying.Models
         public long CurrFileSize { get; set; }
         public double CurrFilePct { get; set; }
 
-        public void Reset(long filesToCopy, long bytesToCopy)
+        public bool PartialFileResume { get; set; }
+
+        public void Reset(long filesToCopy, long bytesToCopy, bool partialFileResume = false)
         {
             this.StartTime = DateTime.Now;
             this.FilesToCopy = filesToCopy;
@@ -31,11 +33,12 @@ namespace NowPlaying.Models
             this.CurrFileName = string.Empty;
             this.CurrFileSize = 0;
             this.CurrFilePct = 0.0;
+            this.PartialFileResume = partialFileResume;
         }
 
-        public RoboStats(long filesToCopy=0, long bytesToCopy=0)
+        public RoboStats(long filesToCopy = 0, long bytesToCopy = 0, bool partialFileResume = false)
         {
-            this.Reset(filesToCopy, bytesToCopy);
+            this.Reset(filesToCopy, bytesToCopy, partialFileResume);
         }
 
         public long GetTotalBytesCopied()
@@ -66,7 +69,9 @@ namespace NowPlaying.Models
             double duration = GetDuration().TotalMilliseconds;
             if (duration > 0)
             {
-                return (long) ((1000.0 * (GetTotalBytesCopied() - ResumeBytes)) / duration);
+                long totalBytesCopied = GetTotalBytesCopied();
+                long avgBps = (long) ((1000.0 * (totalBytesCopied - ResumeBytes)) / duration);
+                return avgBps;
             }
             else
             {
