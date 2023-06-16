@@ -126,7 +126,7 @@
 
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="Status"
-                                        utils:GridViewUtils.MinWidth="185"> 
+                                        utils:GridViewUtils.MinWidth="190"> 
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsStatus}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>

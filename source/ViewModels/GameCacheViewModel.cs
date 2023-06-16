@@ -22,6 +22,7 @@ namespace NowPlaying.ViewModels
         public string ExePath => entry.ExePath;
         public string XtraArgs => entry.XtraArgs;
         public long InstallSize => entry.InstallSize;
+        public long InstallFiles => entry.InstallFiles;
         public long CacheSize => entry.CacheSize;
         public long CacheSizeOnDisk => entry.CacheSizeOnDisk;
 
@@ -235,8 +236,9 @@ namespace NowPlaying.ViewModels
         public void UpdateInstallEta(TimeSpan? value = null)
         {
             if (value == null)
-            {
-                var avgBps = manager.GetInstallAverageBps(entry.InstallDir, speedLimitIpg, PartialFileResume);
+            { 
+                var avgBytesPerFile = entry.InstallSize / entry.InstallFiles;
+                var avgBps = manager.GetInstallAverageBps(entry.InstallDir, avgBytesPerFile, speedLimitIpg);
                 value = GetInstallEtaTimeSpan(entry, avgBps);
             }
             if (InstallEtaTimeSpan != value || InstallEta == null)

@@ -24,16 +24,17 @@
             <Grid Margin="0,0,0,5">
                 <ProgressBar 
                     x:Name="ProgressBar" 
-                    Value="{Binding PercentDone,Mode=OneWay}" 
                     Height="20"
+                    Value="{Binding PercentDone,Mode=OneWay}" 
+                    IsIndeterminate="{Binding PreparingToInstall}"
                     HorizontalAlignment="Stretch"
                     Foreground="{utils:DynamicResourceBinding ProgressBarBrush}"
-                    Background="Transparent"
+                    Background="{DynamicResource TransparentBgBrush}"
                     BorderBrush="{DynamicResource NormalBorderBrush}"/>
 
                 <!--drop shadow text-->
                 <TextBlock 
-                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n1}%}"
+                    Text="{Binding ProgressValue}"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Foreground="Black"
@@ -41,7 +42,7 @@
 
                 <!--foreground text-->
                 <TextBlock 
-                    Text="{Binding Path=Value, ElementName=ProgressBar, StringFormat={}{0:n1}%}"
+                    Text="{Binding ProgressValue}"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     FontSize="16"/>

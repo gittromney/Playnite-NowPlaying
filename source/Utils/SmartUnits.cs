@@ -22,7 +22,7 @@ namespace NowPlaying.Utils
         public static int GetBytesAutoScale(long? bytes)
         {
             int unitScale = 0;
-            while ((bytes >= 1024 || bytes <= -1024) && (unitScale < 5))
+            while ((bytes >= 512 || bytes <= -512) && (unitScale < 5))
             {
                 bytes >>= 10; // bytes /= 1024
                 unitScale++;
@@ -33,7 +33,7 @@ namespace NowPlaying.Utils
         /// <summary>
         /// Converts a value in bytes into a 'smart scaled' string in units of PB/TB/GB/MB/KB/B.
         /// The units are chosen by finding a scaling value (0-5) such that 
-        /// '<value in bytes>/1024^(<scaling value>)' is between 1.0 and 1024.0, if possible. 
+        /// '<value in bytes>/1024^(<scaling value>)' is between 0.5 and 512.0, if possible. 
         /// The user can optionally override the scaling value with the 'userScale' parameter 
         /// to select specific unit to convert into, and can also override defaults for
         /// decimal places and a switch for showing/hiding units in the result.

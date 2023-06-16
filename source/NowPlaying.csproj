@@ -60,6 +60,7 @@
     <Compile Include="Utils\DynamicResourceBinding.cs" />
     <Compile Include="Utils\EnumToBoolConverter.cs" />
     <Compile Include="Utils\GridViewUtils.cs" />
+    <Compile Include="Utils\MathUtils.cs" />
     <Compile Include="Utils\RollingAverage.cs" />
     <Compile Include="Utils\SmartUnits.cs" />
     <Compile Include="Models\CacheRoot.cs" />

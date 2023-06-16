@@ -12,6 +12,7 @@
     <Color x:Key="TopPanelSlowInstallBgColor">#80202b4d</Color>
     <Color x:Key="TopPanelUninstallFgColor">#FFB22222</Color>
     <Color x:Key="TopPanelUninstallBgColor">#FF800000</Color>
+    <Color x:Key="TransparentBgColor">#20000000</Color>
 
     <SolidColorBrush x:Key="InstallBrush" Color="{DynamicResource GlyphColor}"/>
     <SolidColorBrush x:Key="SlowInstallBrush" Color="{DynamicResource SlowInstallColor}"/>
@@ -25,6 +26,7 @@
     <SolidColorBrush x:Key="TopPanelSlowInstallBgBrush" Color="{DynamicResource TopPanelSlowInstallBgColor}"/>
     <SolidColorBrush x:Key="TopPanelUninstallFgBrush" Color="{DynamicResource TopPanelUninstallFgColor}"/>
     <SolidColorBrush x:Key="TopPanelUninstallBgBrush" Color="{DynamicResource TopPanelUninstallBgColor}"/>
+    <SolidColorBrush x:Key="TransparentBgBrush" Color="{DynamicResource TransparentBgColor}"/>
 
     <Style TargetType="TextBox">
         <Setter Property="Padding" Value="5,0,0,0"/>

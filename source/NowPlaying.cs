@@ -625,7 +625,7 @@ namespace NowPlaying
         public bool CheckAndConfirmEnableIfInstallDirIsProblematic(string title, string installDirectory)
         {
             bool continueWithEnable = true;
-            string[] problematicKeywords = { "bin", "binaries", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
+            string[] problematicKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
             List<string> matchedSubdirs = new List<string>();
             
             foreach (var subDir in installDirectory.Split(Path.DirectorySeparatorChar))

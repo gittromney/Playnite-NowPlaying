@@ -26,6 +26,9 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
                     OnPropertyChanged(nameof(CurrentFile));
                     OnPropertyChanged(nameof(SpeedDurationEta));
+
+                    OnPropertyChanged(nameof(ProgressBgBrush));
+                    OnPropertyChanged(nameof(ProgressValue));
                 }
             }
         }
@@ -43,21 +46,6 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(ProgressPanelTitle));
                     OnPropertyChanged(nameof(ProgressTitleBrush));
                     OnPropertyChanged(nameof(ProgressBarBrush));
-                }
-            }
-        }
-
-        private bool partialFileResume;
-        public bool PartialFileResume
-        {
-            get => partialFileResume;
-            set
-            {
-                if (partialFileResume != value)
-                {
-                    partialFileResume = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CurrentFile));
                 }
             }
         }
@@ -85,6 +73,7 @@ namespace NowPlaying.ViewModels
         private string copiedBytesOfBytes;
         private string currentFile;
         private long   currentFileSize;
+        private bool   partialFileResume;
         private string duration;
         private string timeRemaining;
         private string averageSpeed;
@@ -103,8 +92,10 @@ namespace NowPlaying.ViewModels
         
         public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "GlyphBrush";
 
+        public string ProgressValue => PreparingToInstall ? "" : $"{percentDone:n1}%";
         public double PercentDone => percentDone;
-        public string ProgressBarBrush => speedLimitIpg > 0? "TopPanelSlowInstallFgBrush" : "TopPanelInstallFgBrush";
+        public string ProgressBarBrush => speedLimitIpg > 0 ? "TopPanelSlowInstallFgBrush" : "TopPanelInstallFgBrush";
+        public string ProgressBgBrush => PreparingToInstall ? "TopPanelProcessingBgBrush" : "TransparentBgBrush";
 
         public string CopiedFilesAndBytesProgress =>
         (
@@ -113,25 +104,10 @@ namespace NowPlaying.ViewModels
             : string.Format(formatStringFilesAndBytes, copiedFilesOfFiles, copiedBytesOfBytes)
         );
 
-        private long fileToResumeSize;
-        public long FileToResumeSize 
-        { 
-            get => fileToResumeSize;
-            set 
-            {
-                if (fileToResumeSize != value)
-                {
-                    fileToResumeSize = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CurrentFile));
-                }
-            }
-        }
-
         public string CurrentFile =>
         (
             PreparingToInstall ? "" :
-            partialFileResume ? string.Format(formatStringCopyingFilePfr, currentFile, SmartUnits.Bytes(FileToResumeSize)) :
+            partialFileResume ? string.Format(formatStringCopyingFilePfr, currentFile, SmartUnits.Bytes(currentFileSize)) :
             string.Format(formatStringCopyingFile, currentFile, SmartUnits.Bytes(currentFileSize))
         );
 
@@ -166,7 +142,7 @@ namespace NowPlaying.ViewModels
         {
             // . Start in "Preparing to install..." state; until job is underway & statistics are updated 
             this.PreparingToInstall = true;
-            this.speedLimitIpg = speedLimitIpg;
+            this.SpeedLimitIpg = speedLimitIpg;
             this.partialFileResume = partialFileResume;
 
             cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
@@ -174,7 +150,8 @@ namespace NowPlaying.ViewModels
             cacheManager.gameCacheManager.eJobDone += OnJobDone;
 
             // . initialize any rolling average stats
-            long avgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIpg, partialFileResume);
+            var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
+            var avgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
             this.rollAvgDepth = 50;
             this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, avgBps);
             this.rollAvgRefreshCnt = 0;
@@ -210,6 +187,8 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(ProgressPanelTitle));
                     OnPropertyChanged(nameof(ProgressTitleBrush));
                     OnPropertyChanged(nameof(ProgressBarBrush));
+                    OnPropertyChanged(nameof(ProgressBgBrush));
+                    OnPropertyChanged(nameof(ProgressValue));
                 }
 
                 // . update any real-time properties that have changed
@@ -218,6 +197,7 @@ namespace NowPlaying.ViewModels
                 {
                     percentDone = dval;
                     OnPropertyChanged(nameof(PercentDone));
+                    OnPropertyChanged(nameof(ProgressValue));
                 }
 
                 string sval = SmartUnits.Bytes(jobStats.GetTotalBytesCopied(), userScale: bytesScale, showUnits: false);
@@ -237,10 +217,11 @@ namespace NowPlaying.ViewModels
                 }
 
                 sval = jobStats.CurrFileName;
-                if (currentFile != sval)
+                if (currentFile != sval || partialFileResume != jobStats.PartialFileResume)
                 {
-                    currentFile = sval;
+                    currentFile = jobStats.CurrFileName;
                     currentFileSize = jobStats.CurrFileSize;
+                    partialFileResume = jobStats.PartialFileResume;
                     OnPropertyChanged(nameof(CurrentFile));
                 }
 

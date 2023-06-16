@@ -137,23 +137,22 @@ namespace NowPlaying
             }
         }
 
-        private void OnPartialFileResumeModeChange(bool newPfrValue, long fileToResumeSize, bool saveAvgBps)
+        private void OnPartialFileResumeModeChange(bool newPfrValue, bool saveAvgBps)
         {
             // . update averageBps for this install device and save to JSON file
+            var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
             if (saveAvgBps)
             {
                 var avgBps = jobStats.GetAvgBytesPerSecond();
                 if (avgBps > 0)
                 {
-                    cacheManager.UpdateInstallAverageBps(gameCache.InstallDir, avgBps, speedLimitIPG, !newPfrValue);
+                    cacheManager.UpdateInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, avgBps, speedLimitIPG);
                 }
             }
             gameCache.PartialFileResume = newPfrValue;
-            progressViewModel.FileToResumeSize = fileToResumeSize;
-            progressViewModel.PartialFileResume = newPfrValue;
 
             // . initiallize rolling average for PFR mode change
-            var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, speedLimitIPG, gameCache.PartialFileResume);
+            var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIPG);
             progressViewModel.rollAvgAvgBps.Init(initAvgBps);
         }
 
@@ -172,8 +171,9 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
+            var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
             bool partialFileResume = gameCache.PartialFileResume;
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, jobStats.GetAvgBytesPerSecond(), speedLimitIPG, partialFileResume);
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
             
             InvokeOnInstalled(new GameInstalledEventArgs());
 
@@ -286,8 +286,8 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            bool partialFileResume = gameCache.PartialFileResume;
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, jobStats.GetAvgBytesPerSecond(), speedLimitIPG, partialFileResume);
+            var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
 
             if (!plugin.cacheInstallQueuePaused) 
             { 

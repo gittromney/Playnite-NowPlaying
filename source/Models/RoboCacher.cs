@@ -13,7 +13,7 @@ namespace NowPlaying.Models
     {
         public EnDisThresh Mode;
         public long FileSizeThreshold;
-        public Action<bool,long,bool> OnModeChange;
+        public Action<bool,bool> OnModeChange;
 
         public PartialFileResumeOpts()
         {
@@ -65,16 +65,15 @@ namespace NowPlaying.Models
         /// <param name="pfrOpts">Partial file resume mode options</param>
         /// <returns></returns>
         private ProcessStartInfo RoboStartInfo
-            (
-                string srcDir, 
-                string destDir, 
-                bool listOnly = false, 
-                bool showClass = false, 
-                int interPacketGap = 0,
-                bool partialFileResume = false 
-            )
+        (
+            string srcDir, 
+            string destDir, 
+            bool listOnly = false, 
+            bool showClass = false, 
+            int interPacketGap = 0,
+            bool partialFileResume = false)
         {
-            string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}{5}",
+            string roboArgs = string.Format("\"{0}\" \"{1}\" {2}{3}{4}{5}{6}",
                 DirectoryUtils.TrimEndingSlash(srcDir), 
                 DirectoryUtils.TrimEndingSlash(destDir),
                 "/E /SL /NDL /BYTES /NJH /NJS",
@@ -370,7 +369,7 @@ namespace NowPlaying.Models
                             if (partialFileResumeChanged)
                             {
                                 bool saveAvgBps = false;
-                                job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, fileToResumeSize, saveAvgBps);
+                                job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, saveAvgBps);
                             }
                         }
                         else
@@ -399,7 +398,7 @@ namespace NowPlaying.Models
                         if (partialFileResumeChanged)
                         {
                             bool saveAvgBps = false;
-                            job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, fileToResumeSize, saveAvgBps);
+                            job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, saveAvgBps);
                         }
                     }
                 
@@ -558,7 +557,7 @@ namespace NowPlaying.Models
                 // . restart robocopy.exe w/ partialFileResume mode changed
                 bool saveAvgBps = true;
                 stats.PartialFileResume = !stats.PartialFileResume;
-                job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, stats.CurrFileSize, saveAvgBps);
+                job.pfrOpts.OnModeChange?.Invoke(stats.PartialFileResume, saveAvgBps);
 
                 // . resume stats at the current file
                 stats.CurrFileSize = 0;

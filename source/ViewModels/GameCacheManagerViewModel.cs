@@ -27,7 +27,7 @@ namespace NowPlaying.ViewModels
         public ObservableCollection<CacheRootViewModel> CacheRoots { get; private set; }
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
 
-        public Dictionary<string, long> InstallAverageBps { get; private set; }
+        public SortedDictionary<string, long> InstallAverageBps { get; private set; }
 
         public GameCacheManagerViewModel(NowPlaying plugin, ILogger logger)
         {
@@ -42,15 +42,20 @@ namespace NowPlaying.ViewModels
             gameCacheManager = new GameCacheManager(logger);
             CacheRoots = new ObservableCollection<CacheRootViewModel>();
             GameCaches = new ObservableCollection<GameCacheViewModel>();
-            InstallAverageBps = new Dictionary<string, long>();
+            InstallAverageBps = new SortedDictionary<string, long>();
         }
 
         public void UpdateGameCaches()
         {
-            foreach (var gameCache in GameCaches)
+            // . absorb possible collection-modified exception when adding new game caches 
+            try
             {
-                gameCache.UpdateCacheRoot();
+                foreach (var gameCache in GameCaches)
+                {
+                    gameCache.UpdateCacheRoot();
+                }
             }
+            catch { }
             OnPropertyChanged(nameof(GameCaches));
         }
 
@@ -204,55 +209,93 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public long GetInstallAverageBps(string installDir, int speedLimitIpg=0, bool partialFileResume=false)
+        public long GetInstallAverageBps(string installDir, long avgBytesPerFile, int speedLimitIpg=0)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
+            string ipgTag = string.Empty;
+            string key;
+
+            // . assign to a "file density" bin [0..7], spaced as powers of 2 of 16KB/file
+            var fileDensityBin = MathUtils.Clamp((int)MathUtils.Log2(1 + avgBytesPerFile / 131072) - 1, 0, 7);
+            string densityBin = $"[{fileDensityBin}]";
+            
             if (speedLimitIpg > 0)
             {
                 int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
-                installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
+                ipgTag = $"(IPG={roundedUpToNearestFiveIpg})";
             }
-            if (partialFileResume)
+
+            // . return the binned AvgBps, if exists
+            if (InstallAverageBps.ContainsKey(key = installDevice + densityBin + ipgTag))
             {
-                installDevice += "(PFR)";
+                return InstallAverageBps[key];
             }
-            if (InstallAverageBps.ContainsKey(installDevice))
+            else if (InstallAverageBps.ContainsKey(key = installDevice + densityBin))
             {
-                return InstallAverageBps[installDevice];
+                return InstallAverageBps[key];
             }
+
+            // . otherwise, return baseline AvgBps, if exists
+            else if (InstallAverageBps.ContainsKey(key = installDevice + ipgTag))
+            {
+                return InstallAverageBps[key];
+            }
+            else if (InstallAverageBps.ContainsKey(key = installDevice))
+            {
+                return InstallAverageBps[key];
+            }
+
+            // . otherwise, return default values
             else
             {
-                // initial defaults: (normal/PFR/speedLimited) = (50/25/5) MB/s 
-                return speedLimitIpg > 0 ? 5242880 : partialFileResume ? 26214400 : 52428800;
+                // initial defaults: (normal/speedLimited) = (50/5) MB/s 
+                return speedLimitIpg > 0 ? 5242880 : 52428800;
             }
         }
 
         public void UpdateInstallAverageBps
         (
             string installDir, 
-            long averageBps, 
-            int speedLimitIpg = 0, 
-            bool partialFileResume = false)
+            long avgBytesPerFile,
+            long averageBps,
+            int speedLimitIpg = 0)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
+            string ipgTag = string.Empty;
+            string key;
+
+            // . assign to a "file density" bin [0..7], spaced as powers of 2 of 16KB/file
+            var fileDensityBin = MathUtils.Clamp((int)MathUtils.Log2(1 + avgBytesPerFile / 131072) - 1, 0, 7);
+            string densityBin = $"[{fileDensityBin}]";
+            
             if (speedLimitIpg > 0)
             {
                 int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
-                installDevice += $"(IPG={roundedUpToNearestFiveIpg})";
+                ipgTag = $"(IPG={roundedUpToNearestFiveIpg})";
             }
-            if (partialFileResume)
-            {
-                installDevice += "(PFR)";
-            }
-            if (InstallAverageBps.ContainsKey(installDevice))
+
+            // . update or add new binned AvgBps entry
+            if (InstallAverageBps.ContainsKey(key = installDevice + densityBin + ipgTag))
             {
                 // take 90/10 average of saved Bps and current value, respectively
-                InstallAverageBps[installDevice] = (9 * InstallAverageBps[installDevice] + averageBps) / 10;
+                InstallAverageBps[key] = (9 * InstallAverageBps[key] + averageBps) / 10;
             }
             else
             {
-                InstallAverageBps.Add(installDevice, averageBps);
+                InstallAverageBps.Add(key, averageBps);
             }
+
+            // . update or add new baseline AvgBps entry
+            if (InstallAverageBps.ContainsKey(key = installDevice + ipgTag))
+            {
+                // take 90/10 average of saved Bps and current value, respectively
+                InstallAverageBps[key] = (9 * InstallAverageBps[key] + averageBps) / 10;
+            }
+            else
+            {
+                InstallAverageBps.Add(key, averageBps);
+            }
+
             SaveInstallAverageBpsToJson();
         }
 
@@ -274,12 +317,17 @@ namespace NowPlaying.ViewModels
             {
                 try
                 {
-                    InstallAverageBps = Serialization.FromJsonFile<Dictionary<string, long>>(installAverageBpsJsonPath);
+                    InstallAverageBps = Serialization.FromJsonFile<SortedDictionary<string, long>>(installAverageBpsJsonPath);
                 }
                 catch (Exception ex)
                 {
                     logger.Error($"LoadInstallAverageBpsFromJson from '{installAverageBpsJsonPath}' failed: {ex.Message}");
+                    SaveInstallAverageBpsToJson();
                 }
+            }
+            else
+            {
+                SaveInstallAverageBpsToJson();
             }
         }
 
