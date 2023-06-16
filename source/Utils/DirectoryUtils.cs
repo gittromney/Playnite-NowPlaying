@@ -105,7 +105,13 @@ namespace NowPlaying.Utils
         /// </summary>
         /// <param name="directoryName">RootDir directory to get stats for.</param>
         /// <returns>Increments counters via ref parameters: (# directories, # files, aggregate cacheInstalledSize in bytes)</returns>
-        public static void GetDirectoryStats(string directoryName, ref long directories, ref long files, ref long size)
+        public static void GetDirectoryStats
+        (
+            string directoryName, 
+            ref long directories, 
+            ref long files, 
+            ref long size,
+            CancellationToken? token = null)
         {
             DirectoryInfo di = new DirectoryInfo(directoryName);
 
@@ -117,8 +123,9 @@ namespace NowPlaying.Utils
 
             foreach (DirectoryInfo subDi in di.GetDirectories())
             {
+                if (token?.IsCancellationRequested == true) break;
                 directories++;
-                GetDirectoryStats(subDi.FullName, ref directories, ref files, ref size);
+                GetDirectoryStats(subDi.FullName, ref directories, ref files, ref size, token);
             }
             return;
         }

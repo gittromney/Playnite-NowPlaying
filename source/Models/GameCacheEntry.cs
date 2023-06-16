@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Management.Instrumentation;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace NowPlaying.Models
 {
@@ -160,47 +161,55 @@ namespace NowPlaying.Models
             info.AddValue(nameof(State), State);
         }
 
-        public void UpdateInstallDirStats()
+        public void UpdateInstallDirStats(CancellationToken? token = null)
         {
             long installDirs = 0;
             installFiles = 0;
             installSize = 0;
 
-            // . get install folder stats
-            try
+            if (token?.IsCancellationRequested != true)
             {
-                DirectoryUtils.GetDirectoryStats(InstallDir, 
-                    ref installDirs, 
-                    ref installFiles, 
-                    ref installSize
-                ); 
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(ex.Message);
-            }
-        }
-
-        public void UpdateCacheDirStats()
-        {
-            long cacheDirs = 0;
-            long cacheFiles = 0;
-            cacheSizeOnDisk = 0;
-
-            if (Directory.Exists(CacheDir))
-            {
-                // . get cache folder stats..
+                // . get install folder stats
                 try
                 {
-                    DirectoryUtils.GetDirectoryStats(CacheDir,
-                        ref cacheDirs,
-                        ref cacheFiles,
-                        ref cacheSizeOnDisk
+                    DirectoryUtils.GetDirectoryStats(InstallDir,
+                        ref installDirs,
+                        ref installFiles,
+                        ref installSize,
+                        token
                     );
                 }
                 catch (Exception ex)
                 {
                     throw new InvalidOperationException(ex.Message);
+                }
+            }
+        }
+
+        public void UpdateCacheDirStats(CancellationToken? token = null)
+        {
+            long cacheDirs = 0;
+            long cacheFiles = 0;
+            cacheSizeOnDisk = 0;
+
+            if (token?.IsCancellationRequested != true)
+            {
+                if (Directory.Exists(CacheDir))
+                {
+                    // . get cache folder stats..
+                    try
+                    {
+                        DirectoryUtils.GetDirectoryStats(CacheDir,
+                            ref cacheDirs,
+                            ref cacheFiles,
+                            ref cacheSizeOnDisk,
+                            token
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException(ex.Message);
+                    }
                 }
             }
         }

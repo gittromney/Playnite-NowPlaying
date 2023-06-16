@@ -237,6 +237,7 @@ namespace NowPlaying.Models
             }
             GameCacheEntry entry = cacheEntries[id];
             GameCacheJob job = new GameCacheJob(entry, jobStats, interPacketGap, pfrOpts);
+            cachePopulateJobs.Add(id, job);
 
             // if necessary, analyze the current cache directory contents to determine its state.
             if (entry.State == GameCacheState.Unknown)
@@ -249,6 +250,7 @@ namespace NowPlaying.Models
                 {
                     job.cancelledOnError = true;
                     job.errorLog = new List<string> { ex.Message };
+                    cachePopulateJobs.Remove(job.entry.Id);
                     eJobCancelled?.Invoke(this, job);
                     return;
                 }
@@ -257,41 +259,50 @@ namespace NowPlaying.Models
             // . refresh install and cache directory sizes
             try
             {
-                entry.UpdateInstallDirStats();
-                entry.UpdateCacheDirStats();
+                entry.UpdateInstallDirStats(job.token);
+                entry.UpdateCacheDirStats(job.token);
             }
             catch (Exception ex)
             {
                 job.cancelledOnError = true;
                 job.errorLog = new List<string> { $"Error updating install/cache dir stats: {ex.Message}" };
+                cachePopulateJobs.Remove(job.entry.Id);
                 eJobCancelled?.Invoke(this, job);
                 return;
             }
 
-            switch (entry.State)
+            if (job.token.IsCancellationRequested)
             {
-                // . already installed, nothing to do
-                case GameCacheState.Populated:
-                case GameCacheState.Played:
-                    eJobDone?.Invoke(this, job);
-                    break;
+                cachePopulateJobs.Remove(job.entry.Id);
+                eJobCancelled?.Invoke(this, job);
+            }
+            else
+            {
+                switch (entry.State)
+                {
+                    // . already installed, nothing to do
+                    case GameCacheState.Populated:
+                    case GameCacheState.Played:
+                        cachePopulateJobs.Remove(job.entry.Id);
+                        eJobDone?.Invoke(this, job);
+                        break;
 
-                case GameCacheState.Empty:
-                    cachePopulateJobs.Add(id, job);
-                    roboCacher.StartCachePopulateJob(job);
-                    break;
+                    case GameCacheState.Empty:
+                        roboCacher.StartCachePopulateJob(job);
+                        break;
 
-                case GameCacheState.InProgress:
-                    cachePopulateJobs.Add(id, job);
-                    roboCacher.StartCacheResumePopulateJob(job);
-                    break;
+                    case GameCacheState.InProgress:
+                        roboCacher.StartCacheResumePopulateJob(job);
+                        break;
 
-                // . Invalid/Unknown state
-                default:
-                    job.cancelledOnError = true;
-                    job.errorLog = new List<string> { $"Attempted to populate a game cache folder in '{entry.State}' state." };
-                    eJobCancelled?.Invoke(this, job);
-                    break;
+                    // . Invalid/Unknown state
+                    default:
+                        job.cancelledOnError = true;
+                        job.errorLog = new List<string> { $"Attempted to populate a game cache folder in '{entry.State}' state." };
+                        cachePopulateJobs.Remove(job.entry.Id);
+                        eJobCancelled?.Invoke(this, job);
+                        break;
+                }
             }
         }
 

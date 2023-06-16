@@ -286,9 +286,11 @@ namespace NowPlaying
             cacheManager.SaveGameCacheEntriesToJson();
 
             // . update averageBps for this install device and save to JSON file
-            var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
-
+            if (jobStats.BytesCopied > 0 && gameCache.CacheSize > jobStats.ResumeBytes)
+            {
+                var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
+                cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
+            }
             if (!plugin.cacheInstallQueuePaused) 
             { 
                 plugin.DequeueInstallerAndInvokeNextAsync(gameCache.Id);
