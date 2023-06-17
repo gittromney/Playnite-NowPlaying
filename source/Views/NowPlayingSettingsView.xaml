@@ -252,7 +252,7 @@
                         TextWrapping="Wrap" 
                         Margin="0,0,25,5"/>
                     <RadioButton
-                        Content=""
+                        Content="{DynamicResource LOCNowPlayingSettingsPartialFileResumeNever}"
                         IsChecked="{Binding Settings.PartialFileResume, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:EnDisThresh.Disabled}}"
                         GroupName="PfrRadio"
                         Margin="0,0,0,2"/>

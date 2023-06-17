@@ -92,7 +92,7 @@ namespace NowPlaying
             this.WhilePlayingMode = WhilePlaying.SpeedLimit;
             this.SpeedLimitIPG = 75;
             this.PartialFileResume = EnDisThresh.Threshold;
-            this.PfrThresholdGigaBytes = 0.025;
+            this.PfrThresholdGigaBytes = 0.1;
         }
     }
 }
