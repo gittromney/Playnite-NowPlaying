@@ -1,5 +1,20 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.2
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2023-06-17
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.2/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_2.pext
+    Changelog:
+    - Improves overall app responsiveness & robustness for games installed on very slow/over the network devices.
+    - Improves install ETA accuracy by incorporating a game's average file size.
+    - Adds install directory prescan when enabling a game; prompts for confirmation if problematic subdirs are found (e.g. 'bin', 'x64', etc.)
+    - Adds optional partial file resume mode (PFR) for over the network cache installations.
+    - Adds horizontal mouse wheel+Shift scrolling to list views.
+    - Adds support for copying symlinks when installing a cache.
+    - Fixes pause/cancel responsiveness when cache install is still in its preparation phase. 
+    - Fixes underreported ETA for paused installation where interrupted file is large.
+    - Fixes case where game could be enabled multiple times.
+    - Fixes game eligibility test (typo fix).
   - Version: 1.1
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2023-06-03
