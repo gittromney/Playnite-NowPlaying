@@ -162,14 +162,38 @@
                 <ContextMenu>
                     <MenuItem 
                         Header="{DynamicResource LOCNowPlayingTermsRefresh}" 
-                        Command="{Binding RefreshRootsCommand}"/>
+                        Command="{Binding RefreshRootsCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock 
+                                Text="⟳" FontSize="17" 
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                Foreground="{DynamicResource GlyphBrush}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem 
                         Header="{DynamicResource LOCNowPlayingTermsRemove}" 
                         Command="{Binding RemoveCacheRootCommand}" 
-                        Visibility="{Binding RemoveCacheRootVisibility}"/>
+                        Visibility="{Binding RemoveCacheRootVisibility}">
+                        <MenuItem.Icon>
+                            <TextBlock 
+                                Text="➖" FontSize="11" 
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                Foreground="{DynamicResource GlyphBrush}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <MenuItem 
                         Header="{DynamicResource LOCNowPlayingCacheRootsEditMaxFill}" 
-                        Command="{Binding EditMaxFillCommand}"/>
+                        Command="{Binding EditMaxFillCommand}">
+                        <MenuItem.Icon>
+                            <TextBlock 
+                                Text="🖉" FontSize="13" 
+                                VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                Foreground="{DynamicResource GlyphBrush}"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
 

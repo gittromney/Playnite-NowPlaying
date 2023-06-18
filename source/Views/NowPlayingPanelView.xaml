@@ -255,37 +255,101 @@
                             <ListView.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem 
-                                        Header="{DynamicResource LOCNowPlayingTermsRefresh}" 
-                                        Command="{Binding RefreshCachesCommand}"/>
+                                        Header="{DynamicResource LOCNowPlayingTermsRefresh}"
+                                        Command="{Binding RefreshCachesCommand}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="⟳" FontSize="17" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <MenuItem 
                                         Header="{Binding InstallCachesMenu}" 
                                         Command="{Binding InstallCachesCommand}" 
-                                        Visibility="{Binding InstallCachesVisibility}"/>
-                                    <MenuItem 
+                                        Visibility="{Binding InstallCachesVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="⭳" FontSize="18" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
                                         Header="{Binding UninstallCachesMenu}" 
                                         Command="{Binding UninstallCachesCommand}" 
-                                        Visibility="{Binding UninstallCachesVisibility}"/>
+                                        Visibility="{Binding UninstallCachesVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="⏏" FontSize="12" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <!--NOTE: ItemsSource must use OneWay binding b/c the items are shared-->
                                     <MenuItem 
                                         Header="{Binding RerootCachesMenu}"
                                         ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
-                                        Visibility="{Binding RerootCachesVisibility}"/>
-                                    <MenuItem 
+                                        Visibility="{Binding RerootCachesVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="🖉" FontSize="13" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
                                         Header="{Binding DisableCachesMenu}"
                                         Command="{Binding DisableCachesCommand}"
-                                        Visibility="{Binding DisableCachesVisibility}"/>
+                                        Visibility="{Binding DisableCachesVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="➖" FontSize="11" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <MenuItem 
                                         Header="{Binding CancelQueuedInstallsMenu}"
                                         Command="{Binding CancelQueuedInstallsCommand}"
-                                        Visibility="{Binding CancelQueuedInstallsVisibility}"/>
+                                        Visibility="{Binding CancelQueuedInstallsVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="❌" FontSize="11" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <MenuItem 
                                         Header="{Binding PauseInstallMenu}"
                                         Command="{Binding PauseInstallCommand}"
-                                        Visibility="{Binding PauseInstallVisibility}"/>
+                                        Visibility="{Binding PauseInstallVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="⏸" FontSize="12" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <MenuItem 
                                         Header="{Binding CancelInstallMenu}"
                                         Command="{Binding CancelInstallCommand}"
-                                        Visibility="{Binding CancelInstallVisibility}"/>
+                                        Visibility="{Binding CancelInstallVisibility}">
+                                        <MenuItem.Icon>
+                                            <TextBlock 
+                                                Text="❌" FontSize="11" 
+                                                VerticalAlignment="Center" 
+                                                HorizontalAlignment="Center" 
+                                                Foreground="{DynamicResource GlyphBrush}"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                 </ContextMenu>
                             </ListView.ContextMenu>
                         </ListView>

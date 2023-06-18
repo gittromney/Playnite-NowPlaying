@@ -53,18 +53,16 @@
             <TextBlock Text="{Binding SpeedDurationEta}" Margin="0,0,0,10"/>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <Button Width="28" Height="28" Padding="0,0,0,0" Focusable="False" Command="{Binding PauseInstallCommand}">
-                    <TextBlock Text="⏸" 
-                               ToolTip="Pause cache installation (can be resumed later)"
-                               ToolTipService.InitialShowDelay="150"
-                               ToolTipService.BetweenShowDelay="0"/>
-                </Button>
-                <Button Width="28" Height="28" Padding="0,0,0,0" Focusable="False" Command="{Binding CancelInstallCommand}">
-                    <TextBlock Text="❌" FontSize="12" 
-                               ToolTip="Cancel installation and delete partial game cache"
-                               ToolTipService.InitialShowDelay="150"
-                               ToolTipService.BetweenShowDelay="0"/>
-                </Button>
+                <Button
+                    Content="⏸"
+                    ToolTip="{DynamicResource LOCNowPlayingProgressPauseToolTip}"
+                    Command="{Binding PauseInstallCommand}"
+                    Style="{DynamicResource SmallButton}"/>
+                <Button
+                    Content="❌" FontSize="12"
+                    ToolTip="{DynamicResource LOCNowPlayingProgressCancelToolTip}"
+                    Command="{Binding CancelInstallCommand}"
+                    Style="{DynamicResource SmallButton}"/>
             </StackPanel>
         </StackPanel>
     </DockPanel>
