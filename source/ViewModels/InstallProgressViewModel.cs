@@ -177,9 +177,6 @@ namespace NowPlaying.ViewModels
 
             var averageAvgBps = rollAvgAvgBps.GetAverage();
 
-            NowPlaying.logger.Debug($"Push currentAvgBps={currentAvgBps}, averageAvgBps={averageAvgBps}");
-
-
             var timeSpanRemaining = jobStats.GetTimeRemaining(averageAvgBps);
             sval = SmartUnits.Duration(timeSpanRemaining);
 
