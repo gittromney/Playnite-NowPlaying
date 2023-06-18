@@ -57,7 +57,9 @@
     <sys:String x:Key="LOCNowPlayingProgressXofYFmt2">{0} of {1}</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressFilesAndBytesFmt2">{0} files,  {1} copied</sys:String>
     <sys:String x:Key="LOCNowPlayingWithPartialFileResume">w/partial file resume</sys:String>
-
+    <sys:String x:Key="LOCNowPlayingProgressPauseToolTip">Pause cache installation (can be resumed later)</sys:String>
+    <sys:String x:Key="LOCNowPlayingProgressCancelToolTip">Cancel installation and delete partial game cache</sys:String>
+    
     <!--NowPlayingPanelView, GameCacheViewModel-->
     <sys:String x:Key="LOCNowPlayingHideCacheRoots">Hide cache roots</sys:String>
     <sys:String x:Key="LOCNowPlayingShowCacheRoots">Show cache roots</sys:String>
