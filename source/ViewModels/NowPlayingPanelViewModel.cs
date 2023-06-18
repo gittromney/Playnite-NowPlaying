@@ -743,7 +743,7 @@ namespace NowPlaying.ViewModels
             Game nowPlayingGame = plugin.FindNowPlayingGame(gameCache.entry.Id);
             if (nowPlayingGame != null)
             {
-                NowPlayingInstallController controller = new NowPlayingInstallController(plugin, nowPlayingGame, gameCache, plugin.SpeedLimitIPG);
+                NowPlayingInstallController controller = new NowPlayingInstallController(plugin, nowPlayingGame, gameCache, plugin.SpeedLimitIpg);
                 nowPlayingGame.IsInstalling = true;
                 controller.Install(new InstallActionArgs());
             }

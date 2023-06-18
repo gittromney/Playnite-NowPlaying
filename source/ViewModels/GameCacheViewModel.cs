@@ -37,7 +37,6 @@ namespace NowPlaying.ViewModels
         private int bytesScale;
         private string bytesToCopy;
         private string cacheInstalledSize;
-        private int speedLimitIpg;
 
         public string InstallQueueStatus => installQueueStatus;
         public string UninstallQueueStatus => uninstallQueueStatus;
@@ -49,14 +48,14 @@ namespace NowPlaying.ViewModels
             installQueueStatus, 
             uninstallQueueStatus, 
             nowInstalling,
-            speedLimitIpg > 0,
+            plugin.SpeedLimitIpg > 0,
             nowUninstalling
         );
         public string StatusColor => 
         (
             State == GameCacheState.Unknown || State == GameCacheState.Invalid ? "WarningBrush" : 
             Status == plugin.GetResourceString("LOCNowPlayingTermsUninstalled") ? "TextBrushDarker" : 
-            NowInstalling ? (speedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush") :
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush") :
             "TextBrush"
         );
 
@@ -92,7 +91,6 @@ namespace NowPlaying.ViewModels
             this.entry = entry;
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
-            this.speedLimitIpg = 0;
             this.PartialFileResume = false;
 
             this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
@@ -151,7 +149,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void UpdateNowInstalling(bool value, int speedLimitIpg = 0)
+        public void UpdateNowInstalling(bool value)
         {
             if (value)
             {
@@ -159,26 +157,18 @@ namespace NowPlaying.ViewModels
                 this.bytesScale = SmartUnits.GetBytesAutoScale(entry.InstallSize);
                 this.bytesToCopy = SmartUnits.Bytes(entry.InstallSize, decimals: 1, userScale: bytesScale);
             }
+            
+            nowInstalling = value;
+            nowUninstalling &= !nowInstalling;
+            UpdateInstallEta();
 
-            if (nowInstalling != value || value && this.speedLimitIpg != speedLimitIpg)
-            {
-                nowInstalling = value;
-                nowUninstalling &= !nowInstalling;
-                
-                if (value && this.speedLimitIpg != speedLimitIpg)
-                {
-                    this.speedLimitIpg = speedLimitIpg;
-                    UpdateInstallEta();
-                }
-
-                OnPropertyChanged(nameof(NowInstalling));
-                OnPropertyChanged(nameof(NowUninstalling));
-                OnPropertyChanged(nameof(Status));
-                OnPropertyChanged(nameof(StatusColor));
-                OnPropertyChanged(nameof(CanInstallCache));
-                OnPropertyChanged(nameof(CanInstallCacheColor));
-                OnPropertyChanged(nameof(CacheInstalledSizeColor));
-            }
+            OnPropertyChanged(nameof(NowInstalling));
+            OnPropertyChanged(nameof(NowUninstalling));
+            OnPropertyChanged(nameof(Status));
+            OnPropertyChanged(nameof(StatusColor));
+            OnPropertyChanged(nameof(CanInstallCache));
+            OnPropertyChanged(nameof(CanInstallCacheColor));
+            OnPropertyChanged(nameof(CacheInstalledSizeColor));
         }
 
         public void UpdateNowUninstalling(bool value)
@@ -238,7 +228,7 @@ namespace NowPlaying.ViewModels
             if (value == null)
             { 
                 var avgBytesPerFile = entry.InstallSize / entry.InstallFiles;
-                var avgBps = manager.GetInstallAverageBps(entry.InstallDir, avgBytesPerFile, speedLimitIpg);
+                var avgBps = manager.GetInstallAverageBps(entry.InstallDir, avgBytesPerFile, plugin.SpeedLimitIpg);
                 value = GetInstallEtaTimeSpan(entry, avgBps);
             }
             if (InstallEtaTimeSpan != value || InstallEta == null)

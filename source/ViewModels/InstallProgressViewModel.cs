@@ -2,6 +2,7 @@
 using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
+using System.Timers;
 
 namespace NowPlaying.ViewModels
 {
@@ -12,6 +13,7 @@ namespace NowPlaying.ViewModels
         private readonly GameCacheManagerViewModel cacheManager;
         private readonly GameCacheViewModel gameCache;
         private readonly RoboStats jobStats;
+        private readonly Timer speedEtaRefreshTimer;
 
         private bool preparingToInstall;
         public bool PreparingToInstall
@@ -81,8 +83,6 @@ namespace NowPlaying.ViewModels
         // . rolling average of 'average bytes per second'
         public RollingAvgLong rollAvgAvgBps;
         private int rollAvgDepth;
-        private int rollAvgRefreshCnt;
-        private int rollAvgRefreshRate;
 
         public string ProgressPanelTitle =>
         (
@@ -125,6 +125,7 @@ namespace NowPlaying.ViewModels
             this.gameCache = controller.gameCache;
             this.PauseInstallCommand = new RelayCommand(() => controller.RequestPauseInstall());
             this.CancelInstallCommand = new RelayCommand(() => controller.RequestCancellInstall());
+            this.speedEtaRefreshTimer = new Timer() { Interval = 500 };  // fire every 1/2 second
 
             this.formatStringCopyingFile = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1})...";
             this.formatStringCopyingFilePfr = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1}) ";
@@ -148,17 +149,53 @@ namespace NowPlaying.ViewModels
             cacheManager.gameCacheManager.eJobStatsUpdated += OnJobStatsUpdated;
             cacheManager.gameCacheManager.eJobCancelled += OnJobDone;
             cacheManager.gameCacheManager.eJobDone += OnJobDone;
+            speedEtaRefreshTimer.Elapsed += OnSpeedEtaRefreshTimerElapsed;
 
             // . initialize any rolling average stats
             var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
             var avgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
-            this.rollAvgDepth = 50;
+            this.rollAvgDepth = 256;
             this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, avgBps);
-            this.rollAvgRefreshCnt = 0;
-            this.rollAvgRefreshRate = 50;
 
             this.filesCopied = 0;
             this.bytesCopied = "-";
+        }
+
+        private void OnSpeedEtaRefreshTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            string sval = SmartUnits.Duration(jobStats.GetDuration());
+            bool durationUpdated = duration != sval;
+            if (durationUpdated)
+            {
+                duration = sval;
+                OnPropertyChanged(nameof(SpeedDurationEta));
+            }
+
+            var currentAvgBps = jobStats.GetAvgBytesPerSecond();
+            
+            rollAvgAvgBps.Push(currentAvgBps);
+
+            var averageAvgBps = rollAvgAvgBps.GetAverage();
+
+            NowPlaying.logger.Debug($"Push currentAvgBps={currentAvgBps}, averageAvgBps={averageAvgBps}");
+
+
+            var timeSpanRemaining = jobStats.GetTimeRemaining(averageAvgBps);
+            sval = SmartUnits.Duration(timeSpanRemaining);
+
+            if (timeRemaining != sval)
+            {
+                timeRemaining = sval;
+                OnPropertyChanged(nameof(SpeedDurationEta));
+                gameCache.UpdateInstallEta(timeSpanRemaining);
+            }
+
+            sval = SmartUnits.Bytes(averageAvgBps, decimals: 1) + "/s";
+            if (averageSpeed != sval)
+            {
+                averageSpeed = sval;
+                OnPropertyChanged(nameof(SpeedDurationEta));
+            }
         }
 
         /// <summary>
@@ -172,6 +209,9 @@ namespace NowPlaying.ViewModels
                 if (preparingToInstall)
                 {
                     PreparingToInstall = false;
+
+                    OnSpeedEtaRefreshTimerElapsed(null, null); // initialize SpeedDurationEta
+                    speedEtaRefreshTimer.Start();              // -> update every 1/2 second thereafter
 
                     // . First update only: get auto scale for and bake "OfBytes" to copy string.
                     bytesScale = SmartUnits.GetBytesAutoScale(jobStats.BytesToCopy);
@@ -225,41 +265,6 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(CurrentFile));
                 }
 
-                sval = SmartUnits.Duration(jobStats.GetDuration());
-                bool durationUpdated = duration != sval;
-                if (durationUpdated)
-                {
-                    duration = sval;
-                    OnPropertyChanged(nameof(SpeedDurationEta));
-                }
-
-                // . update rolling averaged stats and display at lower refresh rate... 
-                if (rollAvgRefreshCnt++ == 0 || durationUpdated)
-                {
-                    rollAvgAvgBps.Push(jobStats.GetAvgBytesPerSecond());
-
-                    var timeSpanRemaining = jobStats.GetTimeRemaining(rollAvgAvgBps.GetAverage());
-                    sval = SmartUnits.Duration(timeSpanRemaining);
-
-                    if (timeRemaining != sval)
-                    {
-                        timeRemaining = sval;
-                        OnPropertyChanged(nameof(SpeedDurationEta));
-                        gameCache.UpdateInstallEta(timeSpanRemaining);
-                    }
-
-                    sval = SmartUnits.Bytes(rollAvgAvgBps.GetAverage(), decimals: 1) + "/s";
-                    if (averageSpeed != sval)
-                    {
-                        averageSpeed = sval;
-                        OnPropertyChanged(nameof(SpeedDurationEta));
-                    }
-                }
-                if (rollAvgRefreshCnt >= rollAvgRefreshRate)
-                {
-                    rollAvgRefreshCnt = 0;
-                }
-
                 gameCache.UpdateCacheSize();
             }
         }
@@ -285,6 +290,9 @@ namespace NowPlaying.ViewModels
                 cacheManager.gameCacheManager.eJobStatsUpdated -= OnJobStatsUpdated;
                 cacheManager.gameCacheManager.eJobCancelled -= OnJobDone;
                 cacheManager.gameCacheManager.eJobDone -= OnJobDone;
+
+                speedEtaRefreshTimer.Stop();
+                speedEtaRefreshTimer.Elapsed -= OnSpeedEtaRefreshTimerElapsed;
             }
         }
 

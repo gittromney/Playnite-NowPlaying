@@ -56,7 +56,7 @@ namespace NowPlaying
 
         public bool IsGamePlaying = false;
         public WhilePlaying WhilePlayingMode { get; private set; }
-        public int SpeedLimitIPG { get; private set; } = 0;
+        public int SpeedLimitIpg { get; private set; } = 0;
 
         private string formatStringXofY;
         public Queue<NowPlayingGameEnabler> gameEnablerQueue;
@@ -183,16 +183,17 @@ namespace NowPlaying
 
             // Save relevant settings just in case the are changed while a game is playing
             WhilePlayingMode = Settings.WhilePlayingMode;
-            SpeedLimitIPG = WhilePlayingMode == WhilePlaying.SpeedLimit ? Settings.SpeedLimitIPG : 0;
+            SpeedLimitIpg = WhilePlayingMode == WhilePlaying.SpeedLimit ? Settings.SpeedLimitIpg : 0;
 
             if (WhilePlayingMode == WhilePlaying.Pause)
             {
                 PauseCacheInstallQueue();
             }
-            else if (SpeedLimitIPG > 0)
+            else if (SpeedLimitIpg > 0)
             {
-                SpeedLimitCacheInstalls(SpeedLimitIPG);
+                SpeedLimitCacheInstalls(SpeedLimitIpg);
             }
+            panelViewModel.RefreshGameCaches();
         }
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
@@ -207,11 +208,12 @@ namespace NowPlaying
                 {
                     ResumeCacheInstallQueue();
                 }
-                else if (SpeedLimitIPG > 0)
+                else if (SpeedLimitIpg > 0)
                 {
-                    SpeedLimitIPG = 0;
+                    SpeedLimitIpg = 0;
                     ResumeFullSpeedCacheInstalls();
                 }
+                panelViewModel.RefreshGameCaches();
             }
         }
 
@@ -327,7 +329,7 @@ namespace NowPlaying
                     var gameCache = cacheManager.FindGameCache(cacheId);
                     if (gameCache.CacheWillFit)
                     {
-                        var controller = new NowPlayingInstallController(this, nowPlayingGame, gameCache, SpeedLimitIPG);
+                        var controller = new NowPlayingInstallController(this, nowPlayingGame, gameCache, SpeedLimitIpg);
                         return new List<InstallController> { controller };
                     }
                     else
@@ -981,7 +983,7 @@ namespace NowPlaying
             }
         }
 
-        private void ResumeCacheInstallQueue(int speedLimitIPG = 0, bool resumeFromSpeedLimitedMode = false)
+        private void ResumeCacheInstallQueue(int speedLimitIpg = 0, bool resumeFromSpeedLimitedMode = false)
         {
             cacheInstallQueuePaused = false;
             if (cacheInstallQueue.Count > 0)
@@ -992,19 +994,19 @@ namespace NowPlaying
                     topPanelViewModel.QueuedInstall(controller.gameCache.InstallSize, controller.gameCache.InstallEtaTimeSpan);
 
                     // . update transfer speed 
-                    controller.speedLimitIPG = speedLimitIPG;
+                    controller.speedLimitIpg = speedLimitIpg;
                 }
 
                 string title = cacheInstallQueue.First().gameCache.Title;
-                if (speedLimitIPG > 0)
+                if (speedLimitIpg > 0)
                 {
                     if (Settings.NotifyOnInstallWhilePlayingActivity)
                     {
-                        NotifyInfo(FormatResourceString("LOCNowPlayingContinueWithSpeedLimitFmt2", title, speedLimitIPG));
+                        NotifyInfo(FormatResourceString("LOCNowPlayingContinueWithSpeedLimitFmt2", title, speedLimitIpg));
                     }
                     else
                     {
-                        logger.Info($"Game started: NowPlaying installation for '{title}' continuing at limited speed (IPG={speedLimitIPG}).");
+                        logger.Info($"Game started: NowPlaying installation for '{title}' continuing at limited speed (IPG={speedLimitIpg}).");
                     }
                 }
                 else if (resumeFromSpeedLimitedMode)
@@ -1030,14 +1032,14 @@ namespace NowPlaying
                     }
                 }
 
-                cacheInstallQueue.First().progressViewModel.PrepareToInstall(speedLimitIPG);
+                cacheInstallQueue.First().progressViewModel.PrepareToInstall(speedLimitIpg);
                 Task.Run(() => cacheInstallQueue.First().NowPlayingInstallAsync());
             }
         }
 
-        private void SpeedLimitCacheInstalls(int speedLimitIPG)
+        private void SpeedLimitCacheInstalls(int speedLimitIpg)
         {
-            PauseCacheInstallQueue(() => ResumeCacheInstallQueue(speedLimitIPG: speedLimitIPG));
+            PauseCacheInstallQueue(() => ResumeCacheInstallQueue(speedLimitIpg: speedLimitIpg));
         }
 
         private void ResumeFullSpeedCacheInstalls()

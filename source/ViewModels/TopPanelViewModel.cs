@@ -1,17 +1,11 @@
 ﻿using NowPlaying.Utils;
-using Playnite.SDK;
-using Playnite.SDK.Plugins;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace NowPlaying.ViewModels
 {
- 
+
 
     public class TopPanelViewModel : ViewModelBase
     {

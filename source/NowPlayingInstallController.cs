@@ -25,11 +25,11 @@ namespace NowPlaying
         public readonly InstallProgressViewModel progressViewModel;
         public readonly InstallProgressView progressView;
         private Action speedLimitChangeOnPaused;
-        public int speedLimitIPG;
+        public int speedLimitIpg;
 
         private bool deleteCacheOnJobCancelled { get; set; } = false;
 
-        public NowPlayingInstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache, int speedLimitIPG = 0) 
+        public NowPlayingInstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache, int speedLimitIpg = 0) 
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
@@ -40,10 +40,10 @@ namespace NowPlaying
             this.gameCache = gameCache;
             bool partialFileResume = plugin.Settings.PartialFileResume == EnDisThresh.Enabled;
             this.jobStats = new RoboStats(partialFileResume: partialFileResume);
-            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIPG, partialFileResume);
+            this.progressViewModel = new InstallProgressViewModel(this, speedLimitIpg, partialFileResume);
             this.progressView = new InstallProgressView(progressViewModel);
             this.speedLimitChangeOnPaused = null;
-            this.speedLimitIPG = speedLimitIPG;
+            this.speedLimitIpg = speedLimitIpg;
         }
 
         public override void Install(InstallActionArgs args)
@@ -79,7 +79,7 @@ namespace NowPlaying
         {
             bool isAccessible = await plugin.CheckIfGameInstallDirIsAccessibleAsync(gameCache.Title, gameCache.InstallDir);
             
-            plugin.topPanelViewModel.NowInstalling(gameCache, isSpeedLimited: speedLimitIPG > 0);
+            plugin.topPanelViewModel.NowInstalling(gameCache, isSpeedLimited: speedLimitIpg > 0);
 
             gameCache.UpdateCacheSpaceWillFit();
             
@@ -88,9 +88,9 @@ namespace NowPlaying
                 deleteCacheOnJobCancelled = false;
  
                 plugin.UpdateInstallQueueStatuses();
-                if (speedLimitIPG > 0)
+                if (speedLimitIpg > 0)
                 {
-                    logger.Info($"NowPlaying speed limited installation of '{gameCache.Title}' game cache started (IPG={speedLimitIPG}).");
+                    logger.Info($"NowPlaying speed limited installation of '{gameCache.Title}' game cache started (IPG={speedLimitIpg}).");
                 }
                 else
                 {
@@ -98,10 +98,10 @@ namespace NowPlaying
                 }
 
                 nowPlayingGame.IsInstalling = true;
-                gameCache.UpdateNowInstalling(true, speedLimitIPG);
+                gameCache.UpdateNowInstalling(true);
 
                 // update speed and display the progress panel
-                progressViewModel.SpeedLimitIpg = speedLimitIPG;
+                progressViewModel.SpeedLimitIpg = speedLimitIpg;
                 plugin.panelViewModel.InstallProgressView = progressView;
 
                 // . Partial file resume option (over network only)
@@ -123,7 +123,7 @@ namespace NowPlaying
                     jobStats.PartialFileResume = gameCache.PartialFileResume;
                 }
 
-                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIPG, pfrOpts);
+                cacheManager.InstallGameCache(gameCache, jobStats, InstallDone, InstallPausedCancelled, speedLimitIpg, pfrOpts);
             }
             else
             {
@@ -146,13 +146,13 @@ namespace NowPlaying
                 var avgBps = jobStats.GetAvgBytesPerSecond();
                 if (avgBps > 0)
                 {
-                    cacheManager.UpdateInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, avgBps, speedLimitIPG);
+                    cacheManager.UpdateInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, avgBps, speedLimitIpg);
                 }
             }
             gameCache.PartialFileResume = newPfrValue;
 
             // . initiallize rolling average for PFR mode change
-            var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIPG);
+            var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
             progressViewModel.rollAvgAvgBps.Init(initAvgBps);
         }
 
@@ -173,7 +173,7 @@ namespace NowPlaying
             // . update averageBps for this install device and save to JSON file
             var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
             bool partialFileResume = gameCache.PartialFileResume;
-            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
+            cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIpg);
             
             InvokeOnInstalled(new GameInstalledEventArgs());
 
@@ -289,7 +289,7 @@ namespace NowPlaying
             if (jobStats.BytesCopied > 0 && gameCache.CacheSize > jobStats.ResumeBytes)
             {
                 var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
-                cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIPG);
+                cacheManager.UpdateInstallAverageBps(job.entry.InstallDir, avgBytesPerFile, jobStats.GetAvgBytesPerSecond(), speedLimitIpg);
             }
             if (!plugin.cacheInstallQueuePaused) 
             { 

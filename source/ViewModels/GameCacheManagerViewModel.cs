@@ -212,44 +212,50 @@ namespace NowPlaying.ViewModels
         public long GetInstallAverageBps(string installDir, long avgBytesPerFile, int speedLimitIpg=0)
         {
             string installDevice = Directory.GetDirectoryRoot(installDir);
-            string ipgTag = string.Empty;
             string key;
 
             // . assign to a "file density" bin [0..7], spaced as powers of 2 of 16KB/file
             var fileDensityBin = MathUtils.Clamp((int)MathUtils.Log2(1 + avgBytesPerFile / 131072) - 1, 0, 7);
             string densityBin = $"[{fileDensityBin}]";
-            
+
             if (speedLimitIpg > 0)
             {
                 int roundedUpToNearestFiveIpg = ((speedLimitIpg + 4) / 5) * 5;
-                ipgTag = $"(IPG={roundedUpToNearestFiveIpg})";
-            }
+                string ipgTag = $"(IPG={roundedUpToNearestFiveIpg})";
 
-            // . return the binned AvgBps, if exists
-            if (InstallAverageBps.ContainsKey(key = installDevice + densityBin + ipgTag))
-            {
-                return InstallAverageBps[key];
+                // . return the binned AvgBps, if exists
+                if (InstallAverageBps.ContainsKey(key = installDevice + densityBin + ipgTag))
+                {
+                    return InstallAverageBps[key];
+                }
+                // . otherwise, return baseline AvgBps, if exists
+                else if (InstallAverageBps.ContainsKey(key = installDevice + ipgTag))
+                {
+                    return InstallAverageBps[key];
+                }
+                // . otherwise, return default value
+                else
+                {
+                    return (long)(plugin.Settings.DefaultAvgMegaBpsSpeedLimited * 1048576.0);
+                }
             }
-            else if (InstallAverageBps.ContainsKey(key = installDevice + densityBin))
+            else 
             {
-                return InstallAverageBps[key];
-            }
-
-            // . otherwise, return baseline AvgBps, if exists
-            else if (InstallAverageBps.ContainsKey(key = installDevice + ipgTag))
-            {
-                return InstallAverageBps[key];
-            }
-            else if (InstallAverageBps.ContainsKey(key = installDevice))
-            {
-                return InstallAverageBps[key];
-            }
-
-            // . otherwise, return default values
-            else
-            {
-                // initial defaults: (normal/speedLimited) = (50/5) MB/s 
-                return speedLimitIpg > 0 ? 5242880 : 52428800;
+                // . return the binned AvgBps, if exists
+                if (InstallAverageBps.ContainsKey(key = installDevice + densityBin))
+                {
+                    return InstallAverageBps[key];
+                }
+                // . otherwise, return baseline AvgBps, if exists
+                else if (InstallAverageBps.ContainsKey(key = installDevice))
+                {
+                    return InstallAverageBps[key];
+                }
+                // . otherwise, return default value
+                else
+                {
+                    return (long)(plugin.Settings.DefaultAvgMegaBpsNormal * 1048576.0);
+                }
             }
         }
 

@@ -28,7 +28,7 @@
             Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}">
 
             <TabItem Header="{DynamicResource LOCNowPlayingSettingsGeneralTab}" Padding="200,0,0,0">
-                <StackPanel Width="auto" HorizontalAlignment="Stretch" Margin="0,20,0,15">
+                <StackPanel Margin="0,20,0,15">
                     <CheckBox
                         Content="{DynamicResource LOCNowPlayingSettingsConfirmUninstall}"
                         Foreground="{DynamicResource TextBrush}"
@@ -120,7 +120,7 @@
                                 VerticalAlignment="Center" 
                                 Margin="0,0,3,0"/>
                             <TextBox 
-                                Text="{Binding Settings.SpeedLimitIPG}" 
+                                Text="{Binding Settings.SpeedLimitIpg}" 
                                 IsHitTestVisible="{Binding ElementName=SpeedLimitButton, Path=IsChecked}"
                                 Focusable="{Binding ElementName=SpeedLimitButton, Path=IsChecked}"
                                 Height="25" Width="40" 

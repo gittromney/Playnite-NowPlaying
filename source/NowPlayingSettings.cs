@@ -39,17 +39,17 @@ namespace NowPlaying
             }
         }
 
-        private int speedLimitIPG;
-        public int SpeedLimitIPG 
+        private int speedLimitIpg;
+        public int SpeedLimitIpg 
         {
-            get => speedLimitIPG;
+            get => speedLimitIpg;
             set
             {
                 if (value < 1) value = 1;
                 if (value > 250) value = 250;
-                if (speedLimitIPG != value)
+                if (speedLimitIpg != value)
                 {
-                    speedLimitIPG = value;
+                    speedLimitIpg = value;
                     OnPropertyChanged();
                 }
             } 
@@ -75,9 +75,41 @@ namespace NowPlaying
             get => pfrThresholdGigaBytes;
             set
             {
+                if (value < 0.0) value = 0.0;
                 if (pfrThresholdGigaBytes != value)
                 {
                     pfrThresholdGigaBytes = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double defaultAvgMegaBpsNormal;
+        public double DefaultAvgMegaBpsNormal
+        {
+            get => defaultAvgMegaBpsNormal;
+            set
+            {
+                if (value < 0.1) value = 0.1;
+                if (value > 1024) value = 1024;
+                if (defaultAvgMegaBpsNormal != value)
+                {
+                    defaultAvgMegaBpsNormal = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        private double defaultAvgMegaBpsSpeedLimited;
+        public double DefaultAvgMegaBpsSpeedLimited 
+        { 
+            get => defaultAvgMegaBpsSpeedLimited;
+            set
+            {
+                if (value < 0.1) value = 0.1;
+                if (value > 1024) value = 1024;
+                if (defaultAvgMegaBpsSpeedLimited != value)
+                {
+                    defaultAvgMegaBpsSpeedLimited = value;
                     OnPropertyChanged();
                 }
             }
@@ -90,9 +122,12 @@ namespace NowPlaying
 
             this.SyncDirtyCache_DoWhen = DoWhen.Always;
             this.WhilePlayingMode = WhilePlaying.SpeedLimit;
-            this.SpeedLimitIPG = 75;
+            this.SpeedLimitIpg = 75;
             this.PartialFileResume = EnDisThresh.Threshold;
             this.PfrThresholdGigaBytes = 0.1;
+
+            this.DefaultAvgMegaBpsNormal = 50.0;
+            this.DefaultAvgMegaBpsSpeedLimited = 5.0;
         }
     }
 }
