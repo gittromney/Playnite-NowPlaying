@@ -479,6 +479,7 @@ namespace NowPlaying
                     {
                         gameMenuItems.Add(new GameMenuItem
                         {
+                            Icon = LibraryIcon,
                             MenuSection = description,
                             Description = GetResourceString("LOCNowPlayingTermsTo") + " " + cacheRoot.Directory,
                             Action = async (a) => { foreach (var game in args.Games) { await EnableNowPlayingWithRootAsync(game, cacheRoot); } }
@@ -490,6 +491,7 @@ namespace NowPlaying
                     var cacheRoot = cacheManager.CacheRoots.First();
                     gameMenuItems.Add(new GameMenuItem
                     {
+                        Icon = LibraryIcon,
                         Description = description,
                         Action = async (a) => { foreach (var game in args.Games) { await EnableNowPlayingWithRootAsync(game, cacheRoot); } }
                     });
@@ -510,6 +512,7 @@ namespace NowPlaying
                 }
                 gameMenuItems.Add(new GameMenuItem
                 {
+                    Icon = LibraryIcon,
                     Description = description,
                     Action = (a) => 
                     { 
