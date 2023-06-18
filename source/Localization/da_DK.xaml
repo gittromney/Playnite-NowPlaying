@@ -136,9 +136,9 @@
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeTab">Partial file resume</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeHeading">Partial file resume mode (PFR) when installing cache files (over a network)</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeDescr">
-        Normally when a cache installation is paused and resumed, or it changed speeds (see Install while playing), 
+        Normally when a cache installation is paused and resumed, or it changes speeds (see Install while playing), 
         the interrupted file must be copied over again from the beginning.
-        When the game's install directory is on a network mapped drive, 
+        When the game's install directory is over a network (e.g. on a network mapped drive), 
         you have the option of copying all/some files in partial file resume mode (PFR). 
         PFR copied files are able to be resumed from exactly where they were interrupted, 
         at the cost of slightly slower transfer speeds.
