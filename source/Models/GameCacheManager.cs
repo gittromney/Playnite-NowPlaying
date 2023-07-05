@@ -159,6 +159,7 @@ namespace NowPlaying.Models
                 long installSize = 0,
                 long cacheSize = 0,
                 long cacheSizeOnDisk = 0,
+                GameCachePlatform platform = GameCachePlatform.WinPC,
                 GameCacheState state = GameCacheState.Unknown
             )
         {
@@ -175,6 +176,7 @@ namespace NowPlaying.Models
                 installSize: installSize,
                 cacheSize: cacheSize,
                 cacheSizeOnDisk: cacheSizeOnDisk,
+                platform: platform,
                 state: state
             ));
         }

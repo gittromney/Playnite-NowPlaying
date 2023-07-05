@@ -16,6 +16,7 @@ using UserControl = System.Windows.Controls.UserControl;
 using System.Windows.Media.Imaging;
 using NowPlaying.Properties;
 using System.Windows;
+using System;
 
 namespace NowPlaying.ViewModels
 {
@@ -171,8 +172,8 @@ namespace NowPlaying.ViewModels
                 long installSizeX = ((GameCacheViewModel)x).InstallSize;
                 long cacheSizeY   = ((GameCacheViewModel)y).CacheSize;
                 long installSizeY = ((GameCacheViewModel)y).InstallSize;
-                long sizeX = cacheSizeX > 0 ? cacheSizeX : -installSizeX;
-                long sizeY = cacheSizeY > 0 ? cacheSizeY : -installSizeY;
+                long sizeX = cacheSizeX > 0 ? cacheSizeX : Int64.MinValue + installSizeX;
+                long sizeY = cacheSizeY > 0 ? cacheSizeY : Int64.MinValue + installSizeY;
                 return sizeX.CompareTo(sizeY);
             }
         }

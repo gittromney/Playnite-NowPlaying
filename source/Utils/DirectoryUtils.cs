@@ -282,5 +282,10 @@ namespace NowPlaying.Utils
             }
             return false;
         }
+
+        public static string CollapseMultipleSlashes(string pathName)
+        {
+            return Regex.Replace(pathName, @"\\+", @"\");
+        }
     }
 }

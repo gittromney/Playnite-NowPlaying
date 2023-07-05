@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using NowPlaying.Models;
+using System;
 
 namespace NowPlaying
 {
@@ -58,14 +60,33 @@ namespace NowPlaying
                 string cacheId = Id;
                 string title = game.Name;
                 string installDir = game.InstallDirectory;
-                var sourcePlayAction = plugin.GetSourcePlayAction(game);
-                string exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
-                string xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
+                string exePath = null;
+                string xtraArgs = null;
 
-                if (await plugin.CheckIfGameInstallDirIsAccessibleAsync(title, installDir))
+                var sourcePlayAction = NowPlaying.GetSourcePlayAction(game);
+                var platform = NowPlaying.GetGameCachePlatform(game);
+
+                switch (platform)
+                {
+                    case GameCachePlatform.WinPC:
+                        exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
+                        xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
+                        break;
+
+                    case GameCachePlatform.PS3:
+                    case GameCachePlatform.Switch:
+                        exePath = plugin.GetIncrementalRomPath(game.Roms?.First().Path, installDir, game);
+                        xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.AdditionalArguments);
+                        break;
+
+                    default: 
+                        break;
+                }
+
+                if (exePath != null && await plugin.CheckIfGameInstallDirIsAccessibleAsync(title, installDir))
                 {
                     // . create game cache and its view model
-                    string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir);
+                    string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, platform: platform);
 
                     // . subsume game into the NowPlaying Game Cache library, install directory => game cache directory
                     game.InstallDirectory = cacheDir;
@@ -77,28 +98,67 @@ namespace NowPlaying
                     // -> Preview - play game from source install directory (playable via right mouse menu)
                     //
                     game.GameActions = new ObservableCollection<GameAction>(game.GameActions.Where(a => !a.IsPlayAction));
-                    game.GameActions.Add
-                    (
-                        new GameAction()
-                        {
-                            Name = NowPlaying.nowPlayingActionName,
-                            Path = Path.Combine(cacheDir, exePath),
-                            WorkingDir = cacheDir,
-                            Arguments = xtraArgs?.Replace(installDir, cacheDir),
-                            IsPlayAction = true
-                        }
-                    );
-                    game.GameActions.Add
-                    (
-                        new GameAction()
-                        {
-                            Name = NowPlaying.previewPlayActionName,
-                            Path = Path.Combine(installDir, exePath),
-                            WorkingDir = installDir,
-                            Arguments = xtraArgs,
-                            IsPlayAction = false
-                        }
-                    );
+                    
+                    switch (platform)
+                    {
+                        case GameCachePlatform.WinPC:
+                            game.GameActions.Add
+                            (
+                                new GameAction()
+                                {
+                                    Name = NowPlaying.nowPlayingActionName,
+                                    Path = Path.Combine(cacheDir, exePath),
+                                    WorkingDir = cacheDir,
+                                    Arguments = xtraArgs?.Replace(installDir, cacheDir),
+                                    IsPlayAction = true
+                                }
+                            );
+                            game.GameActions.Add
+                            (
+                                new GameAction()
+                                {
+                                    Name = NowPlaying.previewPlayActionName,
+                                    Path = Path.Combine(installDir, exePath),
+                                    WorkingDir = installDir,
+                                    Arguments = xtraArgs,
+                                    IsPlayAction = false
+                                }
+                            );
+                            break;
+
+                        case GameCachePlatform.PS3:
+                        case GameCachePlatform.Switch:
+                            game.GameActions.Add
+                            (
+                                new GameAction()
+                                {
+                                    Name = NowPlaying.nowPlayingActionName,
+                                    Type = GameActionType.Emulator,
+                                    EmulatorId = sourcePlayAction.EmulatorId,
+                                    EmulatorProfileId = sourcePlayAction.EmulatorProfileId,
+                                    AdditionalArguments = xtraArgs?.Replace(installDir, cacheDir),
+                                    IsPlayAction = true
+                                }
+                            );
+                            game.GameActions.Add
+                            (
+                                new GameAction()
+                                {
+                                    Name = NowPlaying.previewPlayActionName,
+                                    Type = GameActionType.Emulator,
+                                    EmulatorId = sourcePlayAction.EmulatorId,
+                                    EmulatorProfileId = sourcePlayAction.EmulatorProfileId,
+                                    OverrideDefaultArgs = true,
+                                    Arguments = "\"" + Path.Combine(installDir, exePath) + "\"" +
+                                        (!string.IsNullOrEmpty(xtraArgs) ? " " + xtraArgs : ""),
+                                    IsPlayAction = false
+                                }
+                            );
+                            break;
+
+                        default: 
+                            break;
+                    }
 
                     PlayniteApi.Database.Games.Update(game);
                     plugin.NotifyInfo($"Enabled '{title}' for game caching.");

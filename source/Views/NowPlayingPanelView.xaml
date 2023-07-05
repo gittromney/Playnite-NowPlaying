@@ -123,6 +123,14 @@
                                             Content="{DynamicResource LOCNowPlayingTermsTitle}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
                                     </GridViewColumn>
+                                    
+                                    <GridViewColumn 
+                                        DisplayMemberBinding="{Binding Platform}"
+                                        utils:GridViewUtils.MinWidth="80">
+                                        <GridViewColumnHeader
+                                            Content="{DynamicResource LOCNowPlayingTermsPlatform}" 
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
+                                    </GridViewColumn>
 
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="Status"

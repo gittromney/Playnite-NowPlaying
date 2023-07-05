@@ -104,7 +104,6 @@
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsGeneralTab">General</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsConfirmUninstall">Require confirmation when a game cache is uninstalled.</sys:String>
-    <sys:String x:Key="LOCNowPlayingSettingsNotifyOnInstallCancel">Notify when game cache install is cancelled.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsNotifyOnInstallWhilePlaying">Notify of 'install while playing' game cache activity.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncTab">Sync on uninstall</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncHeading">Sync options when uninstalling a game cache</sys:String>

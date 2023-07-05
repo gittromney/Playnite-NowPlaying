@@ -1,4 +1,5 @@
-﻿using NowPlaying.Views;
+﻿using NowPlaying.Models;
+using NowPlaying.Views;
 using Playnite.SDK;
 using System;
 using System.Collections;
@@ -91,7 +92,7 @@ namespace NowPlaying.ViewModels
             this.cacheRoots = plugin.cacheManager.CacheRoots.ToList();
             this.SelectedGames = new List<GameViewModel>();
 
-            var eligibles = plugin.PlayniteApi.Database.Games.Where(g => plugin.IsGameNowPlayingEligible(g));
+            var eligibles = plugin.PlayniteApi.Database.Games.Where(g => plugin.IsGameNowPlayingEligible(g) != GameCachePlatform.InEligible);
             this.allEligibleGames = eligibles.Select(g => new GameViewModel(g)).ToList();
 
             ClearSearchTextCommand = new RelayCommand(() => SearchText = string.Empty);
@@ -135,7 +136,7 @@ namespace NowPlaying.ViewModels
                         {
                             if (await plugin.CheckIfGameInstallDirIsAccessibleAsync(game.Title, game.InstallDir))
                             {
-                                if (plugin.CheckAndConfirmEnableIfInstallDirIsProblematic(game.Title, game.InstallDir))
+                                if (plugin.CheckAndConfirmOrAdjustInstallDirDepth(game.game))
                                 {
                                     (new NowPlayingGameEnabler(plugin, game.game, cacheRoot.Directory)).Activate();
                                 }

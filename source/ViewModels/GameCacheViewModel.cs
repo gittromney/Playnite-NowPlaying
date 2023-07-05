@@ -27,7 +27,7 @@ namespace NowPlaying.ViewModels
         public long CacheSizeOnDisk => entry.CacheSizeOnDisk;
 
         public GameCacheState State => entry.State;
-
+        public GameCachePlatform Platform => entry.Platform;
 
         private string installQueueStatus;
         private string uninstallQueueStatus;

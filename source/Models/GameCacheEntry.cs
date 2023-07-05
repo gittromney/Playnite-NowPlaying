@@ -1,13 +1,13 @@
 ﻿using NowPlaying.Utils;
 using System;
 using System.IO;
-using System.Management.Instrumentation;
 using System.Runtime.Serialization;
 using System.Threading;
 
 namespace NowPlaying.Models
 {
     public enum GameCacheState { Empty, InProgress, Populated, Played, Unknown, Invalid };
+    public enum GameCachePlatform { WinPC, PS3, Switch, InEligible };
 
     /// <summary>
     /// Game Cache specification entry class
@@ -61,6 +61,7 @@ namespace NowPlaying.Models
         }
         public string CacheDir => cacheDir;
 
+        public GameCachePlatform Platform { get; set; }
         public GameCacheState State { get; set; }
 
         private long installFiles;
@@ -89,6 +90,7 @@ namespace NowPlaying.Models
         /// <param name="installFiles">(Optional) Source game installation file count</param>
         /// <param name="installSize">(Optional) Source game installation cacheInstalledSize</param>
         /// <param name="cacheSize">(Optional) Current game cache cacheInstalledSize</param>
+        /// <param name="platform">(Optional) Game cache platform (e.g. WinPC, PS3,...).</param>
         /// <param name="state">(Optional) Game cache entry state.</param>
         public GameCacheEntry(
             string id,
@@ -102,6 +104,7 @@ namespace NowPlaying.Models
             long installSize = 0,
             long cacheSize = 0,
             long cacheSizeOnDisk = 0,
+            GameCachePlatform platform = GameCachePlatform.WinPC,
             GameCacheState state = GameCacheState.Unknown)
         {
             this.Id = id;
@@ -115,6 +118,7 @@ namespace NowPlaying.Models
             this.installSize = installSize;
             this.CacheSize = cacheSize;
             this.CacheSizeOnDisk = cacheSizeOnDisk;
+            this.Platform = platform;
             this.State = state;
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -132,7 +136,8 @@ namespace NowPlaying.Models
             this.installFiles = (long)info.GetValue(nameof(InstallFiles), typeof(long));
             this.installSize = (long)info.GetValue(nameof(InstallSize), typeof(long));
             this.CacheSize = (long)info.GetValue(nameof(CacheSize), typeof(long));
-            // . handle backwards compatibility with older JSON files (prior to version 1.2)
+
+            // . CacheSizeOnDisk (plugin version >= 1.2)
             try
             {
                 this.CacheSizeOnDisk = (long)info.GetValue(nameof(CacheSizeOnDisk), typeof(long));
@@ -141,6 +146,17 @@ namespace NowPlaying.Models
             {
                 this.CacheSizeOnDisk = 0;
             }
+
+            // . Platform (plugin version >= 1.3)
+            try
+            {
+                this.Platform = (GameCachePlatform)info.GetValue(nameof(Platform), typeof(GameCachePlatform));
+            }
+            catch
+            {
+                this.Platform = GameCachePlatform.WinPC;
+            }
+
             this.State = (GameCacheState)info.GetValue(nameof(State), typeof(GameCacheState));
             if (CacheDir != null) GetQuickCacheDirState();
         }
@@ -158,6 +174,7 @@ namespace NowPlaying.Models
             info.AddValue(nameof(InstallSize), InstallSize);
             info.AddValue(nameof(CacheSize), CacheSize);
             info.AddValue(nameof(CacheSizeOnDisk), CacheSizeOnDisk);
+            info.AddValue(nameof(Platform), Platform);
             info.AddValue(nameof(State), State);
         }
 
@@ -272,12 +289,13 @@ namespace NowPlaying.Models
         public override string ToString()
         {
             return string.Format(
-                "Id:{0} Title:{1} Install:{2} Exe:{3} Xtra:{4} Cache:{5} IFiles:{6} ISize:{7} CSize:{8} CSzOnDisk:{9} State:{10}",
+                "Id:{0} Title:{1} Install:{2} Exe:{3} Xtra:{4} Cache:{5} " +
+                "IFiles:{6} ISize:{7} CSize:{8} CSzOnDisk:{9} Platform:{10}, State:{11}",
                 Id, Title, InstallDir, ExePath, XtraArgs, CacheDir, InstallFiles, 
                 SmartUnits.Bytes(InstallSize, decimals:1), 
                 SmartUnits.Bytes(CacheSize, decimals:1), 
                 SmartUnits.Bytes(CacheSizeOnDisk, decimals:1), 
-                State
+                Platform, State
             );
         }
 

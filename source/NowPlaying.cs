@@ -9,7 +9,6 @@ using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Controls;
 using Path = System.IO.Path;
 using Playnite.SDK;
 using Playnite.SDK.Events;
@@ -21,6 +20,7 @@ using NowPlaying.Properties;
 using NowPlaying.Views;
 using NowPlaying.ViewModels;
 using System.Reflection;
+using System.Windows.Controls;
 
 namespace NowPlaying
 {
@@ -104,7 +104,7 @@ namespace NowPlaying
                 Visible = false
             };
 
-            this.sidebarIcon = new System.Windows.Shapes.Rectangle()
+            this.sidebarIcon = new Rectangle()
             {
                 Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush"),
                 Width = 256,
@@ -392,28 +392,64 @@ namespace NowPlaying
         public async Task<bool> TryRecoverMissingGameCacheAsync(string cacheId, Game nowPlayingGame)
         {
             string title = nowPlayingGame.Name;
-            string installDir = GetPreviewPlayAction(nowPlayingGame)?.WorkingDir;
-            string exePath = GetIncrementalExePath(GetNowPlayingAction(nowPlayingGame)) ?? GetIncrementalExePath(GetPreviewPlayAction(nowPlayingGame));
-            string xtraArgs = GetNowPlayingAction(nowPlayingGame)?.AdditionalArguments ?? GetPreviewPlayAction(nowPlayingGame)?.AdditionalArguments;
+            string installDir = null;
+            string exePath = null;
+            string xtraArgs = null;
 
-            if (!await CheckIfGameInstallDirIsAccessibleAsync(title, installDir)) return false;
+            var previewPlayAction = GetPreviewPlayAction(nowPlayingGame);
+            var nowPlayingAction = GetNowPlayingAction(nowPlayingGame);
+            var platform = GetGameCachePlatform(nowPlayingGame);
 
-            // . Separate cacheDir into its cacheRootDir and cacheSubDir components, assuming nowPlayingGame matching Cache RootDir exists.
-            (string cacheRootDir, string cacheSubDir) = cacheManager.FindCacheRootAndSubDir(nowPlayingGame.InstallDirectory);
-
-            if (title != null && installDir != null && exePath != null && cacheRootDir != null && cacheSubDir != null)
+            switch (platform)
             {
-                cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
+                case GameCachePlatform.WinPC:
+                    installDir = previewPlayAction?.WorkingDir;
+                    exePath = GetIncrementalExePath(nowPlayingAction, nowPlayingGame) ?? GetIncrementalExePath(previewPlayAction, nowPlayingGame);
+                    xtraArgs = nowPlayingAction?.Arguments ?? previewPlayAction?.Arguments;
+                    break;
 
-                // . the best we can do is assume the current size on disk are all installed bytes (completed files)
-                var gameCache = cacheManager.FindGameCache(cacheId);
-                gameCache.entry.UpdateCacheDirStats();
-                gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
-                gameCache.UpdateCacheSize();
+                case GameCachePlatform.PS3:
+                case GameCachePlatform.Switch:
+                    exePath = GetIncrementalRomPath(nowPlayingGame.Roms?.First()?.Path, nowPlayingGame.InstallDirectory, nowPlayingGame);
+                    var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
+                    if (exePathIndex > 1)
+                    {
+                        // Note 1: skip leading '"'
+                        installDir = DirectoryUtils.TrimEndingSlash(previewPlayAction.Arguments.Substring(1, exePathIndex - 1)); // 1.
+                    }
+                    xtraArgs = nowPlayingAction?.AdditionalArguments;
+                    break;
 
-                return true;
+                default: 
+                    break;
             }
-            return false;
+
+            if (installDir != null && exePath != null && await CheckIfGameInstallDirIsAccessibleAsync(title, installDir, silentMode: true))
+            {
+                // . Separate cacheDir into its cacheRootDir and cacheSubDir components, assuming nowPlayingGame matching Cache RootDir exists.
+                (string cacheRootDir, string cacheSubDir) = cacheManager.FindCacheRootAndSubDir(nowPlayingGame.InstallDirectory);
+
+                if (cacheRootDir != null && cacheSubDir != null)
+                {
+                    cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir, platform: platform);
+
+                    // . the best we can do is assume the current size on disk are all installed bytes (completed files)
+                    var gameCache = cacheManager.FindGameCache(cacheId);
+                    gameCache.entry.UpdateCacheDirStats();
+                    gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
+                    gameCache.UpdateCacheSize();
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public class SelectedGamesContext
@@ -444,7 +480,7 @@ namespace NowPlaying
                 foreach (var game in games)
                 {
                     bool isEnabled = plugin.IsGameNowPlayingEnabled(game);
-                    bool isEligible = !isEnabled && plugin.IsGameNowPlayingEligible(game);
+                    bool isEligible = !isEnabled && plugin.IsGameNowPlayingEligible(game) != GameCachePlatform.InEligible;
                     bool isEnabledAndEmpty = isEnabled && plugin.cacheManager.FindGameCache(game.Id.ToString())?.CacheSize == 0;
                     allEligible &= isEligible;
                     allEnabled &= isEnabled;
@@ -543,18 +579,58 @@ namespace NowPlaying
             return new List<TopPanelItem> { topPanelItem };
         }
 
-        public bool IsGameNowPlayingEligible(Game game)
+        public GameCachePlatform IsGameNowPlayingEligible(Game game)
         {
-            bool eligible = (game != null
+            bool preReq = (
+                game != null
                 && game.PluginId == Guid.Empty
                 && game.IsInstalled
                 && game.IsCustomGame
-                && game.Platforms?.Count == 1 && game.Platforms?.First().SpecificationId == "pc_windows"
-                && (game.Roms == null || game.Roms?.Count == 0)
+                && game.Platforms?.Count == 1
                 && game.GameActions?.Where(a => a.IsPlayAction).Count() == 1
-                && GetIncrementalExePath(game.GameActions?[0], game) != null
             );
-            return eligible;
+
+            if (preReq
+                && game.Platforms?.First().SpecificationId == "pc_windows"
+                && (game.Roms == null || game.Roms?.Count == 0)
+                && GetIncrementalExePath(game.GameActions?[0], game) != null)
+            {
+                return GameCachePlatform.WinPC;
+            }
+            else if (preReq
+                && game.Roms?.Count == 1
+                && game.GameActions?[0].Type == GameActionType.Emulator
+                && game.GameActions?[0].EmulatorId != Guid.Empty
+                && game.GameActions?[0].OverrideDefaultArgs == false
+                && GetIncrementalRomPath(game.Roms?[0].Path, game.InstallDirectory, game) != null)
+            {
+                return GetGameCachePlatform(game);
+            }
+            else
+            {
+                return GameCachePlatform.InEligible;
+            }
+        }
+
+        static public GameCachePlatform GetGameCachePlatform(Game game)
+        {
+            var specId = game?.Platforms?.First().SpecificationId;
+            if (specId == "pc_windows")
+            {
+                return GameCachePlatform.WinPC;
+            }
+            else if (specId == "sony_playstation3")
+            {
+                return GameCachePlatform.PS3;
+            }
+            else if (specId == "nintendo_switch")
+            {
+                return GameCachePlatform.Switch;
+            }
+            else
+            {
+                return GameCachePlatform.InEligible;
+            }
         }
 
         public bool IsGameNowPlayingEnabled(Game game)
@@ -615,7 +691,7 @@ namespace NowPlaying
 
             else if (await CheckIfGameInstallDirIsAccessibleAsync(game.Name, game.InstallDirectory))
             {
-                if (CheckAndConfirmEnableIfInstallDirIsProblematic(game.Name, game.InstallDirectory)) 
+                if (CheckAndConfirmOrAdjustInstallDirDepth(game))
                 {
                     // . Enable source game for NowPlaying game caching
                     (new NowPlayingGameEnabler(this, game, cacheRoot.Directory)).Activate();
@@ -627,12 +703,19 @@ namespace NowPlaying
         // . Screening is done by checking for 'problematic' subdirectories (e.g. "bin", "x64", etc.) in the
         //   install dir path.
         //   
-        public bool CheckAndConfirmEnableIfInstallDirIsProblematic(string title, string installDirectory)
+        public bool CheckAndConfirmOrAdjustInstallDirDepth(Game game)
         {
-            bool continueWithEnable = true;
-            string[] problematicKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
-            List<string> matchedSubdirs = new List<string>();
+            string title = game.Name;
+            string installDirectory = DirectoryUtils.CollapseMultipleSlashes(game.InstallDirectory);
+            var platform = GetGameCachePlatform(game);
             
+            string[] problematicWinPcKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
+            string[] problematicPS3Keywords = { "ps3_game", "usrdir" };
+            var problematicKeywords = platform == GameCachePlatform.PS3 ? problematicPS3Keywords : problematicWinPcKeywords;
+
+            List<string> matchedSubdirs = new List<string>();
+            string recommendedInstallDir = string.Empty;
+
             foreach (var subDir in installDirectory.Split(Path.DirectorySeparatorChar))
             {
                 foreach (var keyword in problematicKeywords)
@@ -642,16 +725,98 @@ namespace NowPlaying
                         matchedSubdirs.Add(subDir);
                     }
                 }
+                if (matchedSubdirs.Count == 0)
+                {
+                    if (string.IsNullOrEmpty(recommendedInstallDir))
+                    {
+                        recommendedInstallDir = subDir;
+                    }
+                    else
+                    {
+                        recommendedInstallDir += Path.DirectorySeparatorChar + subDir;
+                    }
+                }
             }
+
+            bool continueWithEnable = true;
             if (matchedSubdirs.Count > 0)
             {
-                // . See if user wants to continue enabling game, anyway
                 string nl = System.Environment.NewLine;
                 string problematicSubdirs = string.Join("', '", matchedSubdirs);
+
+                // . See if user wants to adopt the recommended, shallower Install Directory
                 string message = FormatResourceString("LOCNowPlayingProblematicInstallDirFmt3", title, installDirectory, problematicSubdirs);
-                message += nl + nl + GetResourceString("LOCNowPlayingProblematicInstallDirConfirm");
+                message += nl + nl + FormatResourceString("LOCNowPlayingChangeInstallDirFmt1", recommendedInstallDir);
                 string caption = GetResourceString("LOCNowPlayingConfirmationCaption");
-                continueWithEnable = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+
+                bool changeInstallDir = 
+                (
+                    Settings.ChangeProblematicInstallDir_DoWhen == DoWhen.Always ||
+                    Settings.ChangeProblematicInstallDir_DoWhen == DoWhen.Ask 
+                    && (PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                );
+
+                if (changeInstallDir)
+                {
+                    string exePath;
+                    string missingExePath;
+                    bool success = false;
+ 
+                    switch (platform)
+                    {
+                        case GameCachePlatform.WinPC:
+                            var sourcePlayAction = GetSourcePlayAction(game);
+                            exePath = GetIncrementalExePath(sourcePlayAction);
+                            if (sourcePlayAction != null && exePath != null)
+                            {
+                                missingExePath = installDirectory.Substring(recommendedInstallDir.Length + 1);
+                                game.InstallDirectory = recommendedInstallDir;
+                                sourcePlayAction.Path = Path.Combine(sourcePlayAction.WorkingDir, missingExePath, exePath);
+                                PlayniteApi.Database.Games.Update(game);
+                                success = true;
+                            }
+                            break;
+
+                        case GameCachePlatform.PS3:
+                        case GameCachePlatform.Switch:
+                            var rom = game.Roms?.First();
+                            if (rom != null && (exePath = GetIncrementalRomPath(rom.Path, installDirectory, game)) != null)
+                            {
+                                missingExePath = installDirectory.Substring(recommendedInstallDir.Length + 1);
+                                game.InstallDirectory = recommendedInstallDir;
+                                var exePathIndex = rom.Path.IndexOf(exePath);
+                                if (exePathIndex > 0)
+                                {
+                                    rom.Path = Path.Combine(rom.Path.Substring(0, exePathIndex), missingExePath, exePath);
+                                    PlayniteApi.Database.Games.Update(game);
+                                    success = true;
+                                }
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    if (success)
+                    {
+                        NotifyInfo(FormatResourceString("LOCNowPlayingChangedInstallDir", title, recommendedInstallDir));
+                        continueWithEnable = true;
+                    }
+                    else
+                    {
+                        PopupError(FormatResourceString("LOCNowPlayingErrorChangingInstallDir", title, recommendedInstallDir));
+                        continueWithEnable = false;
+                    }
+                }
+                else
+                {
+                    // . See if user wants to continue enabling game, anyway
+                    message = FormatResourceString("LOCNowPlayingProblematicInstallDirFmt3", title, installDirectory, problematicSubdirs);
+                    message += nl + nl + GetResourceString("LOCNowPlayingConfirmOrEditInstallDir");
+                    message += nl + nl + GetResourceString("LOCNowPlayingProblematicInstallDirConfirm");
+                    continueWithEnable = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNo) == MessageBoxResult.Yes;
+                }
             }
             return continueWithEnable;
         }
@@ -659,33 +824,40 @@ namespace NowPlaying
         // . Sanity check: make sure game's InstallDir is accessable (e.g. disk mounted, decrypted, etc?)
         public async Task<bool> CheckIfGameInstallDirIsAccessibleAsync(string title, string installDir, bool silentMode = false)
         {
-            // . This can take awhile (e.g. if the install directory is on a network drive and is having connectivity issues)
-            //   -> display topPanel status, unless caller is already doing so.
-            //
-            bool showInTopPanel = !topPanelViewModel.IsProcessing;
-            if (showInTopPanel)
+            if (installDir != null)
             {
-                topPanelViewModel.NowProcessing(true, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
-            }
-            
-            var installRoot = await DirectoryUtils.TryGetRootDeviceAsync(installDir);
-            var dirExists = await Task.Run(() => Directory.Exists(installDir));
-            
-            if (showInTopPanel)
-            {
-                topPanelViewModel.NowProcessing(false, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
-            }
+                // . This can take awhile (e.g. if the install directory is on a network drive and is having connectivity issues)
+                //   -> display topPanel status, unless caller is already doing so.
+                //
+                bool showInTopPanel = !topPanelViewModel.IsProcessing;
+                if (showInTopPanel)
+                {
+                    topPanelViewModel.NowProcessing(true, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
+                }
 
-            if (installRoot != null && dirExists)
-            {
-                return true;
+                var installRoot = await DirectoryUtils.TryGetRootDeviceAsync(installDir);
+                var dirExists = await Task.Run(() => Directory.Exists(installDir));
+
+                if (showInTopPanel)
+                {
+                    topPanelViewModel.NowProcessing(false, GetResourceString("LOCNowPlayingCheckInstallDirAccessibleProgress"));
+                }
+
+                if (installRoot != null && dirExists)
+                {
+                    return true;
+                }
+                else
+                {
+                    if (!silentMode)
+                    {
+                        PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
+                    }
+                    return false;
+                }
             }
             else
             {
-                if (!silentMode)
-                {
-                    PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
-                }
                 return false;
             }
         }
@@ -728,17 +900,37 @@ namespace NowPlaying
         public bool DisableNowPlayingGameCaching(Game game, string installDir = null, string exePath = null, string xtraArgs = null)
         {
             var previewPlayAction = GetPreviewPlayAction(game);
+            var platform = GetGameCachePlatform(game);
 
             // . attempt to extract original install and play action parameters, if not provided by caller
             if (installDir == null || exePath == null)
             {
                 if (previewPlayAction != null)
                 {
-                    exePath = GetIncrementalExePath(previewPlayAction);
-                    installDir = previewPlayAction.WorkingDir;
-                    if (xtraArgs == null)
+                    switch (platform)
                     {
-                        xtraArgs = previewPlayAction.Arguments;
+                        case GameCachePlatform.WinPC:
+                            exePath = GetIncrementalExePath(previewPlayAction);
+                            installDir = previewPlayAction.WorkingDir;
+                            if (xtraArgs == null)
+                            {
+                                xtraArgs = previewPlayAction.Arguments;
+                            }
+                            break;
+
+                        case GameCachePlatform.PS3:
+                        case GameCachePlatform.Switch:
+                            exePath = GetIncrementalRomPath(game.Roms?.First()?.Path, game.InstallDirectory, game);
+                            var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
+                            if (exePathIndex > 1)
+                            {
+                                // Note 1: skip leading '"'
+                                installDir = DirectoryUtils.TrimEndingSlash(previewPlayAction.Arguments.Substring(1, exePathIndex - 1)); // 1.
+                            }
+                            break;
+
+                        default:
+                            break;
                     }
                 }
             }
@@ -752,17 +944,41 @@ namespace NowPlaying
 
                 // restore original Play action (or functionally equivalent):
                 game.GameActions = new ObservableCollection<GameAction>(game.GameActions.Where(a => !a.IsPlayAction && a != previewPlayAction));
-                game.GameActions.Add
-                (
-                     new GameAction()
-                     {
-                         Name = game.Name,
-                         Path = Path.Combine("{InstallDir}", exePath),
-                         WorkingDir = "{InstallDir}",
-                         Arguments = xtraArgs?.Replace(installDir, "{InstallDir}"),
-                         IsPlayAction = true
-                     }
-                );
+                switch (platform)
+                {
+                    case GameCachePlatform.WinPC:
+                        game.GameActions.Add
+                        (
+                             new GameAction()
+                             {
+                                 Name = game.Name,
+                                 Path = Path.Combine("{InstallDir}", exePath),
+                                 WorkingDir = "{InstallDir}",
+                                 Arguments = xtraArgs?.Replace(installDir, "{InstallDir}"),
+                                 IsPlayAction = true
+                             }
+                        );
+                        break;
+
+                    case GameCachePlatform.PS3:
+                    case GameCachePlatform.Switch:
+                        game.GameActions.Add
+                        (
+                             new GameAction()
+                             {
+                                 Name = game.Name,
+                                 Type = GameActionType.Emulator,
+                                 EmulatorId = previewPlayAction.EmulatorId,
+                                 EmulatorProfileId = previewPlayAction.EmulatorProfileId,
+                                 AdditionalArguments = xtraArgs?.Replace(installDir, "{InstallDir}"),
+                                 IsPlayAction = true
+                             }
+                        );
+                        break;
+
+                    default:
+                        break;
+                }
 
                 PlayniteApi.Database.Games.Update(game);
                 return true;
@@ -773,19 +989,19 @@ namespace NowPlaying
             }
         }
 
-        public GameAction GetSourcePlayAction(Game game)
+        static public GameAction GetSourcePlayAction(Game game)
         {
             var actions = game.GameActions.Where(a => a.IsPlayAction);
             return actions.Count() == 1 ? actions.First() : null;
         }
 
-        public GameAction GetNowPlayingAction(Game game)
+        static public GameAction GetNowPlayingAction(Game game)
         {
             var actions = game.GameActions.Where(a => a.IsPlayAction && a.Name == nowPlayingActionName);
             return actions.Count() == 1 ? actions.First() : null;
         }
 
-        public GameAction GetPreviewPlayAction(Game game)
+        static public GameAction GetPreviewPlayAction(Game game)
         {
             var actions = game.GameActions.Where(a => a.Name == previewPlayActionName);
             return actions.Count() == 1 ? actions.First() : null;
@@ -827,9 +1043,47 @@ namespace NowPlaying
                     work = action.WorkingDir;
                     path = action.Path;
                 }
+
+                work = DirectoryUtils.CollapseMultipleSlashes(work);
+                path = DirectoryUtils.CollapseMultipleSlashes(path);
+
                 if (work != null && path != null && work == path.Substring(0, work.Length))
                 {
-                    return path.Substring(work.Length + 1);
+                    return path.Substring(DirectoryUtils.TrimEndingSlash(work).Length + 1);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public string GetIncrementalRomPath(string romPath, string installDir, Game variableReferenceGame = null)
+        {
+            if (romPath != null && installDir != null)
+            {
+                string work, path;
+                if (variableReferenceGame != null)
+                {
+                    work = PlayniteApi.ExpandGameVariables(variableReferenceGame, installDir);
+                    path = PlayniteApi.ExpandGameVariables(variableReferenceGame, romPath);
+                }
+                else
+                {
+                    work = installDir;
+                    path = romPath;
+                }
+
+                work = DirectoryUtils.CollapseMultipleSlashes(work);
+                path = DirectoryUtils.CollapseMultipleSlashes(path);
+
+                if (work != null && path != null && work.Length <= path.Length && work == path.Substring(0, work.Length))
+                {
+                    return path.Substring(DirectoryUtils.TrimEndingSlash(work).Length + 1);
                 }
                 else
                 {

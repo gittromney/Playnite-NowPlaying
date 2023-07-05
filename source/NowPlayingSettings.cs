@@ -11,6 +11,20 @@ namespace NowPlaying
         public bool ConfirmUninstall { get; set; }
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
 
+        private DoWhen changeProblematicInstallDir_DoWhen;
+        public DoWhen ChangeProblematicInstallDir_DoWhen
+        {
+            get => changeProblematicInstallDir_DoWhen;
+            set
+            {
+                if (changeProblematicInstallDir_DoWhen != value)
+                {
+                    changeProblematicInstallDir_DoWhen = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private DoWhen syncDirtyCache_DoWhen;
         public DoWhen SyncDirtyCache_DoWhen 
         {
@@ -119,10 +133,14 @@ namespace NowPlaying
         {
             this.ConfirmUninstall = true;
             this.NotifyOnInstallWhilePlayingActivity = false;
-
+            
+            this.ChangeProblematicInstallDir_DoWhen = DoWhen.Ask;
+            
             this.SyncDirtyCache_DoWhen = DoWhen.Always;
+            
             this.WhilePlayingMode = WhilePlaying.SpeedLimit;
             this.SpeedLimitIpg = 75;
+            
             this.PartialFileResume = EnDisThresh.Threshold;
             this.PfrThresholdGigaBytes = 0.1;
 

@@ -109,7 +109,8 @@ namespace NowPlaying.ViewModels
             string exePath,
             string xtraArgs,
             string cacheRootDir,
-            string cacheSubDir = null)
+            string cacheSubDir = null,
+            GameCachePlatform platform = GameCachePlatform.WinPC)
         {
             if (!GameCacheExists(cacheId) && CacheRootExists(cacheRootDir))
             {
@@ -120,7 +121,7 @@ namespace NowPlaying.ViewModels
                 }
 
                 // . create new game cache entry
-                gameCacheManager.AddGameCacheEntry(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir);
+                gameCacheManager.AddGameCacheEntry(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, cacheSubDir, platform: platform);
 
                 // . update install/cache dir stats/sizes
                 var entry = gameCacheManager.GetGameCacheEntry(cacheId);

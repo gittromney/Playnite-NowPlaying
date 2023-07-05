@@ -39,6 +39,30 @@
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"
                         Margin="0,0,0,10"/>
+
+                    <TextBlock
+                        Text="{DynamicResource LOCNowPlayingSettingsInstallAdjHeading}"
+                        Style="{DynamicResource SubheadingText}"
+                        Margin="0,10,0,10"/>
+                    <TextBlock
+                        Text="{DynamicResource LOCNowPlayingSettingsInstallAdjDescr}"
+                        TextWrapping="Wrap"
+                        Margin="0,0,0,3"/>
+                    <RadioButton 
+                        Content="{DynamicResource LOCNowPlayingSettingsInstallAdjAlways}"
+                        IsChecked="{Binding Settings.ChangeProblematicInstallDir_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Always}}"
+                        GroupName="AdjustInstallRadio"
+                        Margin="0,0,0,2"/>
+                    <RadioButton 
+                        Content="{DynamicResource LOCNowPlayingSettingsInstallAdjAsk}"
+                        IsChecked="{Binding Settings.ChangeProblematicInstallDir_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Ask}}"
+                        GroupName="AdjustInstallRadio"
+                        Margin="0,0,0,2"/>
+                    <RadioButton 
+                        Content="{DynamicResource LOCNowPlayingSettingsInstallAdjNever}"
+                        IsChecked="{Binding Settings.ChangeProblematicInstallDir_DoWhen, Converter={StaticResource EnumToBool}, ConverterParameter={x:Static local:DoWhen.Never}}"
+                        GroupName="AdjustInstallRadio"
+                        Margin="0,0,0,0"/>
                 </StackPanel>
             </TabItem>
 
