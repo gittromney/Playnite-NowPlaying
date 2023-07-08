@@ -4,4 +4,7 @@
     <StartAction>Program</StartAction>
     <StartProgram>C:\Apps\Playnite\Playnite.DesktopApp.exe</StartProgram>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
 </Project>

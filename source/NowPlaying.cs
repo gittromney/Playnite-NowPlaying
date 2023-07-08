@@ -857,6 +857,10 @@ namespace NowPlaying
                     {
                         PopupError(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
                     }
+                    else
+                    {
+                        logger.Error(FormatResourceString("LOCNowPlayingGameInstallDirNotFoundFmt2", title, installDir));
+                    }
                     return false;
                 }
             }
