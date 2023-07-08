@@ -1,5 +1,17 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.3
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2023-07-08
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.3/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_3.pext
+    Changelog:
+    - Adds game caching support for some emulated platforms
+      - Sony Playstation 3 (RPCS3)
+      - Microsoft Xbox 360 (Xenia)
+      - Nintendo Switch (Ryujinx, Yuzu)
+    - Adds separate 'Speed' and 'Average Speed' status to the install progress bar
+      - Speed - 'current' device transfer speed, based on a 16-second rolling average
+      - Average Speed - long-term-average device transfer speed used for ETA calculations, based on ~4-minute rolling average  
   - Version: 1.2.1
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2023-06-18

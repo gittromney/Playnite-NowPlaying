@@ -6,22 +6,23 @@
 [![License](https://img.shields.io/github/license/gittromney/Playnite-NowPlaying)](https://raw.githubusercontent.com/gittromney/Playnite-NowPlaying/master/LICENSE)
 [![Crowdin](https://badges.crowdin.net/nowplaying-playnite-extension/localized.svg)](https://crowdin.com/project/nowplaying-playnite-extension)
 
-This extension may be useful if you have a local library of PC Windows and/or [supported emulator platform](#emulator-platforms) games you legally own, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
+This extension may be useful if you have a local library of PC Windows and/or [*emulated*](#emulated-platforms) games you legally own, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
+
+### <a id=emulated-platforms></a> Supported Emulated Platforms
+Game caching is now possible for the following emulated platforms (See [here](#emulator-setup) for details):
+- *Sony Playstation 3* (RPCS3)
+- *Microsoft Xbox 360* (Xenia)
+- *Nintendo Switch* (Ryujinx, Yuzu)
 
 ### Games must meet the following requirements to be eligible for game caching:
 - Are locally installed (added via Add Game → Manually / Scan Automatically or emulator library scan).
 - Are playable from the installation directory (i.e. not archived).
 - Are listed under the 'Playnite' library.
 - Have a single Play Action (see Game Details → Actions).
-- Are on 'PC (Windows)' with no ROMs or on a ***supported emulator platform*** with 1 ROM.
+- Are on 'PC (Windows)' with no ROMs or an [*emulated platform*](#emulated-platforms) with 1 ROM.
 
 ***Note, the Play action's 'Path' must point to an executable/shortcut/symlink that is somewhere under the 'Work' directory.*** 
 
-### <a id=emulator-platforms></a> Supported Emulator Platforms
-Game caching is now possible for the following emulated platforms (See [here](#emulator-setup) for details):
-- *Sony Playstation 3* (RPCS3)
-- *Microsoft Xbox 360* (Xenia)
-- *Nintendo Switch* (Ryujinx, Yuzu)
 
 ### How it works
 
@@ -64,7 +65,7 @@ When a dirty game cache is uninstalled, you have the option of syncing updated g
 to the installation directory. (See NowPlaying settings.)
 
 ### <a id="emulator-setup"></a> Recommended Emulator Setup
-If using game caching for emulated platform games, here are some recommendations:
+If using game caching for [*emulated platform*](#emulated-platforms) games, here are some recommendations:
 - Install the emulator(s) on a fast device such as your C: drive.
 - The emulator's operating storage (e.g. virtual file system) should also be located on a fast device 
   (this should be the default configuration).
@@ -80,7 +81,10 @@ If using game caching for emulated platform games, here are some recommendations
           MyFavoriteSwitchGame [UPD 1.1].nsp
         MyFavoriteSwitchGame.nsp
   
-  'DLCs' and 'Updates' files would need to be installed on a per-game basis via the emulator's own native GUI, and in Playnite, those two directories would be added to the Switch emulator(s) excluded folders list under Library → Configure Emulators... → Auto-scan configurations → Exclusions.
+- In Playnite, add 'DLCs' and 'Updates' to the Switch emulator(s) excluded folders list under Library → Configure Emulators... → Auto-scan configurations → Exclusions.
+- If applicable, launch your emulator(s) separately to install DLCs and update ROM files on a per-game basis.
+  To get the full benefit of game caching, you may want install the game's NowPlaying cache first and install the
+  DLC/update files from the cache directory.
 
 ### Example use case:
 
