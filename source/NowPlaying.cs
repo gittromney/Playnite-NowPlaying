@@ -253,7 +253,20 @@ namespace NowPlaying
             foreach (var game in PlayniteApi.Database.Games.Where(g => g.PluginId == this.Id))
             {
                 string cacheId = game.Id.ToString();
-                if (!cacheManager.GameCacheExists(cacheId))
+                if (cacheManager.GameCacheExists(cacheId))
+                {
+                    // . check game platform and correct if necessary
+                    var platform = GetGameCachePlatform(game);
+                    var gameCache = cacheManager.FindGameCache(cacheId);
+
+                    if (gameCache.entry.Platform != platform)
+                    {
+                        logger.Warn($"Corrected {game.Name}'s game cache platform: {gameCache.Platform} → {platform}");
+                        gameCache.entry.Platform = platform;
+                        foundBroken = true;
+                    }
+                }
+                else
                 {
                     topPanelViewModel.NowProcessing(true, GetResourceString("LOCNowPlayingCheckBrokenGamesProgress"));
 
@@ -425,7 +438,7 @@ namespace NowPlaying
                     break;
             }
 
-            if (installDir != null && exePath != null && await CheckIfGameInstallDirIsAccessibleAsync(title, installDir, silentMode: true))
+            if (installDir != null && exePath != null && await CheckIfGameInstallDirIsAccessibleAsync(title, installDir))
             {
                 // . Separate cacheDir into its cacheRootDir and cacheSubDir components, assuming nowPlayingGame matching Cache RootDir exists.
                 (string cacheRootDir, string cacheSubDir) = cacheManager.FindCacheRootAndSubDir(nowPlayingGame.InstallDirectory);

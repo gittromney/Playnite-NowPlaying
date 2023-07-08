@@ -88,7 +88,7 @@ namespace NowPlaying.ViewModels
         // . Transfer speed rolling averages
         public RollingAvgLong currSpeedRollAvgBps;
         public RollingAvgLong averageSpeedRollAvgBps;
-        private readonly int currSpeedRollAvgDepth = 16;      // current speed → 8 second rolling average
+        private readonly int currSpeedRollAvgDepth = 32;      // current speed → 16 second rolling average
         private readonly int averageSpeedRollAvgDepth = 256;  // average speed → approx 4 minute rolling average
 
         public string ProgressPanelTitle =>
