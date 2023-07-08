@@ -3,6 +3,7 @@ using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
 using System.Timers;
+using System.Windows.Controls;
 
 namespace NowPlaying.ViewModels
 {
@@ -14,6 +15,9 @@ namespace NowPlaying.ViewModels
         private readonly GameCacheViewModel gameCache;
         private readonly RoboStats jobStats;
         private readonly Timer speedEtaRefreshTimer;
+        private readonly long speedEtaInterval = 500;  // calc avg speed, Eta every 1/2 second
+        private long totalBytesCopied;
+        private long prevTotalBytesCopied;
 
         private bool preparingToInstall;
         public bool PreparingToInstall
@@ -78,11 +82,14 @@ namespace NowPlaying.ViewModels
         private bool   partialFileResume;
         private string duration;
         private string timeRemaining;
+        private string currentSpeed;
         private string averageSpeed;
 
-        // . rolling average of 'average bytes per second'
-        public RollingAvgLong rollAvgAvgBps;
-        private int rollAvgDepth;
+        // . Transfer speed rolling averages
+        public RollingAvgLong currSpeedRollAvgBps;
+        public RollingAvgLong averageSpeedRollAvgBps;
+        private readonly int currSpeedRollAvgDepth = 16;      // current speed → 8 second rolling average
+        private readonly int averageSpeedRollAvgDepth = 256;  // average speed → approx 4 minute rolling average
 
         public string ProgressPanelTitle =>
         (
@@ -113,7 +120,7 @@ namespace NowPlaying.ViewModels
 
         public string SpeedDurationEta =>
         (
-            PreparingToInstall ? "" : string.Format(formatStringSpeedDurationEta, averageSpeed, duration, timeRemaining)
+            PreparingToInstall ? "" : string.Format(formatStringSpeedDurationEta, currentSpeed, averageSpeed, duration, timeRemaining)
         );
 
         public InstallProgressViewModel(NowPlayingInstallController controller, int speedLimitIpg=0, bool partialFileResume=false)
@@ -125,7 +132,7 @@ namespace NowPlaying.ViewModels
             this.gameCache = controller.gameCache;
             this.PauseInstallCommand = new RelayCommand(() => controller.RequestPauseInstall());
             this.CancelInstallCommand = new RelayCommand(() => controller.RequestCancellInstall());
-            this.speedEtaRefreshTimer = new Timer() { Interval = 500 };  // fire every 1/2 second
+            this.speedEtaRefreshTimer = new Timer() { Interval = speedEtaInterval };
 
             this.formatStringCopyingFile = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1})...";
             this.formatStringCopyingFilePfr = (plugin.GetResourceString("LOCNowPlayingTermsCopying") ?? "Copying") + " '{0}' ({1}) ";
@@ -133,8 +140,9 @@ namespace NowPlaying.ViewModels
             this.formatStringXofY = plugin.GetResourceFormatString("LOCNowPlayingProgressXofYFmt2", 2) ?? "{0} of {1}";
             this.formatStringFilesAndBytes = plugin.GetResourceFormatString("LOCNowPlayingProgressFilesAndBytesFmt2", 2) ?? "{0} files,  {1} copied";
             this.formatStringSpeedDurationEta = (plugin.GetResourceString("LOCNowPlayingTermsSpeed") ?? "Speed") + ": {0},   ";
-            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsDuration") ?? "Duration") + ": {1},   ";
-            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsEta") ?? "ETA") + ": {2}";
+            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsAvgSpeed") ?? "Average speed") + ": {1},   ";
+            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsDuration") ?? "Duration") + ": {2},   ";
+            this.formatStringSpeedDurationEta += (plugin.GetResourceString("LOCNowPlayingTermsEta") ?? "ETA") + ": {3}";
             
             PrepareToInstall(speedLimitIpg, partialFileResume);
         }
@@ -150,12 +158,13 @@ namespace NowPlaying.ViewModels
             cacheManager.gameCacheManager.eJobCancelled += OnJobDone;
             cacheManager.gameCacheManager.eJobDone += OnJobDone;
             speedEtaRefreshTimer.Elapsed += OnSpeedEtaRefreshTimerElapsed;
+            this.currentSpeed = "-";
 
             // . initialize any rolling average stats
             var avgBytesPerFile = gameCache.InstallSize / gameCache.InstallFiles;
             var avgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
-            this.rollAvgDepth = 256;
-            this.rollAvgAvgBps = new RollingAvgLong(rollAvgDepth, avgBps);
+            this.currSpeedRollAvgBps = new RollingAvgLong(currSpeedRollAvgDepth, avgBps);
+            this.averageSpeedRollAvgBps = new RollingAvgLong(averageSpeedRollAvgDepth, avgBps);
 
             this.filesCopied = 0;
             this.bytesCopied = "-";
@@ -171,12 +180,24 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(SpeedDurationEta));
             }
 
+            // . current speed
+            long intervalBytesCopied = totalBytesCopied - prevTotalBytesCopied;
+            long currentBps = (long)((1000.0 * intervalBytesCopied) / speedEtaInterval);
+            currSpeedRollAvgBps.Push(currentBps);
+            prevTotalBytesCopied = totalBytesCopied;
+
+            sval = SmartUnits.Bytes(currSpeedRollAvgBps.GetAverage(), decimals: 1) + "/s";
+            if (currentSpeed != sval)
+            {
+                currentSpeed = sval;
+                OnPropertyChanged(nameof(SpeedDurationEta));
+            }
+
+            // . long term average speed, ETA
             var currentAvgBps = jobStats.GetAvgBytesPerSecond();
-            
-            rollAvgAvgBps.Push(currentAvgBps);
+            averageSpeedRollAvgBps.Push(currentAvgBps);
 
-            var averageAvgBps = rollAvgAvgBps.GetAverage();
-
+            var averageAvgBps = averageSpeedRollAvgBps.GetAverage();
             var timeSpanRemaining = jobStats.GetTimeRemaining(averageAvgBps);
             sval = SmartUnits.Duration(timeSpanRemaining);
 
@@ -214,9 +235,13 @@ namespace NowPlaying.ViewModels
                     bytesScale = SmartUnits.GetBytesAutoScale(jobStats.BytesToCopy);
                     bytesToCopy = SmartUnits.Bytes(jobStats.BytesToCopy, userScale: bytesScale);
 
-                    // . Initialize copied files of files and bytes of bytes progress. 
+                    // . Initiallize 'current speed' copied bytes trackers
+                    totalBytesCopied = jobStats.GetTotalBytesCopied();
+                    prevTotalBytesCopied = totalBytesCopied;
+
+                    // . Initialize copied files of files and bytes of bytes progress.
                     filesCopied = jobStats.FilesCopied;
-                    bytesCopied = SmartUnits.Bytes(jobStats.GetTotalBytesCopied(), userScale: bytesScale, showUnits: false);
+                    bytesCopied = SmartUnits.Bytes(totalBytesCopied, userScale: bytesScale, showUnits: false);
                     copiedFilesOfFiles = string.Format(formatStringXofY, jobStats.FilesCopied, jobStats.FilesToCopy);
                     copiedBytesOfBytes = string.Format(formatStringXofY, bytesCopied, bytesToCopy);
 
@@ -237,7 +262,9 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(ProgressValue));
                 }
 
-                string sval = SmartUnits.Bytes(jobStats.GetTotalBytesCopied(), userScale: bytesScale, showUnits: false);
+                totalBytesCopied = jobStats.GetTotalBytesCopied();
+
+                string sval = SmartUnits.Bytes(totalBytesCopied, userScale: bytesScale, showUnits: false);
                 if (filesCopied != jobStats.FilesCopied || bytesCopied != sval)
                 {
                     if (filesCopied != jobStats.FilesCopied)

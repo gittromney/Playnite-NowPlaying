@@ -153,7 +153,7 @@ namespace NowPlaying
 
             // . initiallize rolling average for PFR mode change
             var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
-            progressViewModel.rollAvgAvgBps.Init(initAvgBps);
+            progressViewModel.averageSpeedRollAvgBps.Init(initAvgBps);
         }
 
         private void InstallDone(GameCacheJob job)

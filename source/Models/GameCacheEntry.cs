@@ -7,7 +7,7 @@ using System.Threading;
 namespace NowPlaying.Models
 {
     public enum GameCacheState { Empty, InProgress, Populated, Played, Unknown, Invalid };
-    public enum GameCachePlatform { WinPC, PS3, Switch, InEligible };
+    public enum GameCachePlatform { WinPC, PS3, X360, Switch, InEligible };
 
     /// <summary>
     /// Game Cache specification entry class

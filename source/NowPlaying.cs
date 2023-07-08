@@ -409,6 +409,7 @@ namespace NowPlaying
                     break;
 
                 case GameCachePlatform.PS3:
+                case GameCachePlatform.X360:
                 case GameCachePlatform.Switch:
                     exePath = GetIncrementalRomPath(nowPlayingGame.Roms?.First()?.Path, nowPlayingGame.InstallDirectory, nowPlayingGame);
                     var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
@@ -623,6 +624,10 @@ namespace NowPlaying
             {
                 return GameCachePlatform.PS3;
             }
+            else if (specId == "xbox360")
+            {
+                return GameCachePlatform.X360;
+            }
             else if (specId == "nintendo_switch")
             {
                 return GameCachePlatform.Switch;
@@ -708,10 +713,8 @@ namespace NowPlaying
             string title = game.Name;
             string installDirectory = DirectoryUtils.CollapseMultipleSlashes(game.InstallDirectory);
             var platform = GetGameCachePlatform(game);
-            
-            string[] problematicWinPcKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
-            string[] problematicPS3Keywords = { "ps3_game", "usrdir" };
-            var problematicKeywords = platform == GameCachePlatform.PS3 ? problematicPS3Keywords : problematicWinPcKeywords;
+
+            var problematicKeywords = platform == GameCachePlatform.PS3 ? Settings.ProblematicPS3InstDirKeywords : Settings.ProblematicInstallDirKeywords;
 
             List<string> matchedSubdirs = new List<string>();
             string recommendedInstallDir = string.Empty;
@@ -778,6 +781,7 @@ namespace NowPlaying
                             break;
 
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.X360:
                         case GameCachePlatform.Switch:
                             var rom = game.Roms?.First();
                             if (rom != null && (exePath = GetIncrementalRomPath(rom.Path, installDirectory, game)) != null)
@@ -919,6 +923,7 @@ namespace NowPlaying
                             break;
 
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.X360:
                         case GameCachePlatform.Switch:
                             exePath = GetIncrementalRomPath(game.Roms?.First()?.Path, game.InstallDirectory, game);
                             var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
@@ -961,6 +966,7 @@ namespace NowPlaying
                         break;
 
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.X360:
                     case GameCachePlatform.Switch:
                         game.GameActions.Add
                         (

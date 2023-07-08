@@ -19,6 +19,7 @@
     <sys:String x:Key="LOCNowPlayingTermsSpaceAvailable">Space available</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsMaxFillLevel">Max fill level</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSpeed">Speed</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsAvgSpeed">Average speed</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsDuration">Duration</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsEta">ETA</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsInstallEta">Install ETA</sys:String>
@@ -165,13 +166,18 @@
     <!--AddGameCachesView-->
     <sys:String x:Key="LOCNowPlayingAddGamesHeading">Enable games for NowPlaying game caching</sys:String>
     <sys:String x:Key="LOCNowPlayingNoEligibleGamesWarning">** No games found that are eligible for NowPlaying game caching (that aren't already enabled). **</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirementsHeading">Note, games must meet the following requirements to be eligible for game caching:</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement1">Are locally installed (added via Add Game → Manually or Scan Automatically)</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirementsHeading">Games must meet the following requirements to be eligible for game caching:</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement1">Are locally installed (added via Add Game → Manually / Scan Automatically, or emulator library scan)</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement2">Are playable from the installation directory (i.e. not archived).</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement3">Are listed under the 'Playnite' library.</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement4">Have a single Play Action (see Game Details → Actions).</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement5">Platform is 'PC (Windows)'.</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement6">Have no Roms.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement5">Are on 'PC (Windows)' with no ROMs or a *Supported emulator platform with 1 ROM.</sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement6">
+        Supported emulator platforms:
+          'Sony Playstation 3' (RPCS3),
+          'Microsoft Xbox 360' (Xenia),
+          'Nintendo Switch' (Ryujinx, Yuzu).
+    </sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Game title search terms</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>

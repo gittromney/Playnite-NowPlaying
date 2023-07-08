@@ -74,6 +74,7 @@ namespace NowPlaying
                         break;
 
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.X360:
                     case GameCachePlatform.Switch:
                         exePath = plugin.GetIncrementalRomPath(game.Roms?.First().Path, installDir, game);
                         xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.AdditionalArguments);
@@ -127,6 +128,7 @@ namespace NowPlaying
                             break;
 
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.X360:
                         case GameCachePlatform.Switch:
                             game.GameActions.Add
                             (

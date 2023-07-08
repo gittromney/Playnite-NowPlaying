@@ -129,6 +129,9 @@ namespace NowPlaying
             }
         }
 
+        public string[] ProblematicInstallDirKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail", "mcc" };
+        public string[] ProblematicPS3InstDirKeywords = { "ps3_game", "usrdir" };
+
         public NowPlayingSettings()
         {
             this.ConfirmUninstall = true;

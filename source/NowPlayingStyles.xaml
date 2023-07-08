@@ -192,6 +192,7 @@
                         <TextBlock
                             VerticalAlignment="Top"
                             Text="{TemplateBinding Content}"
+                            TextWrapping="Wrap"
                             Padding="10,0,0,0"/>
                     </BulletDecorator>
                 </ControlTemplate>

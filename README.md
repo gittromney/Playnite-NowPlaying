@@ -6,17 +6,22 @@
 [![License](https://img.shields.io/github/license/gittromney/Playnite-NowPlaying)](https://raw.githubusercontent.com/gittromney/Playnite-NowPlaying/master/LICENSE)
 [![Crowdin](https://badges.crowdin.net/nowplaying-playnite-extension/localized.svg)](https://crowdin.com/project/nowplaying-playnite-extension)
 
-This extension may be useful if you have a local library of PC Windows games, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
+This extension may be useful if you have a local library of PC Windows and/or [supported emulator platform](#emulator-platforms) games you legally own, such as Abandonware or public domain games not available on the usual platforms (steam, epic, xbox game pass, etc), and you have limited space on your fast storage device(s).  This extension allows you to host your games on big-and-slow storage devices (HDDs, network drives/NAS, etc.), and it can create & mangage game caches on your fast storage device(s) for the games you are actively playing. 
 
 ### Games must meet the following requirements to be eligible for game caching:
-- Are locally installed (added via Add Game → Manually or Scan Automatically)
+- Are locally installed (added via Add Game → Manually / Scan Automatically or emulator library scan).
 - Are playable from the installation directory (i.e. not archived).
 - Are listed under the 'Playnite' library.
 - Have a single Play Action (see Game Details → Actions).
-- Platform is 'PC (Windows)'.
-- Have no Roms.
+- Are on 'PC (Windows)' with no ROMs or on a ***supported emulator platform*** with 1 ROM.
 
 ***Note, the Play action's 'Path' must point to an executable/shortcut/symlink that is somewhere under the 'Work' directory.*** 
+
+### <a id=emulator-platforms></a> Supported Emulator Platforms
+Game caching is now possible for the following emulated platforms (See [here](#emulator-setup) for details):
+- *Sony Playstation 3* (RPCS3)
+- *Microsoft Xbox 360* (Xenia)
+- *Nintendo Switch* (Ryujinx, Yuzu)
 
 ### How it works
 
@@ -58,13 +63,32 @@ While playing one of these games, the cache can become 'dirty', or different tha
 When a dirty game cache is uninstalled, you have the option of syncing updated game settings/save data back
 to the installation directory. (See NowPlaying settings.)
 
+### <a id="emulator-setup"></a> Recommended Emulator Setup
+If using game caching for emulated platform games, here are some recommendations:
+- Install the emulator(s) on a fast device such as your C: drive.
+- The emulator's operating storage (e.g. virtual file system) should also be located on a fast device 
+  (this should be the default configuration).
+- If applicable, max out the emulator's cache size settings. For RPCS3, the max setting is 10GB. (Edit config.yml, then under "VFS:", set "Disk cache maximum size (MB)" to 10240)
+- To ensure there is only 1 ROM per game, you may may need to place game updates/DLCs under their own subdirectories and exclude those from Playnite's emulator library scans.
+  As an example, a Switch game directory might look like this:
+    ##### 
+      E:\Games\Switch\MyFavoriteSwitchGame\
+        DLCs\
+          MyFavoriteSwitchGame [DLC pack 1].nsp
+          MyFavoriteSwitchGame [DLC pack 2].nsp
+        Updates\
+          MyFavoriteSwitchGame [UPD 1.1].nsp
+        MyFavoriteSwitchGame.nsp
+  
+  'DLCs' and 'Updates' files would need to be installed on a per-game basis via the emulator's own native GUI, and in Playnite, those two directories would be added to the Switch emulator(s) excluded folders list under Library → Configure Emulators... → Auto-scan configurations → Exclusions.
+
 ### Example use case:
 
-1. Import PC Windows games into Playnite from your big-and-slow storage devices (Add Game → Manually, or Add Game → Scan Automatically)
+1. Import PC Windows and/or supported emulator platform games into Playnite from your big-and-slow storage devices (Add Game → Manually, Add Game → Scan Automatically, or via emulator library scan)
 
     ***Make sure each game's Installation Folder points to its main folder. Also, avoid using a shortcut (with a hardcoded path to the big-and-slow device) as the game's executable*** 
     
-    A good way to check this at a glance is to see if the Install Size seems reasonable. Sometimes Playnite sets the Installation Folder to a subdirectory where the game executable lives.  When that happens, the Install Size reported will be way too small.  Edit the game's Install Folder and Play action path, if needed.
+    A good way to check this at a glance is to see if the Install Size seems reasonable. Sometimes Playnite sets the Installation Folder to a subdirectory where the game executable/ROM lives.  When that happens, the Install Size reported will be way too small.  Edit the game's Install Folder and play action/ROM Path, if needed.
 
     #### Incorrect 😒🚫
 
@@ -81,7 +105,7 @@ to the installation directory. (See NowPlaying settings.)
 
 2. Install NowPlaying Game Cacher Extension, if you haven't already.
 3. Navagate to the NowPlaying view (via sidebar).
-4. Add at least one NowPLaying Cache Root (storage device, directory, max fill level), where game caches can be created.
+4. Add at least one NowPlaying Cache Root (storage device, directory, max fill level), where game caches can be created.
 
    **Note, a maximum fill level can be set to prevent game caches from completely filling your storage device, if necessary.
    Definitely set this < 100% if using your C:\ drive for game caches, for example.**
