@@ -70,6 +70,7 @@ If using game caching for [*emulated platform*](#emulated-platforms) games, here
 - The emulator's operating storage (e.g. virtual file system) should also be located on a fast device 
   (this should be the default configuration).
 - If applicable, max out the emulator's cache size settings. For RPCS3, the max setting is 10GB. (Edit config.yml, then under "VFS:", set "Disk cache maximum size (MB)" to 10240)
+- Each game's ROM should be placed in its own directory/folder.
 - To ensure there is only 1 ROM per game, you may may need to place game updates/DLCs under their own subdirectories and exclude those from Playnite's emulator library scans.
   As an example, a Switch game directory might look like this:
     ##### 
