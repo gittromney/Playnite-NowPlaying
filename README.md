@@ -77,7 +77,7 @@ If using game caching for [*emulated platform*](#emulated-platforms) games, here
 - Each game should have its own directory where game files/ROM are located.
 #### Updates/DLCs
 - To ensure there is only 1 ROM per game, you may may need to place game updates/DLCs under their own subdirectories and exclude those from Playnite's emulator library scans.
-  As an example, a Switch game directory might look like this:
+  As an example, a Switch game directory might look like this: 
     ##### 
       E:\Games\Switch\MyFavoriteSwitchGame\
         DLCs\
