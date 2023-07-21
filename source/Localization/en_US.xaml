@@ -171,13 +171,15 @@
     <sys:String x:Key="LOCNowPlayingRequirement2">Are playable from the installation directory (i.e. not archived).</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement3">Are listed under the 'Playnite' library.</sys:String>
     <sys:String x:Key="LOCNowPlayingRequirement4">Have a single Play Action (see Game Details → Actions).</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement5">Are on 'PC (Windows)' with no ROMs or a *Supported emulator platform with 1 ROM.</sys:String>
-    <sys:String x:Key="LOCNowPlayingRequirement6">
-        Supported emulator platforms:
-          'Sony Playstation 3' (RPCS3),
-          'Microsoft Xbox 360' (Xenia),
-          'Nintendo Switch' (Ryujinx, Yuzu).
-    </sys:String>
+    <sys:String x:Key="LOCNowPlayingRequirement5">Are on 'PC (Windows)' with no ROMs or a supported emulator platform with 1 ROM.</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatformHeading">Supported emulator platforms:</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform1">Sony Playstation 2 (PCSX2)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform2">Sony Playstation 3 (RPCS3)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform3">Microsoft Xbox (Xemu)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform4">Microsoft Xbox 360 (Xenia)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform5">Nintendo GameCube (Dolphin)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform6">Nintendo Wii (Dolphin)</sys:String>
+    <sys:String x:Key="LOCNowPlayingEmuPlatform7">Nintendo Switch (Ryujinx, Yuzu)</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Game title search terms</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>

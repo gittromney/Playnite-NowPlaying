@@ -10,8 +10,12 @@ This extension may be useful if you have a local library of PC Windows and/or [*
 
 ### <a id=emulated-platforms></a> Supported Emulated Platforms
 Game caching is now possible for the following emulated platforms (See [here](#emulator-setup) for details):
+- *Sony Playstation 2* (PCSX2)
 - *Sony Playstation 3* (RPCS3)
+- *Microsoft Xbox* (Xemu)
 - *Microsoft Xbox 360* (Xenia)
+- *Nintendo GameCube* (Dolphin)
+- *Nintendo Wii* (Dolphin)
 - *Nintendo Switch* (Ryujinx, Yuzu)
 
 ### Games must meet the following requirements to be eligible for game caching:
@@ -19,12 +23,12 @@ Game caching is now possible for the following emulated platforms (See [here](#e
 - Are playable from the installation directory (i.e. not archived).
 - Are listed under the 'Playnite' library.
 - Have a single Play Action (see Game Details → Actions).
-- Are on 'PC (Windows)' with no ROMs or an [*emulated platform*](#emulated-platforms) with 1 ROM.
+- Are on 'PC (Windows)' with no ROMs or a [*supported emulated platform*](#emulated-platforms) with 1 ROM.
 
 ***Note, the Play action's 'Path' must point to an executable/shortcut/symlink that is somewhere under the 'Work' directory.*** 
 
 
-### How it works
+## How it works
 
 When you enable a game for caching, it gets subsumed under the NowPlaying Game Cacher library. (If game caching is later disabled, the game is released back to the Playnite library.)
 
@@ -64,12 +68,14 @@ While playing one of these games, the cache can become 'dirty', or different tha
 When a dirty game cache is uninstalled, you have the option of syncing updated game settings/save data back
 to the installation directory. (See NowPlaying settings.)
 
-### <a id="emulator-setup"></a> Recommended Emulator Setup
+## <a id="emulator-setup"></a> Recommended Emulator Setup
 If using game caching for [*emulated platform*](#emulated-platforms) games, here are some recommendations:
 - Install the emulator(s) on a fast device such as your C: drive.
 - The emulator's operating storage (e.g. virtual file system) should also be located on a fast device 
   (this should be the default configuration).
 - If applicable, max out the emulator's cache size settings. For RPCS3, the max setting is 10GB. (Edit config.yml, then under "VFS:", set "Disk cache maximum size (MB)" to 10240)
+- Each game should have its own directory where game files/ROM are located.
+#### Updates/DLCs
 - To ensure there is only 1 ROM per game, you may may need to place game updates/DLCs under their own subdirectories and exclude those from Playnite's emulator library scans.
   As an example, a Switch game directory might look like this:
     ##### 
@@ -81,12 +87,31 @@ If using game caching for [*emulated platform*](#emulated-platforms) games, here
           MyFavoriteSwitchGame [UPD 1.1].nsp
         MyFavoriteSwitchGame.nsp
   
-- In Playnite, add 'DLCs' and 'Updates' to the Switch emulator(s) excluded folders list under Library → Configure Emulators... → Auto-scan configurations → Exclusions.
+- In Playnite, add 'DLCs' and 'Updates' to your Switch emulator's excluded folders list, found under Library → Configure Emulators... → Auto-scan configurations → Exclusions.
 - If applicable, launch your emulator(s) separately to install DLCs and update ROM files on a per-game basis.
   To get the full benefit of game caching, you may want install the game's NowPlaying cache first and install the
   DLC/update files from the cache directory.
 
-### Example use case:
+#### Multi-disk/multi-DVD games
+If M3U files are a supported by the emulator, you can create one and import it as the game's ROM file:
+- Confirm that 'm3u' is a supported file type (see Library → Configure Emulators... → Emulators → Profiles → General → Supported File Types)
+- Place the game's per-disk/DVD ROM files (e.g ISOs) under a new subdirectory named 'Disks', 'DVDs', 'ISOs' or similar.
+- In Playnite, add this subdirectory (e.g. 'DVDs') to the emulator's excluded folders list (Library → Configure Emulators... → Auto-scan configurations → Exclusions).
+- Create a .m3u asii text file in the game directory (e.g. using Notepad) that lists the paths to the individual ROM files.
+An example multi-disk GameCube game directory might look like this:
+    #####
+      E:\Games\GameCube\MyFavoriteGameCubeGame\
+        DVDs\
+          MyFavoriteGameCubeGame (DVD1).iso
+          MyFavoriteGameCubeGame (DVD2).iso
+        MyFavoriteGameCubeGame.m3u
+
+    In this example, MyFavoriteGameCubeGame.m3u would contain
+    #####
+      DVDs\MyFavoriteGameCubeGame (DVD1).iso
+      DVDs\MyFavoriteGameCubeGame (DVD2).iso
+
+## Example use case:
 
 1. Import PC Windows and/or supported emulator platform games into Playnite from your big-and-slow storage devices (Add Game → Manually, Add Game → Scan Automatically, or via emulator library scan)
 

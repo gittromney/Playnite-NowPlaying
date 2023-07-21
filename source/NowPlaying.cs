@@ -261,7 +261,7 @@ namespace NowPlaying
 
                     if (gameCache.entry.Platform != platform)
                     {
-                        logger.Warn($"Corrected {game.Name}'s game cache platform: {gameCache.Platform} → {platform}");
+                        logger.Warn($"Corrected {game.Name}'s game cache platform encoding: {gameCache.Platform} → {platform}");
                         gameCache.entry.Platform = platform;
                         foundBroken = true;
                     }
@@ -421,8 +421,12 @@ namespace NowPlaying
                     xtraArgs = nowPlayingAction?.Arguments ?? previewPlayAction?.Arguments;
                     break;
 
+                case GameCachePlatform.PS2:
                 case GameCachePlatform.PS3:
+                case GameCachePlatform.Xbox:
                 case GameCachePlatform.X360:
+                case GameCachePlatform.GameCube:
+                case GameCachePlatform.Wii:
                 case GameCachePlatform.Switch:
                     exePath = GetIncrementalRomPath(nowPlayingGame.Roms?.First()?.Path, nowPlayingGame.InstallDirectory, nowPlayingGame);
                     var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
@@ -633,13 +637,29 @@ namespace NowPlaying
             {
                 return GameCachePlatform.WinPC;
             }
+            else if (specId == "sony_playstation2")
+            {
+                return GameCachePlatform.PS2;
+            }
             else if (specId == "sony_playstation3")
             {
                 return GameCachePlatform.PS3;
             }
+            else if (specId == "xbox")
+            {
+                return GameCachePlatform.Xbox;
+            }
             else if (specId == "xbox360")
             {
                 return GameCachePlatform.X360;
+            }
+            else if (specId == "nintendo_gamecube")
+            {
+                return GameCachePlatform.GameCube;
+            }
+            else if (specId == "nintendo_wii")
+            {
+                return GameCachePlatform.Wii;
             }
             else if (specId == "nintendo_switch")
             {
@@ -793,8 +813,12 @@ namespace NowPlaying
                             }
                             break;
 
+                        case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
+                        case GameCachePlatform.GameCube:
+                        case GameCachePlatform.Wii:
                         case GameCachePlatform.Switch:
                             var rom = game.Roms?.First();
                             if (rom != null && (exePath = GetIncrementalRomPath(rom.Path, installDirectory, game)) != null)
@@ -939,8 +963,12 @@ namespace NowPlaying
                             }
                             break;
 
+                        case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
+                        case GameCachePlatform.GameCube:
+                        case GameCachePlatform.Wii:
                         case GameCachePlatform.Switch:
                             exePath = GetIncrementalRomPath(game.Roms?.First()?.Path, game.InstallDirectory, game);
                             var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
@@ -982,8 +1010,12 @@ namespace NowPlaying
                         );
                         break;
 
+                    case GameCachePlatform.PS2:
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.Xbox:
                     case GameCachePlatform.X360:
+                    case GameCachePlatform.GameCube:
+                    case GameCachePlatform.Wii:
                     case GameCachePlatform.Switch:
                         game.GameActions.Add
                         (

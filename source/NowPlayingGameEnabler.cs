@@ -73,8 +73,12 @@ namespace NowPlaying
                         xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
                         break;
 
+                    case GameCachePlatform.PS2:
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.Xbox:
                     case GameCachePlatform.X360:
+                    case GameCachePlatform.GameCube:
+                    case GameCachePlatform.Wii:
                     case GameCachePlatform.Switch:
                         exePath = plugin.GetIncrementalRomPath(game.Roms?.First().Path, installDir, game);
                         xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.AdditionalArguments);
@@ -127,8 +131,12 @@ namespace NowPlaying
                             );
                             break;
 
+                        case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
+                        case GameCachePlatform.GameCube:
+                        case GameCachePlatform.Wii:
                         case GameCachePlatform.Switch:
                             game.GameActions.Add
                             (

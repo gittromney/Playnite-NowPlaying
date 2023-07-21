@@ -20,7 +20,7 @@
     <SolidColorBrush x:Key="TopPanelProcessingBgBrush" Color="{DynamicResource TopPanelProcessingBgColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableFgBrush" Color="{DynamicResource TopPanelEnableFgColor}"/>
     <SolidColorBrush x:Key="TopPanelEnableBgBrush" Color="{DynamicResource TopPanelEnableBgColor}"/>
-    <SolidColorBrush x:Key="TopPanelInstallFgBrush" Color="{DynamicResource TopPanelInstallFgColor}"/>
+    <SolidColorBrush x:Key="TopPanelInstallFgBrush" Color="{DynamicResource GlyphColor}"/>
     <SolidColorBrush x:Key="TopPanelInstallBgBrush" Color="{DynamicResource TopPanelInstallBgColor}"/>
     <SolidColorBrush x:Key="TopPanelSlowInstallFgBrush" Color="{DynamicResource TopPanelSlowInstallFgColor}"/>
     <SolidColorBrush x:Key="TopPanelSlowInstallBgBrush" Color="{DynamicResource TopPanelSlowInstallBgColor}"/>

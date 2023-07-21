@@ -175,13 +175,22 @@
                     </Style>
                 </StackPanel.Resources>
                 <TextBlock Text="{DynamicResource LOCNowPlayingRequirementsHeading}"/>
-                <StackPanel Margin="10,10,0,0">
+                <StackPanel Margin="10,10,0,20">
                     <Label Content="{DynamicResource LOCNowPlayingRequirement1}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement2}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement3}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement4}"/>
                     <Label Content="{DynamicResource LOCNowPlayingRequirement5}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement6}"/>
+                </StackPanel>
+                <TextBlock Text="{DynamicResource LOCNowPlayingEmuPlatformHeading}"/>
+                <StackPanel Margin="10,10,0,0">
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform1}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform2}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform3}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform4}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform5}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform6}"/>
+                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform7}"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
