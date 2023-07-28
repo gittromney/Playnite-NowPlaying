@@ -21,6 +21,8 @@ using NowPlaying.Views;
 using NowPlaying.ViewModels;
 using System.Reflection;
 using System.Windows.Controls;
+using System.Threading;
+using Playnite.SDK.Data;
 
 namespace NowPlaying
 {
@@ -62,6 +64,7 @@ namespace NowPlaying
         public Queue<NowPlayingGameEnabler> gameEnablerQueue;
         public Queue<NowPlayingInstallController> cacheInstallQueue;
         public Queue<NowPlayingUninstallController> cacheUninstallQueue;
+        public string cacheInstallQueueStateJsonPath;
         public bool cacheInstallQueuePaused;
 
 
@@ -82,6 +85,7 @@ namespace NowPlaying
             gameEnablerQueue = new Queue<NowPlayingGameEnabler>();
             cacheInstallQueue = new Queue<NowPlayingInstallController>();
             cacheUninstallQueue = new Queue<NowPlayingUninstallController>();
+            cacheInstallQueueStateJsonPath = Path.Combine(GetPluginUserDataPath(), "cacheInstallQueueState.json");
             cacheInstallQueuePaused = false;
 
             Settings = LoadPluginSettings<NowPlayingSettings>() ?? new NowPlayingSettings();
@@ -158,11 +162,97 @@ namespace NowPlaying
             PlayniteApi.Database.Games.ItemCollectionChanged += CheckForRemovedNowPlayingGames;
 
             Task.Run(() => CheckForFixableGameCacheIssuesAsync());
+
+            // . if applicable, restore cache install queue state
+            TryRestoreCacheInstallQueueState();
+        }
+
+        public class InstallerInfo
+        {
+            public string title;
+            public string cacheId;
+            public int speedLimitIpg;
+            public InstallerInfo()
+            {
+                this.title = string.Empty;
+                this.cacheId = string.Empty;
+                this.speedLimitIpg = 0;
+            }
+        }
+
+        public void SaveCacheInstallQueueToJson()
+        {
+            Queue<InstallerInfo> installerRestoreQueue = new Queue<InstallerInfo>();
+            foreach (var ci in cacheInstallQueue)
+            {
+                var ii = new InstallerInfo()
+                {
+                    title = ci.gameCache.Title,
+                    cacheId = ci.gameCache.Id, 
+                    speedLimitIpg = ci.speedLimitIpg 
+                };
+                installerRestoreQueue.Enqueue(ii);
+            }
+            try
+            {
+                File.WriteAllText(cacheInstallQueueStateJsonPath, Serialization.ToJson(installerRestoreQueue));
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"SaveInstallerQueueToJson to '{cacheInstallQueueStateJsonPath}' failed: {ex.Message}");
+            }
+        }
+
+        public void TryRestoreCacheInstallQueueState()
+        {
+            if (File.Exists(cacheInstallQueueStateJsonPath))
+            {
+                logger.Info("Attempting to restore cache installation queue state...");
+
+                var installersInfoList = new List<InstallerInfo>();
+                try
+                {
+                    installersInfoList = Serialization.FromJsonFile<List<InstallerInfo>>(cacheInstallQueueStateJsonPath);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error($"TryRestoreCacheInstallQueueState from '{cacheInstallQueueStateJsonPath}' failed: {ex.Message}");
+                }
+
+                foreach (var ii in installersInfoList)
+                {
+                    if (!CacheHasInstallerQueued(ii.cacheId))
+                    {
+                        if (cacheManager.GameCacheExists(ii.cacheId))
+                        {
+                            var nowPlayingGame = FindNowPlayingGame(ii.cacheId);
+                            var gameCache = cacheManager.FindGameCache(ii.cacheId);
+                            if (nowPlayingGame != null && gameCache != null)
+                            {
+                                NotifyInfo($"Restored cache install/queue state of '{gameCache.Title}'");
+                                var controller = new NowPlayingInstallController(this, nowPlayingGame, gameCache, SpeedLimitIpg);
+                                controller.Install(new InstallActionArgs());
+                            }
+                        }
+                    }
+                }
+                File.Delete(cacheInstallQueueStateJsonPath);
+            }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
             // Add code to be executed when Playnite is shutting down.
+            if (cacheInstallQueue.Count > 0)
+            {
+                // . create install queue details file, so it can be restored on Playnite restart. 
+                SaveCacheInstallQueueToJson();
+
+                var title = cacheInstallQueue.First().gameCache.Title;
+                logger.Warn($"Playnite exit detected: pausing game cache installation of '{title}'...");
+                cacheInstallQueuePaused = true;
+                cacheInstallQueue.First().PauseInstallOnPlayniteExit();
+            }
             cacheManager.Shutdown();
         }
 

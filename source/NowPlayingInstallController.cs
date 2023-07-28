@@ -8,6 +8,7 @@ using Playnite.SDK.Plugins;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using System.Threading;
 
 namespace NowPlaying
 {
@@ -24,10 +25,11 @@ namespace NowPlaying
         public readonly GameCacheManagerViewModel cacheManager;
         public readonly InstallProgressViewModel progressViewModel;
         public readonly InstallProgressView progressView;
-        private Action speedLimitChangeOnPaused;
+        private Action onPausedAction;
         public int speedLimitIpg;
 
         private bool deleteCacheOnJobCancelled { get; set; } = false;
+        private bool pauseOnPlayniteExit { get; set; } = false;
 
         public NowPlayingInstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache, int speedLimitIpg = 0) 
             : base(nowPlayingGame)
@@ -42,7 +44,7 @@ namespace NowPlaying
             this.jobStats = new RoboStats(partialFileResume: partialFileResume);
             this.progressViewModel = new InstallProgressViewModel(this, speedLimitIpg, partialFileResume);
             this.progressView = new InstallProgressView(progressViewModel);
-            this.speedLimitChangeOnPaused = null;
+            this.onPausedAction = null;
             this.speedLimitIpg = speedLimitIpg;
         }
 
@@ -184,7 +186,7 @@ namespace NowPlaying
 
         public void RequestPauseInstall(Action speedLimitChangeOnPaused = null)
         {
-            this.speedLimitChangeOnPaused = speedLimitChangeOnPaused; 
+            this.onPausedAction = speedLimitChangeOnPaused; 
             deleteCacheOnJobCancelled = false;
             cacheManager.CancelInstall(gameCache.Id);
         }
@@ -195,90 +197,116 @@ namespace NowPlaying
             cacheManager.CancelInstall(gameCache.Id);
         }
 
+        public void PauseInstallOnPlayniteExit()
+        {
+            // . detect when installation has been paused (async)
+            bool pauseCompleted = false;
+            this.onPausedAction = () =>
+            {
+                pauseCompleted = true;
+            };
+
+            pauseOnPlayniteExit = true;
+            cacheManager.CancelInstall(gameCache.Id);
+         
+            // . wait for pause request to be serviced.
+            while (!pauseCompleted) 
+            { 
+                Thread.Sleep(10); 
+            }
+        }
+
         public void InstallPausedCancelled(GameCacheJob job)
         {
             // . collapse the progress windows
             plugin.panelViewModel.InstallProgressView = null;
 
-            // . exit Installing state
-            InvokeOnInstalled(new GameInstalledEventArgs());
-            nowPlayingGame.IsInstalling = false; // needed if invoked from Panel View
-            PlayniteApi.Database.Games.Update(nowPlayingGame);
-            gameCache.UpdateNowInstalling(false);
-
-            if (deleteCacheOnJobCancelled)
+            if (pauseOnPlayniteExit)
             {
-                logger.Info(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
-
-                // . enter uninstalling state
-                nowPlayingGame.IsUninstalling = true;
-                PlayniteApi.Database.Games.Update(nowPlayingGame);
-                gameCache.UpdateNowUninstalling(true);
-
-                // . delete the cache
-                //   -> allow for retries as robocopy.exe/OS releases file locks
-                //
-                Task.Run(() =>
-                {
-                    if (DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50))
-                    {
-                        gameCache.entry.State = GameCacheState.Empty;
-                        gameCache.entry.CacheSize = 0;
-                        gameCache.entry.CacheSizeOnDisk = 0;
-                    }
-                    else
-                    {
-                        plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingDeleteCacheFailedFmt", gameCache.CacheDir));
-                    }
-
-                    // exit uninstalling state
-                    nowPlayingGame.IsUninstalling = false;
-                    PlayniteApi.Database.Games.Update(nowPlayingGame);
-                    gameCache.UpdateNowUninstalling(false);
-                    gameCache.UpdateCacheSize();
-                    gameCache.UpdateStatus();
-                });
+                logger.Warn($"NowPlaying installation paused for '{gameCache.Title}' on Playnite exit.");
             }
             else
             {
-                gameCache.UpdateCacheSize();
-                gameCache.UpdateCacheSpaceWillFit();
-                gameCache.UpdateStatus();
+                // . exit Installing state
+                InvokeOnInstalled(new GameInstalledEventArgs());
+                nowPlayingGame.IsInstalling = false; // needed if invoked from Panel View
+                PlayniteApi.Database.Games.Update(nowPlayingGame);
+                gameCache.UpdateNowInstalling(false);
 
-                // . if install was paused before completing, revert Game state to uninstalled
-                if (gameCache.entry.State != GameCacheState.Populated)
+                if (deleteCacheOnJobCancelled)
                 {
-                    nowPlayingGame.IsInstalled = false;
+                    logger.Info(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
+
+                    // . enter uninstalling state
+                    nowPlayingGame.IsUninstalling = true;
                     PlayniteApi.Database.Games.Update(nowPlayingGame);
-                }
+                    gameCache.UpdateNowUninstalling(true);
 
-                if (job.cancelledOnMaxFill)
-                {
-                    plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedMaxFillFmt", gameCache.Title));
-                }
-                else if (job.cancelledOnDiskFull)
-                {
-                    plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedDiskFullFmt", gameCache.Title));
-                }
-                else if (job.cancelledOnError)
-                {
-                    string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".install.txt");
-                    plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingInstallTerminatedFmt", gameCache.Title) + seeLogFile);
-                }
-                else if (plugin.cacheInstallQueuePaused && speedLimitChangeOnPaused == null)
-                {
-                    if (settings.NotifyOnInstallWhilePlayingActivity)
+                    // . delete the cache
+                    //   -> allow for retries as robocopy.exe/OS releases file locks
+                    //
+                    Task.Run(() =>
                     {
-                        plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
-                    }
-                    else
-                    {
-                        logger.Info(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
-                    }
+                        if (DirectoryUtils.DeleteDirectory(gameCache.CacheDir, maxRetries: 50))
+                        {
+                            gameCache.entry.State = GameCacheState.Empty;
+                            gameCache.entry.CacheSize = 0;
+                            gameCache.entry.CacheSizeOnDisk = 0;
+                        }
+                        else
+                        {
+                            plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingDeleteCacheFailedFmt", gameCache.CacheDir));
+                        }
+
+                        // exit uninstalling state
+                        nowPlayingGame.IsUninstalling = false;
+                        PlayniteApi.Database.Games.Update(nowPlayingGame);
+                        gameCache.UpdateNowUninstalling(false);
+                        gameCache.UpdateCacheSize();
+                        gameCache.UpdateStatus();
+                    });
                 }
                 else
                 {
-                    logger.Info($"NowPlaying installation paused for '{gameCache.Title}'.");
+                    gameCache.UpdateCacheSize();
+                    gameCache.UpdateCacheSpaceWillFit();
+                    gameCache.UpdateStatus();
+
+                    // . if install was paused before completing, revert Game state to uninstalled
+                    if (gameCache.entry.State != GameCacheState.Populated)
+                    {
+                        nowPlayingGame.IsInstalled = false;
+                        PlayniteApi.Database.Games.Update(nowPlayingGame);
+                    }
+
+                    if (job.cancelledOnMaxFill)
+                    {
+                        plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedMaxFillFmt", gameCache.Title));
+                    }
+                    else if (job.cancelledOnDiskFull)
+                    {
+                        plugin.NotifyError(plugin.FormatResourceString("LOCNowPlayingPausedDiskFullFmt", gameCache.Title));
+                    }
+                    else if (job.cancelledOnError)
+                    {
+                        string seeLogFile = plugin.SaveJobErrorLogAndGetMessage(job, ".install.txt");
+                        plugin.PopupError(plugin.FormatResourceString("LOCNowPlayingInstallTerminatedFmt", gameCache.Title) + seeLogFile);
+                    }
+                    else if (plugin.cacheInstallQueuePaused && onPausedAction == null)
+                    {
+                        if (settings.NotifyOnInstallWhilePlayingActivity)
+                        {
+                            plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
+                        }
+                        else
+                        {
+                            logger.Info(plugin.FormatResourceString("LOCNowPlayingPausedGameStartedFmt", gameCache.Title));
+                        }
+                    }
+                    else
+                    {
+                        logger.Info($"NowPlaying installation paused for '{gameCache.Title}'.");
+                    }
                 }
             }
 
@@ -300,7 +328,7 @@ namespace NowPlaying
                 // . update install queue status of queued installers & top panel status
                 plugin.UpdateInstallQueueStatuses();
                 plugin.topPanelViewModel.InstallQueuePaused();
-                speedLimitChangeOnPaused?.Invoke();
+                onPausedAction?.Invoke();
             }
         }
 
