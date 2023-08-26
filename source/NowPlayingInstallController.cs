@@ -228,7 +228,7 @@ namespace NowPlaying
             else
             {
                 // . exit Installing state
-                InvokeOnInstalled(new GameInstalledEventArgs());
+                nowPlayingGame.IsInstalled = false;
                 nowPlayingGame.IsInstalling = false; // needed if invoked from Panel View
                 PlayniteApi.Database.Games.Update(nowPlayingGame);
                 gameCache.UpdateNowInstalling(false);
@@ -238,8 +238,6 @@ namespace NowPlaying
                     logger.Info(plugin.FormatResourceString("LOCNowPlayingInstallCancelledFmt", gameCache.Title));
 
                     // . enter uninstalling state
-                    nowPlayingGame.IsUninstalling = true;
-                    PlayniteApi.Database.Games.Update(nowPlayingGame);
                     gameCache.UpdateNowUninstalling(true);
 
                     // . delete the cache
@@ -259,8 +257,6 @@ namespace NowPlaying
                         }
 
                         // exit uninstalling state
-                        nowPlayingGame.IsUninstalling = false;
-                        PlayniteApi.Database.Games.Update(nowPlayingGame);
                         gameCache.UpdateNowUninstalling(false);
                         gameCache.UpdateCacheSize();
                         gameCache.UpdateStatus();

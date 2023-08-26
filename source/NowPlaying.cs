@@ -1328,6 +1328,10 @@ namespace NowPlaying
                 // . remove entry from installer queue
                 var controller = cacheInstallQueue.Where(c => c.gameCache.Id == cacheId).First();
                 cacheInstallQueue = new Queue<NowPlayingInstallController>(cacheInstallQueue.Where(c => c != controller));
+                
+                // . exit installing state
+                controller.Game.IsInstalling = false;
+                PlayniteApi.Database.Games.Update(controller.Game);
 
                 // . update game cache state
                 var gameCache = cacheManager.FindGameCache(cacheId);
