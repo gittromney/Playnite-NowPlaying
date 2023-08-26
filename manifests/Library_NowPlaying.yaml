@@ -1,5 +1,15 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.3.3
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2023-08-26
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.3.3/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_3_3.pext
+    Changelog:
+    - Adds dimming of the NowPlaying panel whenever a popup dialog window is displayed, e.g. for adding/editing cache roots or adding game caches.
+    - Adds 'Source directory' column to popup window for adding game caches.
+    - Adds 'Source directory' column to NowPlaying panel's game caches list.
+    - Adds show/hide capability to each column of the the cache roots and game caches lists of the NowPlaying panel; accessible via right-click check boxes when moused over the header row of either list.
+    - Fixes case where a Playnite game could be stuck in 'installing' state, when a game cache install (or a queued install) is cancelled. 
   - Version: 1.3.2
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2023-07-27
