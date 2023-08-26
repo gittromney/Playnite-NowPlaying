@@ -26,6 +26,21 @@ namespace NowPlaying.ViewModels
         private readonly NowPlaying plugin;
         private readonly BitmapImage rootsIcon;
 
+        private bool modalDimming = false;
+        public bool ModalDimming
+        { 
+            get => modalDimming;
+            set
+            {
+                if (value != modalDimming)
+                {
+                    modalDimming = value;
+                    OnPropertyChanged(nameof(ModalDimmingVisibility));
+                }
+            }
+        }
+        public string ModalDimmingVisibility => ModalDimming ? "Visible" : "Hidden";
+
         public BitmapImage RootsIcon => rootsIcon;
 
         public NowPlayingPanelViewModel(NowPlaying plugin)
@@ -140,6 +155,7 @@ namespace NowPlaying.ViewModels
                     viewModel.SelectNoGames();
                     GridViewUtils.ColumnResize(view.EligibleGames);
                 };
+                ModalDimming = true;
                 popup.ShowDialog();
             });
 

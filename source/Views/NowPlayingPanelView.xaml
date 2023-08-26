@@ -413,5 +413,14 @@
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
+        
+        <!--this darkens our panel whenever a modal dialog is displayed (e.g. add cache root, add game caches)-->
+        <Rectangle
+            Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+            Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+            Visibility="{Binding ModalDimmingVisibility}"
+            Fill="Black"
+            Opacity="0.5"/>
+        
     </Grid>
 </UserControl>

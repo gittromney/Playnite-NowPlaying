@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
-using static NowPlaying.ViewModels.CacheRootsViewModel;
 
 namespace NowPlaying.ViewModels
 {
@@ -52,6 +51,7 @@ namespace NowPlaying.ViewModels
                 popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
+                plugin.panelViewModel.ModalDimming = true;
                 popup.ShowDialog();
             });
 
@@ -75,6 +75,7 @@ namespace NowPlaying.ViewModels
                     popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
                     popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                     popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
+                    plugin.panelViewModel.ModalDimming = true;
                     popup.ShowDialog();
                 },
                 // CanExecute

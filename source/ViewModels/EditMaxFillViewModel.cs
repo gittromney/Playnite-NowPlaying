@@ -116,6 +116,7 @@ namespace NowPlaying.ViewModels
 
         public void CloseWindow()
         {
+            plugin.panelViewModel.ModalDimming = false;
             if (popup.Dispatcher.CheckAccess())
             {
                 popup.Close();
