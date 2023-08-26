@@ -115,6 +115,22 @@
 
                             <ListView.View>
                                 <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                            <Setter Property="ContextMenu">
+                                                <Setter.Value>
+                                                    <ContextMenu Name="ColumnShowHideMenu">
+                                                        <MenuItem Header="Show 'Source Directory'">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowSourceDirColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                    </ContextMenu>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    
                                     <GridViewColumn 
                                         DisplayMemberBinding="{Binding Title}"
                                         utils:GridViewUtils.AutoWidth="True"
@@ -128,9 +144,19 @@
                                         DisplayMemberBinding="{Binding Platform}"
                                         utils:GridViewUtils.MinWidth="80">
                                         <GridViewColumnHeader
-                                            Content="{DynamicResource LOCNowPlayingTermsPlatform}" 
+                                            Content="{DynamicResource LOCNowPlayingTermsPlatform}"
                                             ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
                                     </GridViewColumn>
+
+                                    <GridViewColumn 
+                                        DisplayMemberBinding="{Binding InstallDir}"
+                                        utils:GridViewUtils.AutoWidth="True"
+                                        utils:GridViewUtils.MinWidth="130"
+                                        utils:GridViewUtils.HideColumn="{Binding HideSourceDirColumn}">
+                                        <GridViewColumnHeader
+                                            Content="{DynamicResource LOCNowPlayingTermsSourceDirectory}"
+                                            ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}"/>
+                                    </GridViewColumn>   
 
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="Status"

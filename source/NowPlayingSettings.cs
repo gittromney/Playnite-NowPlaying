@@ -10,6 +10,8 @@ namespace NowPlaying
     {
         public bool ConfirmUninstall { get; set; }
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
+        public bool HideGameCacheSourceDir { get; set; }
+
 
         private DoWhen changeProblematicInstallDir_DoWhen;
         public DoWhen ChangeProblematicInstallDir_DoWhen
@@ -129,13 +131,14 @@ namespace NowPlaying
             }
         }
 
-        public string[] ProblematicInstallDirKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail", "mcc" };
+        public string[] ProblematicInstallDirKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
         public string[] ProblematicPS3InstDirKeywords = { "ps3_game", "usrdir" };
 
         public NowPlayingSettings()
         {
             this.ConfirmUninstall = true;
             this.NotifyOnInstallWhilePlayingActivity = false;
+            this.HideGameCacheSourceDir = false;
             
             this.ChangeProblematicInstallDir_DoWhen = DoWhen.Ask;
             

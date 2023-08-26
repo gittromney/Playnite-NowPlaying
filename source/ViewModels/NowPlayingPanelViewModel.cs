@@ -229,6 +229,22 @@ namespace NowPlaying.ViewModels
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
         public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
 
+        public bool ShowSourceDirColumn
+        {
+            get => !plugin.Settings.HideGameCacheSourceDir;
+            set
+            {
+                if (plugin.Settings.HideGameCacheSourceDir == value)
+                {
+                    plugin.Settings.HideGameCacheSourceDir = !value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged(nameof(HideSourceDirColumn));
+                }
+            }
+        }
+
+        public string HideSourceDirColumn => ShowSourceDirColumn ? "False" : "True";
+
         public string InstallCachesMenu { get; private set; }
         public string InstallCachesVisibility { get; private set; }
         public bool InstallCachesCanExecute { get; private set; }

@@ -16,6 +16,7 @@
     <sys:String x:Key="LOCNowPlayingTermsRoot">Root</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsDevice">Device</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsDirectory">Directory</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsSourceDirectory">Source directory</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSpaceAvailable">Space available</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsMaxFillLevel">Max fill level</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSpeed">Speed</sys:String>
@@ -96,6 +97,7 @@
     <sys:String x:Key="LOCNowPlayingMsgGameNotFoundDisableDeleteFmt">Game '{0}' not found; disabling and deleting game cache.</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheTitleToolTip">Playnite game, enabled for caching</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCachePlatformToolTip">Game platform (e.g. WinPC, PS3,...)</sys:String>
+    <sys:String x:Key="LOCNowPlayingGameCacheSourceDirToolTip">Game source directory (e.g. on a big-and-slow device)</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheStatusToolTip">Current game cache status or activity</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheCanInstallToolTip">Is there enough space available to install the game cache?</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheCanInstallEtaToolTip">Estimated time to install the game cache</sys:String>
