@@ -24,6 +24,85 @@ namespace NowPlaying.ViewModels
         public string EmptyRootsVisible => CacheRoots.Count > 0 ? "Collapsed" : "Visible";
         public string NonEmptyRootsVisible => CacheRoots.Count > 0 ? "Visible" : "Collapsed";
 
+        public bool ShowDeviceColumn
+        {
+            get => plugin.Settings.ShowRootDevice;
+            set
+            {
+                if (plugin.Settings.ShowRootDevice != value)
+                {
+                    plugin.Settings.ShowRootDevice = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowDirectoryColumn
+        {
+            get => plugin.Settings.ShowRootDirectory;
+            set
+            {
+                if (plugin.Settings.ShowRootDirectory != value)
+                {
+                    plugin.Settings.ShowRootDirectory = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowSpaceAvailColumn
+        {
+            get => plugin.Settings.ShowRootSpaceAvail;
+            set
+            {
+                if (plugin.Settings.ShowRootSpaceAvail != value)
+                {
+                    plugin.Settings.ShowRootSpaceAvail = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowGamesColumn
+        {
+            get => plugin.Settings.ShowRootGames;
+            set
+            {
+                if (plugin.Settings.ShowRootGames != value)
+                {
+                    plugin.Settings.ShowRootGames = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowInstalledColumn
+        {
+            get => plugin.Settings.ShowRootInstalled;
+            set
+            {
+                if (plugin.Settings.ShowRootInstalled != value)
+                {
+                    plugin.Settings.ShowRootInstalled = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowMaxFillColumn
+        {
+            get => plugin.Settings.ShowRootMaxFill;
+            set
+            {
+                if (plugin.Settings.ShowRootMaxFill != value)
+                {
+                    plugin.Settings.ShowRootMaxFill = value;
+                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public CacheRootsViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;

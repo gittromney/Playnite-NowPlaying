@@ -229,21 +229,124 @@ namespace NowPlaying.ViewModels
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
         public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
 
-        public bool ShowSourceDirColumn
+
+        public bool ShowTitleColumn
         {
-            get => !plugin.Settings.HideGameCacheSourceDir;
+            get => plugin.Settings.ShowGameCacheTitle;
             set
             {
-                if (plugin.Settings.HideGameCacheSourceDir == value)
+                if (plugin.Settings.ShowGameCacheTitle != value)
                 {
-                    plugin.Settings.HideGameCacheSourceDir = !value;
+                    plugin.Settings.ShowGameCacheTitle = value;
                     SaveSettingsCommand?.Execute(plugin);
-                    OnPropertyChanged(nameof(HideSourceDirColumn));
+                    OnPropertyChanged();
                 }
             }
         }
-
-        public string HideSourceDirColumn => ShowSourceDirColumn ? "False" : "True";
+        public bool ShowPlatformColumn
+        {
+            get => plugin.Settings.ShowGameCachePlatform;
+            set
+            {
+                if (plugin.Settings.ShowGameCachePlatform != value)
+                {
+                    plugin.Settings.ShowGameCachePlatform = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowSourceDirColumn
+        {
+            get => plugin.Settings.ShowGameCacheSourceDir;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheSourceDir != value)
+                {
+                    plugin.Settings.ShowGameCacheSourceDir = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowStatusColumn
+        {
+            get => plugin.Settings.ShowGameCacheStatus;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheStatus != value)
+                {
+                    plugin.Settings.ShowGameCacheStatus = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowCanInstallColumn
+        {
+            get => plugin.Settings.ShowGameCacheCanInstall;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheCanInstall != value)
+                {
+                    plugin.Settings.ShowGameCacheCanInstall = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowInstallEtaColumn
+        {
+            get => plugin.Settings.ShowGameCacheInstallEta;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheInstallEta != value)
+                {
+                    plugin.Settings.ShowGameCacheInstallEta = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowSizeColumn
+        {
+            get => plugin.Settings.ShowGameCacheSize;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheSize != value)
+                {
+                    plugin.Settings.ShowGameCacheSize = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowRootColumn
+        {
+            get => plugin.Settings.ShowGameCacheRoot;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheRoot != value)
+                {
+                    plugin.Settings.ShowGameCacheRoot = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public bool ShowSpaceAvailColumn
+        {
+            get => plugin.Settings.ShowGameCacheSpaceAvail;
+            set
+            {
+                if (plugin.Settings.ShowGameCacheSpaceAvail != value)
+                {
+                    plugin.Settings.ShowGameCacheSpaceAvail = value;
+                    SaveSettingsCommand?.Execute(plugin);
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public string InstallCachesMenu { get; private set; }
         public string InstallCachesVisibility { get; private set; }

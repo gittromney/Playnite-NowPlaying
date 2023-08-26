@@ -10,7 +10,23 @@ namespace NowPlaying
     {
         public bool ConfirmUninstall { get; set; }
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
-        public bool HideGameCacheSourceDir { get; set; }
+
+        public bool ShowRootDevice { get; set; }
+        public bool ShowRootDirectory { get; set; }
+        public bool ShowRootSpaceAvail { get; set; }
+        public bool ShowRootGames { get; set; }
+        public bool ShowRootInstalled { get; set; }
+        public bool ShowRootMaxFill { get; set; }
+
+        public bool ShowGameCacheTitle { get; set; }
+        public bool ShowGameCachePlatform { get; set; }
+        public bool ShowGameCacheSourceDir { get; set; }
+        public bool ShowGameCacheStatus { get; set; }
+        public bool ShowGameCacheCanInstall { get; set; }
+        public bool ShowGameCacheInstallEta { get; set; }
+        public bool ShowGameCacheSize { get; set; }
+        public bool ShowGameCacheRoot { get; set; }
+        public bool ShowGameCacheSpaceAvail { get; set; }
 
 
         private DoWhen changeProblematicInstallDir_DoWhen;
@@ -138,8 +154,24 @@ namespace NowPlaying
         {
             this.ConfirmUninstall = true;
             this.NotifyOnInstallWhilePlayingActivity = false;
-            this.HideGameCacheSourceDir = false;
-            
+
+            this.ShowRootDevice = true;
+            this.ShowRootDirectory = true;
+            this.ShowRootSpaceAvail = true;
+            this.ShowRootGames = true;
+            this.ShowRootInstalled = true;
+            this.ShowRootMaxFill = true;
+
+            this.ShowGameCacheTitle = true;
+            this.ShowGameCachePlatform = true;
+            this.ShowGameCacheSourceDir = true;
+            this.ShowGameCacheStatus = true;
+            this.ShowGameCacheCanInstall = true;
+            this.ShowGameCacheInstallEta = true;
+            this.ShowGameCacheSize = true;
+            this.ShowGameCacheRoot = true;
+            this.ShowGameCacheSpaceAvail = true;
+
             this.ChangeProblematicInstallDir_DoWhen = DoWhen.Ask;
             
             this.SyncDirtyCache_DoWhen = DoWhen.Always;

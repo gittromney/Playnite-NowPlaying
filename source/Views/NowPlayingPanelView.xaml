@@ -5,6 +5,7 @@
     
     <UserControl.Resources>
         <ResourceDictionary>
+            <utils:BoolInvert x:Key="BoolInvert"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -120,9 +121,51 @@
                                             <Setter Property="ContextMenu">
                                                 <Setter.Value>
                                                     <ContextMenu Name="ColumnShowHideMenu">
-                                                        <MenuItem Header="Show 'Source Directory'">
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsTitle}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowTitleColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsPlatform}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowPlatformColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsSourceDirectory}">
                                                             <MenuItem.Icon>
                                                                 <CheckBox IsChecked="{Binding ShowSourceDirColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsStatus}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowStatusColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsCanInstall}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowCanInstallColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsInstallEta}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowInstallEtaColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsSize}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowSizeColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem 
+                                                            Header="{DynamicResource LOCNowPlayingTermsRoot}"
+                                                            Visibility="{Binding MultipleRootsVisibility}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowRootColumn}"/>
+                                                            </MenuItem.Icon>
+                                                        </MenuItem>
+                                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}">
+                                                            <MenuItem.Icon>
+                                                                <CheckBox IsChecked="{Binding ShowSpaceAvailColumn}"/>
                                                             </MenuItem.Icon>
                                                         </MenuItem>
                                                     </ContextMenu>
@@ -134,7 +177,8 @@
                                     <GridViewColumn 
                                         DisplayMemberBinding="{Binding Title}"
                                         utils:GridViewUtils.AutoWidth="True"
-                                        utils:GridViewUtils.MinWidth="220">
+                                        utils:GridViewUtils.MinWidth="220"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowTitleColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsTitle}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
@@ -142,7 +186,8 @@
                                     
                                     <GridViewColumn 
                                         DisplayMemberBinding="{Binding Platform}"
-                                        utils:GridViewUtils.MinWidth="80">
+                                        utils:GridViewUtils.MinWidth="80"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader
                                             Content="{DynamicResource LOCNowPlayingTermsPlatform}"
                                             ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
@@ -152,7 +197,7 @@
                                         DisplayMemberBinding="{Binding InstallDir}"
                                         utils:GridViewUtils.AutoWidth="True"
                                         utils:GridViewUtils.MinWidth="130"
-                                        utils:GridViewUtils.HideColumn="{Binding HideSourceDirColumn}">
+                                        utils:GridViewUtils.HideColumn="{Binding ShowSourceDirColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader
                                             Content="{DynamicResource LOCNowPlayingTermsSourceDirectory}"
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}"/>
@@ -160,7 +205,8 @@
 
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="Status"
-                                        utils:GridViewUtils.MinWidth="190"> 
+                                        utils:GridViewUtils.MinWidth="190"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}"> 
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsStatus}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>
@@ -187,7 +233,8 @@
 
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="CanInstallCache"
-                                        utils:GridViewUtils.MinWidth="97">
+                                        utils:GridViewUtils.MinWidth="97"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowCanInstallColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsCanInstall}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}"/>
@@ -215,7 +262,8 @@
                                     <GridViewColumn 
                                         DisplayMemberBinding="{Binding InstallEta}" 
                                         utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
-                                        utils:GridViewUtils.MinWidth="92">
+                                        utils:GridViewUtils.MinWidth="92"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsInstallEta}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}"/>
@@ -224,7 +272,8 @@
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="CacheInstalledSize" 
                                         utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
-                                        utils:GridViewUtils.MinWidth="125">
+                                        utils:GridViewUtils.MinWidth="125"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowSizeColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsSize}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}"/>
@@ -251,7 +300,8 @@
 
                                     <GridViewColumn 
                                         DisplayMemberBinding="{Binding Device}"
-                                        utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}">
+                                        utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsRoot}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}"/>
@@ -260,7 +310,8 @@
                                     <GridViewColumn 
                                         utils:GridViewUtils.PropertyName="CacheRootSpaceAvailable" 
                                         utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
-                                        utils:GridViewUtils.MinWidth="125">
+                                        utils:GridViewUtils.MinWidth="125"
+                                        utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
                                         <GridViewColumnHeader 
                                             Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
                                             ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}"/>
@@ -284,6 +335,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
+                                    
                                 </GridView>
                             </ListView.View>
                             <ListView.ContextMenu>

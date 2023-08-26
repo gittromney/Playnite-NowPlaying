@@ -5,6 +5,7 @@
 
     <UserControl.Resources>
         <ResourceDictionary>
+            <utils:BoolInvert x:Key="BoolInvert"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -43,25 +44,72 @@
 
             <ListView.View>
                 <GridView>
+
+                    <GridView.ColumnHeaderContainerStyle>
+                        <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu Name="ColumnShowHideMenu">
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsDevice}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowDeviceColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsDirectory}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowDirectoryColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowSpaceAvailColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsGames}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowGamesColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsInstalled}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowInstalledColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsMaxFillLevel}">
+                                            <MenuItem.Icon>
+                                                <CheckBox IsChecked="{Binding ShowRMaxFillColumn}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
                     <GridViewColumn 
                         DisplayMemberBinding="{Binding Device}"
-                        utils:GridViewUtils.MinWidth="70">
+                        utils:GridViewUtils.MinWidth="70"
+                        utils:GridViewUtils.HideColumn="{Binding ShowDeviceColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDevice}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}"/>
                     </GridViewColumn>
+                    
                     <GridViewColumn 
                         DisplayMemberBinding="{Binding Directory}"
                         utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="220">
+                        utils:GridViewUtils.MinWidth="220"
+                        utils:GridViewUtils.HideColumn="{Binding ShowDirectoryColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDirectory}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDirectoryToolTip}"/>
                     </GridViewColumn>
+                    
                     <GridViewColumn 
                         utils:GridViewUtils.PropertyName="SpaceAvailableForCaches" 
                         utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
-                        utils:GridViewUtils.MinWidth="125">
+                        utils:GridViewUtils.MinWidth="125"
+                        utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}"/>
@@ -90,17 +138,21 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+                    
                     <GridViewColumn 
                         DisplayMemberBinding="{Binding GamesEnabled}"
-                        utils:GridViewUtils.MinWidth="70">
+                        utils:GridViewUtils.MinWidth="70"
+                        utils:GridViewUtils.HideColumn="{Binding ShowGamesColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsGames}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}"/>
                     </GridViewColumn>
+                    
                     <GridViewColumn
                         utils:GridViewUtils.PropertyName="CachesInstalledAndSize" 
                         utils:GridViewUtils.CustomSort="{Binding CustomCachesInstalledSort}"
-                        utils:GridViewUtils.MinWidth="120">
+                        utils:GridViewUtils.MinWidth="120"
+                        utils:GridViewUtils.HideColumn="{Binding ShowInstalledColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsInstalled}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsInstalledToolTip}"/>
@@ -126,10 +178,12 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+                    
                     <GridViewColumn 
                         utils:GridViewUtils.PropertyName="MaxFillAndReserved"
                         utils:GridViewUtils.CustomSort="{Binding CustomMaxFillReservedSort}"
-                        utils:GridViewUtils.MinWidth="250">
+                        utils:GridViewUtils.MinWidth="250"
+                        utils:GridViewUtils.HideColumn="{Binding ShowMaxFillColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsMaxFillLevel}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}"/>
@@ -155,6 +209,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+                    
                 </GridView>
             </ListView.View>
 
