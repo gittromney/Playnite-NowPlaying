@@ -77,7 +77,7 @@
                                         </MenuItem>
                                         <MenuItem Header="{DynamicResource LOCNowPlayingTermsMaxFillLevel}">
                                             <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowRMaxFillColumn}"/>
+                                                <CheckBox IsChecked="{Binding ShowMaxFillColumn}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                     </ContextMenu>
