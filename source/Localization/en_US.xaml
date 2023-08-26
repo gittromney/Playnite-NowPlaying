@@ -53,7 +53,7 @@
     <!--topPanel and sidebarItem-->
     <sys:String x:Key="LOCNowPlayingTopPanelToolTip">NowPlaying game cache activity</sys:String>
     <sys:String x:Key="LOCNowPlayingSideBarToolTip">Manage NowPlaying game caches</sys:String>
-    
+
     <!--InstallProgressViewModel-->
     <sys:String x:Key="LOCNowPlayingProgressSpeedLimitTitleFmt2">Installing game cache w/speed limit (IPG={0}) for '{1}'...</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressTitleFmt">Installing game cache for '{0}'...</sys:String>
@@ -63,7 +63,7 @@
     <sys:String x:Key="LOCNowPlayingWithPartialFileResume">w/partial file resume</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressPauseToolTip">Pause cache installation (can be resumed later)</sys:String>
     <sys:String x:Key="LOCNowPlayingProgressCancelToolTip">Cancel installation and delete partial game cache</sys:String>
-    
+
     <!--NowPlayingPanelView, GameCacheViewModel-->
     <sys:String x:Key="LOCNowPlayingHideCacheRoots">Hide cache roots</sys:String>
     <sys:String x:Key="LOCNowPlayingShowCacheRoots">Show cache roots</sys:String>
@@ -105,7 +105,7 @@
     <sys:String x:Key="LOCNowPlayingGameCacheRootToolTip">Root device where the game is/will be cached to</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheSpaceToolTip">Space available for game caches on the root device</sys:String>
     <sys:String x:Key="LOCNowPlayingGameCacheSizeNeededFmt">(Needs {0})</sys:String>
-    
+
     <!--Settings view-->
     <sys:String x:Key="LOCNowPlayingSettingsHeading">NowPlaying Game Cacher Settings</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsGeneralTab">General</sys:String>
@@ -118,7 +118,7 @@
     <sys:String x:Key="LOCNowPlayingSettingsInstallAdjAlways">Always adjust the install directory to the recommended level.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsInstallAdjAsk">Ask whether to adjust the install directory to the recommended level.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsInstallAdjNever">Never adjust the install directory.</sys:String>
-    
+
     <sys:String x:Key="LOCNowPlayingSettingsSyncTab">Sync on uninstall</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncHeading">Sync options when uninstalling a game cache</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncDescr">
@@ -131,7 +131,7 @@
     <sys:String x:Key="LOCNowPlayingSettingsSyncAlways">Always sync settings/game save data.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncAsk">Ask whether to sync settings/game save data.</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsSyncNever">Never sync settings/game save data.</sys:String>
-    
+
     <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingTab">Install while playing</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingHeading">Game Cache installation options while playing a game</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsWhilePlayingPause">Pause installation queue while playing; resume when done playing.</sys:String>
@@ -149,7 +149,7 @@
         You may need to experiment to dial in a reasonable setting on your hardware.
         See example scenarios, below, as a rough guideline.
     </sys:String>
-    
+
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeTab">Partial file resume</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeHeading">Partial file resume mode (PFR) when installing cache files (over a network)</sys:String>
     <sys:String x:Key="LOCNowPlayingSettingsPartialFileResumeDescr">
@@ -185,7 +185,7 @@
     <sys:String x:Key="LOCNowPlayingAddGamesSearchToolTip">Game title search terms</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesCacheTo">Cache to:</sys:String>
     <sys:String x:Key="LOCNowPlayingAddGamesEnableSelected">Enable selected games</sys:String>
-    
+
     <!--AddCacheRootView / EditMaxFillView-->
     <sys:String x:Key="LOCNowPlayingEditMaxFillHeading">Edit Maximum Fill Level</sys:String>
     <sys:String x:Key="LOCNowPlayingAddCacheRootHeading">Add NowPlaying Cache Root</sys:String>
@@ -242,7 +242,7 @@
     <sys:String x:Key="LOCNowPlayingDirtyCacheNewFilesFmt">Game cache has {0} new file(s):</sys:String>
     <sys:String x:Key="LOCNowPlayingDirtyCacheMissingFilesFmt">Game cache is missing {0} file(s) (WILL BE IGNORED):</sys:String>
     <sys:String x:Key="LOCNowPlayingDirtyCacheOutOfDateFilesFmt">Game cache has {0} out-of-date file(s) (WILL BE IGNORED):</sys:String>
-    
+
     <!--NowPlayingInstallController-->
     <sys:String x:Key="LOCNowPlayingPausedMaxFillFmt">Installation of {0}'s game cache paused because max fill level exceeded.</sys:String>
     <sys:String x:Key="LOCNowPlayingPausedDiskFullFmt">Installation of {0}'s game cache paused because disk was full.</sys:String>
@@ -252,7 +252,7 @@
     <sys:String x:Key="LOCNowPlayingInstallDoneFmt">NowPlaying game cache installed for '{0}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingInstallCancelledFmt">NowPlaying installation cancelled for '{0}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingDeleteCacheFailedFmt">Deletion of game cache '{0}' failed.</sys:String>
-    
+
     <!--NowPlayingUninstallController-->
     <sys:String x:Key="LOCNowPlayingUninstallNotifyFmt">Uninstalled game cache for '{0}'.</sys:String>
     <sys:String x:Key="LOCNowPlayingUninstallCancelledOnErrorFmt">Uninstall of '{0}' game cache terminated because of an error.</sys:String>
@@ -261,7 +261,7 @@
     <sys:String x:Key="LOCNowPlayingSyncOnUninstallPrompt">
         Do you want to sync the new/newer files above back to the install directory when the game cache is uninstalled?
     </sys:String>
-    
+
     <!--NowPlaying-->
     <sys:String x:Key="LOCNowPlayingCheckBrokenGamesProgress">Fixing broken caches...</sys:String>
     <sys:String x:Key="LOCNowPlayingCheckInstallDirAccessibleProgress">Waiting on install device...</sys:String>
