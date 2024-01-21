@@ -76,8 +76,8 @@ If using game caching for [*emulated platform*](#emulated-platforms) games, here
 - If applicable, max out the emulator's cache size settings. For RPCS3, the max setting is 10GB. (Edit config.yml, then under "VFS:", set "Disk cache maximum size (MB)" to 10240)
 - Each game should have its own directory where game files/ROM are located.
 - To avoid creating double entries of cache enabled games, you should disable Playnite's automatic rescans (Setings → Updating → Scan emulation folders, choose Only manually)
-- Then to add new games to your library, you can either
-  1) use Add game → Emulated Game... to add them, individually, and then enable NowPLaying game caching as you normally would, or
+- Then to add new games to Playnite as your library grows, you can either
+  1) use Add game → Emulated Game... to add them, individually, and then enable NowPlaying game caching as you normally would, or
   2) if you have a lot of new games to add at once, you could do a manual rescan (Update Game Library → Update Emulated Folders → <target platform/scanner>) **BUT FIRST** you should disable NowPlaying caching for those games targeted by that platform/scanner. After the scan has updated your Playnite library, you can then re-enable NowPlaying game caching for those games.
      
 #### Updates/DLCs
