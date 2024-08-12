@@ -21,7 +21,6 @@ using NowPlaying.Views;
 using NowPlaying.ViewModels;
 using System.Reflection;
 using System.Windows.Controls;
-using System.Threading;
 using Playnite.SDK.Data;
 
 namespace NowPlaying
@@ -694,25 +693,42 @@ namespace NowPlaying
                 && game.PluginId == Guid.Empty
                 && game.IsInstalled
                 && game.IsCustomGame
-                && game.Platforms?.Count == 1
                 && game.GameActions?.Where(a => a.IsPlayAction).Count() == 1
             );
-
-            if (preReq
-                && game.Platforms?.First().SpecificationId == "pc_windows"
-                && (game.Roms == null || game.Roms?.Count == 0)
-                && GetIncrementalExePath(game.GameActions?[0], game) != null)
+            if (preReq)
             {
-                return GameCachePlatform.WinPC;
-            }
-            else if (preReq
-                && game.Roms?.Count == 1
-                && game.GameActions?[0].Type == GameActionType.Emulator
-                && game.GameActions?[0].EmulatorId != Guid.Empty
-                && game.GameActions?[0].OverrideDefaultArgs == false
-                && GetIncrementalRomPath(game.Roms?[0].Path, game.InstallDirectory, game) != null)
-            {
-                return GetGameCachePlatform(game);
+                var platform = GetGameCachePlatform(game);
+                if (platform == GameCachePlatform.WinPC)
+                {
+                    if ((game.Roms == null || game.Roms?.Count == 0)
+                        && GetIncrementalExePath(game.GameActions?[0], game) != null)
+                    {
+                        return GameCachePlatform.WinPC;
+                    }
+                    else
+                    {
+                        return GameCachePlatform.InEligible;
+                    }
+                }
+                else if (platform != GameCachePlatform.InEligible)  // Not PC but eligible == emulated platform
+                {
+                    if (game.Roms?.Count == 1
+                        && game.GameActions?[0].Type == GameActionType.Emulator
+                        && game.GameActions?[0].EmulatorId != Guid.Empty
+                        && game.GameActions?[0].OverrideDefaultArgs == false
+                        && GetIncrementalRomPath(game.Roms?[0].Path, game.InstallDirectory, game) != null)
+                    {
+                        return platform;
+                    }
+                    else
+                    {
+                        return GameCachePlatform.InEligible;
+                    }
+                }
+                else
+                {
+                    return GameCachePlatform.InEligible;
+                }
             }
             else
             {
@@ -722,43 +738,59 @@ namespace NowPlaying
 
         static public GameCachePlatform GetGameCachePlatform(Game game)
         {
-            var specId = game?.Platforms?.First().SpecificationId;
-            if (specId == "pc_windows")
+            var gcPlatform = GameCachePlatform.InEligible;
+            var hitCount = 0;
+
+            // Allow for a list of Playnite "platforms", which may potentially include
+            // user-created dummy platforms used for grouping games by type or similar, but the
+            // list must include EXACTLY ONE eligible platform; otherwise the game is ineligible
+            // for game caching.
+            //
+            foreach (var platform in game?.Platforms)
             {
-                return GameCachePlatform.WinPC;
+                var specId = platform?.SpecificationId;
+                if (specId == "pc_windows")
+                {
+                    gcPlatform = GameCachePlatform.WinPC;
+                    hitCount++;
+                }
+                else if (specId == "sony_playstation2")
+                {
+                    gcPlatform = GameCachePlatform.PS2;
+                    hitCount++;
+                }
+                else if (specId == "sony_playstation3")
+                {
+                    gcPlatform = GameCachePlatform.PS3;
+                    hitCount++;
+                }
+                else if (specId == "xbox")
+                {
+                    gcPlatform = GameCachePlatform.Xbox;
+                    hitCount++;
+                }
+                else if (specId == "xbox360")
+                {
+                    gcPlatform = GameCachePlatform.X360;
+                    hitCount++;
+                }
+                else if (specId == "nintendo_gamecube")
+                {
+                    gcPlatform = GameCachePlatform.GameCube;
+                    hitCount++;
+                }
+                else if (specId == "nintendo_wii")
+                {
+                    gcPlatform = GameCachePlatform.Wii;
+                    hitCount++;
+                }
+                else if (specId == "nintendo_switch")
+                {
+                    gcPlatform = GameCachePlatform.Switch;
+                    hitCount++;
+                }
             }
-            else if (specId == "sony_playstation2")
-            {
-                return GameCachePlatform.PS2;
-            }
-            else if (specId == "sony_playstation3")
-            {
-                return GameCachePlatform.PS3;
-            }
-            else if (specId == "xbox")
-            {
-                return GameCachePlatform.Xbox;
-            }
-            else if (specId == "xbox360")
-            {
-                return GameCachePlatform.X360;
-            }
-            else if (specId == "nintendo_gamecube")
-            {
-                return GameCachePlatform.GameCube;
-            }
-            else if (specId == "nintendo_wii")
-            {
-                return GameCachePlatform.Wii;
-            }
-            else if (specId == "nintendo_switch")
-            {
-                return GameCachePlatform.Switch;
-            }
-            else
-            {
-                return GameCachePlatform.InEligible;
-            }
+            return hitCount==1 ? gcPlatform : GameCachePlatform.InEligible;
         }
 
         public bool IsGameNowPlayingEnabled(Game game)
