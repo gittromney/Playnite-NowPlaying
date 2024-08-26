@@ -62,6 +62,9 @@ namespace NowPlaying
                 string installDir = game.InstallDirectory;
                 string exePath = null;
                 string xtraArgs = null;
+                string emuCmdLine = null;
+                string previewXtras = null;
+                string previewEmuCmdLine = null;
 
                 var sourcePlayAction = NowPlaying.GetSourcePlayAction(game);
                 var platform = NowPlaying.GetGameCachePlatform(game);
@@ -70,7 +73,8 @@ namespace NowPlaying
                 {
                     case GameCachePlatform.WinPC:
                         exePath = plugin.GetIncrementalExePath(sourcePlayAction, game);
-                        xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.Arguments);
+                        xtraArgs = sourcePlayAction.Arguments;
+                        previewXtras = PlayniteApi.ExpandGameVariables(game, xtraArgs);
                         break;
 
                     case GameCachePlatform.PS2:
@@ -81,7 +85,10 @@ namespace NowPlaying
                     case GameCachePlatform.Wii:
                     case GameCachePlatform.Switch:
                         exePath = plugin.GetIncrementalRomPath(game.Roms?.First().Path, installDir, game);
-                        xtraArgs = PlayniteApi.ExpandGameVariables(game, sourcePlayAction.AdditionalArguments);
+                        xtraArgs = sourcePlayAction.AdditionalArguments;
+                        emuCmdLine = GetGameEmulatorCommandLine(sourcePlayAction.EmulatorId, sourcePlayAction.EmulatorProfileId);
+                        previewXtras = PlayniteApi.ExpandGameVariables(game, xtraArgs);
+                        previewEmuCmdLine = PlayniteApi.ExpandGameVariables(game, emuCmdLine);
                         break;
 
                     default: 
@@ -103,7 +110,7 @@ namespace NowPlaying
                     // -> Preview - play game from source install directory (playable via right mouse menu)
                     //
                     game.GameActions = new ObservableCollection<GameAction>(game.GameActions.Where(a => !a.IsPlayAction));
-                    
+
                     switch (platform)
                     {
                         case GameCachePlatform.WinPC:
@@ -125,7 +132,7 @@ namespace NowPlaying
                                     Name = NowPlaying.previewPlayActionName,
                                     Path = Path.Combine(installDir, exePath),
                                     WorkingDir = installDir,
-                                    Arguments = xtraArgs,
+                                    Arguments = previewXtras,
                                     IsPlayAction = false
                                 }
                             );
@@ -150,6 +157,8 @@ namespace NowPlaying
                                     IsPlayAction = true
                                 }
                             );
+                            var previewArgs = previewEmuCmdLine != null ? previewEmuCmdLine : "\"" + Path.Combine(installDir, exePath) + "\"";
+                            previewArgs += (!string.IsNullOrEmpty(previewXtras) ? " " + previewXtras : "");
                             game.GameActions.Add
                             (
                                 new GameAction()
@@ -159,8 +168,7 @@ namespace NowPlaying
                                     EmulatorId = sourcePlayAction.EmulatorId,
                                     EmulatorProfileId = sourcePlayAction.EmulatorProfileId,
                                     OverrideDefaultArgs = true,
-                                    Arguments = "\"" + Path.Combine(installDir, exePath) + "\"" +
-                                        (!string.IsNullOrEmpty(xtraArgs) ? " " + xtraArgs : ""),
+                                    Arguments = previewArgs,
                                     IsPlayAction = false
                                 }
                             );
@@ -176,6 +184,39 @@ namespace NowPlaying
             }
 
             plugin.DequeueEnablerAndInvokeNextAsync(Id);
+        }
+
+        private string GetGameEmulatorCommandLine(Guid emulatorId, string emulatorProfileId)
+        {
+            try
+            {
+                var emu = PlayniteApi.Database.Emulators.Single(e => e.Id == emulatorId);
+
+                // Check custom profiles
+                var custProfile = emu?.CustomProfiles.SingleOrDefault(p => p.Id == emulatorProfileId);
+                if (custProfile != null)
+                {
+                    return custProfile.Arguments;
+                }
+                else
+                {
+                    // Check built-in profiles
+                    var builtinProfile = emu?.BuiltinProfiles.SingleOrDefault(p => p.Id == emulatorProfileId);
+                    if (builtinProfile?.OverrideDefaultArgs == true)
+                    {
+                        // using overriden args
+                        return builtinProfile?.CustomArguments;
+                    }
+                    else
+                    {
+                        // using default profile arguments
+                        var builtinEmuDef = PlayniteApi.Emulation.Emulators.Single(e => e.Id == emu.BuiltInConfigId);
+                        var builtinEmuProf = builtinEmuDef.Profiles.Single(p => p.Name == builtinProfile.BuiltInProfileName);
+                        return builtinEmuProf?.StartupArguments;
+                    }
+                }
+            }
+            catch { return null; }
         }
     }
 

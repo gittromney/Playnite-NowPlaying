@@ -2,7 +2,7 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Users\miker\AppData\Local\Playnite\Playnite.DesktopApp.exe</StartProgram>
+    <StartProgram>C:\Dev\GitHub\Playnite\source\Playnite.DesktopApp\bin\x64\Debug\Playnite.DesktopApp.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartAction>Project</StartAction>

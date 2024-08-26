@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\DirectoryUtils.cs" />
     <Compile Include="Utils\DynamicResourceBinding.cs" />
