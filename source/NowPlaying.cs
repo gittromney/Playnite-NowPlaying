@@ -519,13 +519,22 @@ namespace NowPlaying
                 case GameCachePlatform.Wii:
                 case GameCachePlatform.Switch:
                     exePath = GetIncrementalRomPath(nowPlayingGame.Roms?.First()?.Path, nowPlayingGame.InstallDirectory, nowPlayingGame);
-                    var exePathIndex = previewPlayAction.Arguments.IndexOf(exePath);
-                    if (exePathIndex > 1)
+                    if (exePath != null)
                     {
-                        // Note 1: skip leading '"'
-                        installDir = DirectoryUtils.TrimEndingSlash(previewPlayAction.Arguments.Substring(1, exePathIndex - 1)); // 1.
+                        // attempt to determine original installation directory (i.e. ROM path) from the emulator arguments
+                        var emuArgList = StringUtils.QuotedSplit(previewPlayAction.Arguments);
+                        foreach (var arg in StringUtils.Unquote(emuArgList))
+                        {
+                            var exePathIndex = arg.IndexOf(exePath);
+                            if (exePathIndex > 1)
+                            {
+                                installDir = DirectoryUtils.TrimEndingSlash(arg.Substring(0, exePathIndex));
+                                break;
+                            }
+                        }
+                        // grab additional emulator arguments (if there are any) from the NowPlayingAction
+                        xtraArgs = nowPlayingAction?.AdditionalArguments;
                     }
-                    xtraArgs = nowPlayingAction?.AdditionalArguments;
                     break;
 
                 default: 
@@ -1163,9 +1172,13 @@ namespace NowPlaying
                     case GameCachePlatform.Wii:
                     case GameCachePlatform.Switch:
                         var imagePath = Path.Combine(installDir, exePath);
-                        var additionalArgs = xtraArgs?.Replace(imagePath, "{ImagePath}");
-                        additionalArgs = additionalArgs.Replace(exePath, "{ImageName}");
-                        additionalArgs = additionalArgs.Replace(installDir, "{InstallDir}");
+                        if (xtraArgs != null)
+                        {
+                            xtraArgs = xtraArgs 
+                                .Replace(imagePath, "{ImagePath}")
+                                .Replace(exePath, "{ImageName}")
+                                .Replace(installDir, "{InstallDir}");
+                        }
                         game.GameActions.Add
                         (
                              new GameAction()
@@ -1174,7 +1187,7 @@ namespace NowPlaying
                                  Type = GameActionType.Emulator,
                                  EmulatorId = previewPlayAction.EmulatorId,
                                  EmulatorProfileId = previewPlayAction.EmulatorProfileId,
-                                 AdditionalArguments = additionalArgs,
+                                 AdditionalArguments = xtraArgs,
                                  IsPlayAction = true
                              }
                         );

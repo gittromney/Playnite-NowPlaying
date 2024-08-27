@@ -190,10 +190,10 @@ namespace NowPlaying
         {
             try
             {
-                var emu = PlayniteApi.Database.Emulators.Single(e => e.Id == emulatorId);
+                var emu = PlayniteApi.Database.Emulators.Single(e => e.Id == emulatorId); // raises exception on no or more-than-one match 
 
                 // Check custom profiles
-                var custProfile = emu?.CustomProfiles.SingleOrDefault(p => p.Id == emulatorProfileId);
+                var custProfile = emu.CustomProfiles?.SingleOrDefault(p => p.Id == emulatorProfileId);
                 if (custProfile != null)
                 {
                     return custProfile.Arguments;
@@ -201,7 +201,7 @@ namespace NowPlaying
                 else
                 {
                     // Check built-in profiles
-                    var builtinProfile = emu?.BuiltinProfiles.SingleOrDefault(p => p.Id == emulatorProfileId);
+                    var builtinProfile = emu.BuiltinProfiles?.SingleOrDefault(p => p.Id == emulatorProfileId);
                     if (builtinProfile?.OverrideDefaultArgs == true)
                     {
                         // using overriden args
