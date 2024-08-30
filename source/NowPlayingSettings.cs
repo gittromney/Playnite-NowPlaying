@@ -28,6 +28,39 @@ namespace NowPlaying
         public bool ShowGameCacheRoot { get; set; }
         public bool ShowGameCacheSpaceAvail { get; set; }
 
+        public bool ShowUninstallAndDisableMenu { get; set; }
+        public bool ShowStatusAndMenuTips { get; set; }
+
+
+        private bool statusIconBrushDarker;
+        public bool StatusIconBrushDarker 
+        { 
+            get => statusIconBrushDarker;
+            set
+            {
+                if (statusIconBrushDarker != value)
+                {
+                    statusIconBrushDarker = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private bool sidebarIconBrushDarker;
+        public bool SidebarIconBrushDarker
+        {
+            get => sidebarIconBrushDarker;
+            set
+            {
+                if (sidebarIconBrushDarker != value)
+                {
+                    sidebarIconBrushDarker = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         private DoWhen changeProblematicInstallDir_DoWhen;
         public DoWhen ChangeProblematicInstallDir_DoWhen
@@ -147,6 +180,7 @@ namespace NowPlaying
             }
         }
 
+
         public string[] ProblematicInstallDirKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
         public string[] ProblematicPS3InstDirKeywords = { "ps3_game", "usrdir" };
 
@@ -184,6 +218,11 @@ namespace NowPlaying
 
             this.DefaultAvgMegaBpsNormal = 50.0;
             this.DefaultAvgMegaBpsSpeedLimited = 5.0;
+
+            this.ShowUninstallAndDisableMenu = false;
+            this.ShowStatusAndMenuTips = false;
+            this.StatusIconBrushDarker = false;
+            this.SidebarIconBrushDarker = false;
         }
     }
 }

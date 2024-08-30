@@ -20,10 +20,11 @@ namespace NowPlaying
         private readonly Game nowPlayingGame;
         private readonly string cacheDir;
         private readonly string installDir;
+        private readonly bool andThenDisableCaching;
 
         public readonly GameCacheViewModel gameCache;
 
-        public NowPlayingUninstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache) 
+        public NowPlayingUninstallController(NowPlaying plugin, Game nowPlayingGame, GameCacheViewModel gameCache, bool andThenDisableCaching = false) 
             : base(nowPlayingGame)
         {
             this.plugin = plugin;
@@ -34,6 +35,7 @@ namespace NowPlaying
             this.gameCache = gameCache;
             this.cacheDir = gameCache.CacheDir;
             this.installDir = gameCache.InstallDir;
+            this.andThenDisableCaching = andThenDisableCaching;
         }
 
         public override void Uninstall(UninstallActionArgs args)
@@ -165,6 +167,16 @@ namespace NowPlaying
 
             // . update state to JSON file 
             cacheManager.SaveGameCacheEntriesToJson();
+
+            // . Optionally, disable game caching
+            if (andThenDisableCaching == true)
+            {
+                var exePath = gameCache?.ExePath;
+                var xtraArgs = gameCache?.XtraArgs;
+                plugin.DisableNowPlayingGameCaching(nowPlayingGame, installDir, exePath, xtraArgs);
+                cacheManager.RemoveGameCache(gameCache.Id);
+                plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingMsgGameCachingDisabledFmt", nowPlayingGame.Name));
+            }
 
             plugin.DequeueUninstallerAndInvokeNextAsync(gameCache.Id);
         }

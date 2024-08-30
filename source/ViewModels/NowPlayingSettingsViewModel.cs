@@ -49,6 +49,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(Settings));
             plugin.UpdateSettings(Serialization.GetClone(Settings));
             plugin.settingsViewModel.OnPropertyChanged(nameof(Settings));
+            plugin.ColorizeStatusIcon();
         }
 
         public bool VerifySettings(out List<string> errors)

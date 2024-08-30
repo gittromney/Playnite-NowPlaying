@@ -908,12 +908,12 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public void UninstallGameCache(GameCacheViewModel gameCache)
+        public void UninstallGameCache(GameCacheViewModel gameCache, bool andThenDisableCaching = false)
         {
             Game nowPlayingGame = plugin.FindNowPlayingGame(gameCache.Id);
             if (nowPlayingGame != null)
             {
-                NowPlayingUninstallController controller = new NowPlayingUninstallController(plugin, nowPlayingGame, gameCache);
+                NowPlayingUninstallController controller = new NowPlayingUninstallController(plugin, nowPlayingGame, gameCache, andThenDisableCaching);
                 nowPlayingGame.IsUninstalling = true;
                 controller.Uninstall(new UninstallActionArgs());
             }

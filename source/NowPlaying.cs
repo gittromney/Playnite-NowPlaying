@@ -22,7 +22,11 @@ using NowPlaying.ViewModels;
 using System.Reflection;
 using System.Windows.Controls;
 using Playnite.SDK.Data;
-using System.Text.RegularExpressions;
+using System.Drawing;
+using Rectangle = System.Windows.Shapes.Rectangle;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using System.Drawing.Imaging;
 
 namespace NowPlaying
 {
@@ -30,6 +34,8 @@ namespace NowPlaying
     {
         public override Guid Id { get; } = Guid.Parse("0dbead64-b7ed-47e5-904c-0ccdb5d5ff59");
         public override string LibraryIcon { get; }
+        public string StatusIconPath { get; }
+        public string SidebarBrush { get; set; }
 
         public override string Name => "NowPlaying Game Cacher";
         public static readonly ILogger logger = LogManager.GetLogger();
@@ -78,6 +84,7 @@ namespace NowPlaying
             };
 
             LibraryIcon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"icon.png");
+            StatusIconPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"status-icon.png");
 
             cacheManager = new GameCacheManagerViewModel(this, logger);
 
@@ -110,7 +117,7 @@ namespace NowPlaying
 
             this.sidebarIcon = new Rectangle()
             {
-                Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush"),
+                Fill = (Brush)PlayniteApi.Resources.GetResource(Settings.SidebarIconBrushDarker ? "TextBrushDarker" : "TextBrush"),
                 Width = 256,
                 Height = 256,
                 OpacityMask = new ImageBrush()
@@ -131,8 +138,42 @@ namespace NowPlaying
                     sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
                     return panelView;
                 },
-                Closed = () => sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource("TextBrush")
+                Closed = () => sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource(Settings.SidebarIconBrushDarker ? "TextBrushDarker" : "TextBrush")
             };
+
+            if (ColorizeStatusIcon() == false)
+            {
+                NotifyWarning("Failed to color status info/menu tip icon (status-icon.png); using standard icon instead.");
+                StatusIconPath = LibraryIcon;
+            }
+        }
+
+        // . create "status-icon.png" for "NowPlaying status" menu items, color matched to theme's TextColor/TextColorDarker 
+        public bool ColorizeStatusIcon()
+        {
+            try
+            {
+                var bitmap = Resources.now_playing_icon;
+                var statusColor = (Color)PlayniteApi.Resources.GetResource(Settings.StatusIconBrushDarker ? "TextColorDarker" : "TextColor");
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    for (int y = 0; y < bitmap.Height; y++)
+                    {
+                        var pixelColor = bitmap.GetPixel(x, y);
+                        if (pixelColor.A > 0)
+                        {
+                            var newColor = System.Drawing.Color.FromArgb(pixelColor.A, statusColor.R, statusColor.G, statusColor.B);
+                            bitmap.SetPixel(x, y, newColor);
+                        }
+                    }
+                }
+                bitmap.Save(StatusIconPath, ImageFormat.Png);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void UpdateSettings(NowPlayingSettings settings)
@@ -575,7 +616,13 @@ namespace NowPlaying
             public bool allEligible;
             public bool allEnabled;
             public bool allEnabledAndEmpty;
+            public bool allEnabledAndNotEmpty;
+            public bool allEnabledAndInstalled;
+            public bool allEnabledAndNotInstalled;
             public int count;
+            public int eligibleCount;
+            public int enabledCount;
+            public int installedCount;
 
             public SelectedGamesContext(NowPlaying plugin, List<Game> games)
             {
@@ -588,7 +635,13 @@ namespace NowPlaying
                 allEligible = true;
                 allEnabled = true;
                 allEnabledAndEmpty = true;
+                allEnabledAndNotEmpty = true;
+                allEnabledAndInstalled = true;
+                allEnabledAndNotInstalled = true;
                 count = 0;
+                eligibleCount = 0;
+                enabledCount = 0;
+                installedCount = 0;
             }
 
             public void UpdateContext(List<Game> games)
@@ -596,13 +649,23 @@ namespace NowPlaying
                 ResetContext();
                 foreach (var game in games)
                 {
+                    var gameCache = plugin.cacheManager.FindGameCache(game.Id.ToString());
                     bool isEnabled = plugin.IsGameNowPlayingEnabled(game);
                     bool isEligible = !isEnabled && plugin.IsGameNowPlayingEligible(game) != GameCachePlatform.InEligible;
-                    bool isEnabledAndEmpty = isEnabled && plugin.cacheManager.FindGameCache(game.Id.ToString())?.CacheSize == 0;
+                    bool isEnabledAndEmpty = isEnabled && gameCache?.CacheSize == 0;
+                    bool isEnabledAndNotEmpty = isEnabled && gameCache?.CacheSize > 0;
+                    bool isEnabledAndInstalled = isEnabled && game.IsInstalled == true;
+                    bool isEnabledAndNotInstalled = isEnabled && game.IsInstalled == false;
                     allEligible &= isEligible;
                     allEnabled &= isEnabled;
                     allEnabledAndEmpty &= isEnabledAndEmpty;
+                    allEnabledAndNotEmpty &= isEnabledAndNotEmpty;
+                    allEnabledAndInstalled &= isEnabledAndInstalled;
+                    allEnabledAndNotInstalled &= isEnabledAndNotInstalled;
                     count++;
+                    if (isEligible) { eligibleCount++; }
+                    if (isEnabled) { enabledCount++; }
+                    if (isEnabledAndInstalled) { installedCount++; }
                 }
             }
         }
@@ -613,6 +676,119 @@ namespace NowPlaying
 
             // . get selected games context
             var context = new SelectedGamesContext(this, args.Games);
+
+            // . NowPlaying status + single enabled game menu tips
+            //   -> skip "all eligible" case since information provided here would be redundant
+            //      (see 'Enable game caching menu' code, below)
+            //
+            if (Settings.ShowStatusAndMenuTips == true && !context.allEligible)
+            {
+                string description = "";
+                if (context.allEnabledAndInstalled)
+                {
+                    if (context.count > 1)
+                    {
+                        description = string.Format("NowPlaying cache status: >> Installed ({0} games) <<", context.count);
+                    }
+                    else
+                    {
+                        description = "NowPlaying cache status: >> Installed <<";
+                    }
+                }
+                else if (context.allEnabledAndNotInstalled)
+                {
+                    if (context.count > 1)
+                    {
+                        description = string.Format("NowPlaying cache status: >> Uninstalled ({0} games) <<", context.count);
+                    }
+                    else
+                    {
+                        description = "NowPlaying cache status: >> Uninstalled <<";
+                    }
+                }
+
+                // . Mixed status
+                else if (context.eligibleCount > 0 || context.enabledCount > 0)
+                {
+                    description = "NowPlaying status:";
+             
+                    int ineligibleCount = context.count - context.enabledCount - context.eligibleCount;
+                    int uninstalledCount = context.enabledCount - context.installedCount;
+                    if (ineligibleCount > 0) 
+                    {
+                        if (ineligibleCount > 1)
+                        {
+                            description += Environment.NewLine + string.Format("{0} games are not eligible for caching", ineligibleCount);
+                        }
+                        else
+                        {
+                            description += Environment.NewLine + "1 game is not eligible for caching";
+                        }
+                    }
+                    if (context.eligibleCount > 0) 
+                    {
+                        if (context.eligibleCount > 1)
+                        {
+                            description += Environment.NewLine + string.Format("{0} games are eligible for caching but not enabled", context.eligibleCount);
+                        }
+                        else
+                        {
+                            description += Environment.NewLine + "1 game is eligible for caching but not enabled";
+                        }
+                    }
+                    if (context.installedCount > 0) 
+                    {
+                        if (context.installedCount > 1)
+                        {
+                            description += Environment.NewLine + string.Format("{0} games have caches installed", context.installedCount);
+                        }
+                        else
+                        {
+                            description += Environment.NewLine + "1 game has its cache installed";
+                        }
+                    } 
+                    if (uninstalledCount > 0) 
+                    {
+                        if (uninstalledCount > 1)
+                        {
+                            description += Environment.NewLine + string.Format("{0} games have caches uninstalled", uninstalledCount);
+                        }
+                        else
+                        {
+                            description += Environment.NewLine + "1 game has its cache uninstalled";
+                        }
+                    }
+                }
+
+                else
+                {
+                    if (context.count > 1)
+                    {
+                        description = string.Format("NowPlaying: games are not eligible for caching ({0} games)", context.count);
+                    }
+                    else
+                    {
+                        description = "NowPlaying: game is not eligible for caching";
+                    }
+                }
+
+                // . Playnite Menu Tips (single game only)
+                if (context.allEnabled && context.count == 1)
+                {
+                    description += Environment.NewLine + "Playnite menu tips:";
+                    var leadin = Environment.NewLine + "      ";
+                    if (context.allEnabledAndNotInstalled) { description += leadin + "• Install  \t-    create game cache"; }
+                    if (context.allEnabledAndNotInstalled) { description += leadin + "• Preview  \t-    play from slow device w/o installing cache"; }
+                    if (context.allEnabledAndInstalled) { description += leadin + "• Play     \t-    play from game cache"; }
+                    if (context.allEnabledAndInstalled) { description += leadin + "• Uninstall\t-    delete game cache"; }
+                }
+                gameMenuItems.Add(new GameMenuItem
+                {
+                    Icon = StatusIconPath,
+                    Description = description,
+                    Action = null
+                });
+            }
 
             // . Enable game caching menu
             if (context.allEligible)
@@ -651,8 +827,86 @@ namespace NowPlaying
                 }
             }
 
+            // . Install game cache(s) menu
+            if (context.allEnabledAndNotInstalled && context.count > 1)
+            {
+                string description = string.Format("NowPlaying: Install game caches ({0} games)", context.count);
+
+                gameMenuItems.Add(new GameMenuItem
+                {
+                    Icon = LibraryIcon,
+                    Description = description,
+                    Action = (a) =>
+                    {
+                        var gameCaches = new List<GameCacheViewModel>();
+                        foreach (var game in args.Games)
+                        {
+                            var gameCache = cacheManager.FindGameCache(game.Id.ToString());
+                            if (gameCache != null) {
+                                gameCaches.Add(gameCache);
+                            }
+                        }
+                        this.panelViewModel.InstallSelectedCaches(gameCaches);
+                    }
+                });
+            }
+
+            // . Uninstall game cache(s) menu
+            if (context.allEnabledAndNotEmpty && context.count > 1)
+            {
+                string description = string.Format("NowPlaying: Uninstall game caches ({0} games)", context.count);
+
+                gameMenuItems.Add(new GameMenuItem
+                {
+                    Icon = LibraryIcon,
+                    Description = description,
+                    Action = (a) =>
+                    {
+                        foreach (var game in args.Games)
+                        {
+                            var gameCache = cacheManager.FindGameCache(game.Id.ToString());
+                            if (gameCache != null)
+                            {
+                                this.panelViewModel.UninstallGameCache(gameCache);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // . Uninstall + Disable caching menu item
+            if (context.allEnabledAndNotEmpty && Settings.ShowUninstallAndDisableMenu == true)
+            {
+                string description = "NowPlaying: ";
+                if (context.count > 1)
+                {
+                    description += string.Format("Uninstall & Disable - delete caches and disable caching ({0} games)", context.count);
+                }
+                else
+                {
+                    description += "Uninstall & Disable - delete game cache and disable caching";
+                }
+
+                gameMenuItems.Add(new GameMenuItem
+                {
+                    Icon = LibraryIcon,
+                    Description = description,
+                    Action = (a) =>
+                    {
+                        foreach (var game in args.Games)
+                        {
+                            var gameCache = cacheManager.FindGameCache(game.Id.ToString());
+                            if (gameCache != null)
+                            {
+                                this.panelViewModel.UninstallGameCache(gameCache, andThenDisableCaching: true);                                
+                            }
+                        }
+                    }
+                });
+            }
+
             // . Disable game caching menu
-            else if (context.allEnabledAndEmpty)
+            if (context.allEnabledAndEmpty)
             {
                 string description = "NowPlaying: ";
                 if (context.count > 1)
@@ -1438,7 +1692,8 @@ namespace NowPlaying
         public async void DequeueUninstallerAndInvokeNextAsync(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
-            var activeId = cacheUninstallQueue.Dequeue().gameCache.Id;
+            var controller = cacheUninstallQueue.Dequeue();
+            var activeId = controller.gameCache.Id;
             Debug.Assert(activeId == cacheId, $"Unexpected uninstall controller cacheId at head of the Queue ({activeId})");
 
             // . update status of queued uninstallers

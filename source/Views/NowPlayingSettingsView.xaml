@@ -39,7 +39,46 @@
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"
                         Margin="0,0,0,10"/>
-
+                    <CheckBox
+                        Content="Show 'Uninstall cache + Disable caching' combo on Playnite's right-click game menus"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.ShowUninstallAndDisableMenu}"
+                        Margin="0,0,0,10"/> 
+                    <CheckBox
+                        x:Name="ShowStatusButton"
+                        Content="Show status/menu tips on Playnite's right-click game menus"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.ShowStatusAndMenuTips}"
+                        Margin="0,0,0,10"/>
+                    <StackPanel Orientation="Horizontal"
+                                Opacity="{Binding ElementName=ShowStatusButton, Path=IsChecked, Converter={StaticResource BoolToOpacity}}"
+                                IsEnabled="{Binding ElementName=ShowStatusButton, Path=IsChecked}"
+                                Margin="33,0,0,10">
+                        <TextBlock Text="Status/menu tips icon color:"/>
+                        <CheckBox
+                            Content="Lighter"
+                            Foreground="{DynamicResource TextBrush}"
+                            IsChecked="{Binding Settings.StatusIconBrushDarker, Converter={StaticResource BoolInvert}}"
+                            Margin="15,0,0,0"/>
+                        <CheckBox
+                            Content="Darker"
+                            Foreground="{DynamicResource TextBrushDarker}"
+                            IsChecked="{Binding Settings.StatusIconBrushDarker}"
+                            Margin="15,0,0,0"/> 
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"  Margin="0,0,0,10">
+                        <TextBlock Text="Sidebar icon color (when unselected):"/>
+                        <CheckBox
+                            Content="Lighter"
+                            Foreground="{DynamicResource TextBrush}"
+                            IsChecked="{Binding Settings.SidebarIconBrushDarker, Converter={StaticResource BoolInvert}}"
+                            Margin="15,0,0,0"/>
+                        <CheckBox
+                            Content="Darker"
+                            Foreground="{DynamicResource TextBrushDarker}"
+                            IsChecked="{Binding Settings.SidebarIconBrushDarker}"
+                            Margin="15,0,0,0"/>     
+                    </StackPanel>
                     <TextBlock
                         Text="{DynamicResource LOCNowPlayingSettingsInstallAdjHeading}"
                         Style="{DynamicResource SubheadingText}"

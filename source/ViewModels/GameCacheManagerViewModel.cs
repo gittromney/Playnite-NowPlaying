@@ -175,7 +175,15 @@ namespace NowPlaying.ViewModels
                 gameCacheManager.RemoveGameCacheEntry(cacheId);
 
                 // . remove game cache view model
-                GameCaches.Remove(gameCache);
+                //   -> use UI dispatcher if necessary (i.e. if this is called from a Game Enabler / background task)
+                if (plugin.panelView.Dispatcher.CheckAccess())
+                {
+                    GameCaches.Remove(gameCache);
+                }
+                else
+                {
+                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(() => GameCaches.Remove(gameCache)));
+                }
 
                 // . notify cache root view model of the change
                 gameCache.cacheRoot.UpdateGameCaches();

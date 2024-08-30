@@ -99,10 +99,19 @@ namespace NowPlaying
                 {
                     // . create game cache and its view model
                     string cacheDir = cacheManager.AddGameCache(cacheId, title, installDir, exePath, xtraArgs, cacheRootDir, platform: platform);
+                    var gameCache = cacheManager.FindGameCache(cacheId);
 
                     // . subsume game into the NowPlaying Game Cache library, install directory => game cache directory
                     game.InstallDirectory = cacheDir;
                     game.IsInstalled = cacheManager.IsGameCacheInstalled(cacheId);
+                    
+                    // . refresh cacheSize if cache was already installed (orphaned cache?) when game was enabled.
+                    if (game.IsInstalled)
+                    {
+                        gameCache.entry.UpdateCacheDirStats();
+                        gameCache.entry.CacheSize = gameCache.entry.CacheSizeOnDisk;
+                        gameCache.UpdateCacheSize();
+                    }
                     game.PluginId = plugin.Id;
 
                     // replace source Play action w/ NowPlaying Play and Preview play actions:
