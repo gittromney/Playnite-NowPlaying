@@ -1,5 +1,17 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.3.5
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-08-30
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.3.4/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_3_5.pext
+    Changelog:
+    - Adds support for emulator profiles have more complex arguments than just "{ImagePath}", e.g. '-dvd_path "{ImagePath}" --full-screen'
+    - Adds optional 'Uninstall & Disable Combo' command to Playnite's right-click games menus, which uninstalls game cache(s) of the 
+      selected game(s) and then disables game caching, in one step. (Settings->General->"Show 'Uninstall cache + Disable caching' combo..." must be checked).
+    - Adds ability to install/uninstall game caches of multiple games at once from Playnite's right-click game menus (as can be done from the NowPlaying panel view).
+    - Adds optional status/menu tips information to Playnite's right-click game menus (when Settings->General->"Show status/menu tips..." is checked).
+    - Adds two color choices for the monochrome NowPlaying icons shown on the Playnite sidebar and with (optional) status/menu tips. 
+      (See Settings->General->"Status/menu tips icon color" and "Sidebar icon color..." Lighter/Darker check boxes.)
   - Version: 1.3.4
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-08-12
