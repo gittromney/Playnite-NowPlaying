@@ -39,10 +39,10 @@
                             Width="22" Height="22">
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
-                                    <Setter Property="Fill" Value="{DynamicResource GlyphBrush}"/>
+                                    <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <Setter Property="Fill" Value="{DynamicResource TextBrush}"/>
+                                            <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
