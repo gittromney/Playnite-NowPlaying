@@ -47,21 +47,6 @@ namespace NowPlaying
         }
 
 
-        private bool sidebarIconBrushDarker;
-        public bool SidebarIconBrushDarker
-        {
-            get => sidebarIconBrushDarker;
-            set
-            {
-                if (sidebarIconBrushDarker != value)
-                {
-                    sidebarIconBrushDarker = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-
         private DoWhen changeProblematicInstallDir_DoWhen;
         public DoWhen ChangeProblematicInstallDir_DoWhen
         {
@@ -222,7 +207,6 @@ namespace NowPlaying
             this.ShowUninstallAndDisableMenu = false;
             this.ShowStatusAndMenuTips = false;
             this.StatusIconBrushDarker = false;
-            this.SidebarIconBrushDarker = false;
         }
     }
 }

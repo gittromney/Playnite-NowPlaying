@@ -19,8 +19,8 @@ namespace NowPlaying.Utils
     //
     // <ProgressBar
     //    Value = "{Binding PercentDone, Mode=OneWay}"
-    //    Foreground = "{core:DynamicResourceBinding ProgressBarForeground}"
-    //    Background = "{core:DynamicResourceBinding ProgressBarBackground}"/>
+    //    Foreground = "{utils:DynamicResourceBinding ProgressBarForeground}"
+    //    Background = "{utils:DynamicResourceBinding ProgressBarBackground}"/>
     //
     // The above effectively works as if you could type the following (which isn't allowed):
     //    Foreground = "{DynamicResource {Binding ProgressBarForeground}}"

@@ -1,5 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <Style x:Key="SidebarItemStyle" TargetType="{x:Type SidebarItem}" BasedOn="{StaticResource {x:Type SidebarItem}}"/>
 
     <Color x:Key="SlowInstallColor">#FFF0D020</Color>
     <Color x:Key="TopPanelProcessingFgColor">#80F2F2F2</Color>

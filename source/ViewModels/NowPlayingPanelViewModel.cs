@@ -4,7 +4,6 @@ using NowPlaying.Views;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -46,6 +45,7 @@ namespace NowPlaying.ViewModels
         public NowPlayingPanelViewModel(NowPlaying plugin)
         {
             this.plugin = plugin;
+            this.CustomPlatformSort = new CustomPlatformSorter();
             this.CustomEtaSort = new CustomEtaSorter();
             this.CustomSizeSort = new CustomSizeSorter();
             this.CustomSpaceAvailableSort = new CustomSpaceAvailableSorter();
@@ -169,39 +169,77 @@ namespace NowPlaying.ViewModels
             GridViewUtils.ColumnResize(plugin.panelView.GameCaches);
         }
 
-        public class CustomEtaSorter : IComparer
+        public class CustomPlatformSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
-                double etaX = ((GameCacheViewModel)x).InstallEtaTimeSpan.TotalSeconds;
-                double etaY = ((GameCacheViewModel)y).InstallEtaTimeSpan.TotalSeconds;
-                return etaX.CompareTo(etaY);
+                // . primary sort: by "Platform", reversable 
+                string platformX = ((GameCacheViewModel)(reverse ? y : x)).Platform.ToString();
+                string platformY = ((GameCacheViewModel)(reverse ? x : y)).Platform.ToString();
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameCacheViewModel)x).Title;
+                string titleY = ((GameCacheViewModel)y).Title;
+
+                return platformX != platformY ? platformX.CompareTo(platformY) : titleX.CompareTo(titleY);
+            }
+        }
+
+        public CustomPlatformSorter CustomPlatformSort { get; private set; }
+
+        public class CustomEtaSorter : IReversableComparer
+        {
+            public override int Compare(object x, object y, bool reverse = false)
+            {
+                // . primary sort: by "ETA", reversable 
+                double etaX = ((GameCacheViewModel)(reverse ? y : x)).InstallEtaTimeSpan.TotalSeconds;
+                double etaY = ((GameCacheViewModel)(reverse ? x : y)).InstallEtaTimeSpan.TotalSeconds;
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameCacheViewModel)x).Title;
+                string titleY = ((GameCacheViewModel)y).Title;
+
+                return etaX != etaY ? etaX.CompareTo(etaY) : titleX.CompareTo(titleY);
             }
         }
         public CustomEtaSorter CustomEtaSort { get; private set; }
 
-        public class CustomSizeSorter : IComparer
+        public class CustomSizeSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
-                long cacheSizeX   = ((GameCacheViewModel)x).CacheSize;
-                long installSizeX = ((GameCacheViewModel)x).InstallSize;
-                long cacheSizeY   = ((GameCacheViewModel)y).CacheSize;
-                long installSizeY = ((GameCacheViewModel)y).InstallSize;
+                // . primary sort: by Cache/Install size, reversable
+                var objX = (GameCacheViewModel)(reverse ? y : x);
+                var objY = (GameCacheViewModel)(reverse ? x : y);
+                long cacheSizeX   = objX.CacheSize;
+                long installSizeX = objX.InstallSize;
+                long cacheSizeY   = objY.CacheSize;
+                long installSizeY = objY.InstallSize;
                 long sizeX = cacheSizeX > 0 ? cacheSizeX : Int64.MinValue + installSizeX;
                 long sizeY = cacheSizeY > 0 ? cacheSizeY : Int64.MinValue + installSizeY;
-                return sizeX.CompareTo(sizeY);
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameCacheViewModel)x).Title;
+                string titleY = ((GameCacheViewModel)y).Title;
+
+                return sizeX != sizeY ? sizeX.CompareTo(sizeY) : titleX.CompareTo(titleY);
             }
         }
         public CustomSizeSorter CustomSizeSort { get; private set; }
 
-        public class CustomSpaceAvailableSorter : IComparer
+        public class CustomSpaceAvailableSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
-                long spaceX = ((GameCacheViewModel)x).cacheRoot.BytesAvailableForCaches;
-                long spaceY = ((GameCacheViewModel)y).cacheRoot.BytesAvailableForCaches;
-                return spaceX.CompareTo(spaceY);
+                // . primary sort: by available space for caches, reversable
+                long spaceX = ((GameCacheViewModel)(reverse ? y : x)).cacheRoot.BytesAvailableForCaches;
+                long spaceY = ((GameCacheViewModel)(reverse ? x : y)).cacheRoot.BytesAvailableForCaches;
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameCacheViewModel)x).Title;
+                string titleY = ((GameCacheViewModel)y).Title;
+
+                return spaceX != spaceY ? spaceX.CompareTo(spaceY) : titleX.CompareTo(titleY);
             }
         }
         public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }

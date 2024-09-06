@@ -1,7 +1,6 @@
 ﻿using NowPlaying.Utils;
 using NowPlaying.Views;
 using Playnite.SDK;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
@@ -195,40 +194,44 @@ namespace NowPlaying.ViewModels
             plugin.panelViewModel.UpdateCacheRoots();
         }
 
-        public class CustomSpaceAvailableSorter : IComparer
+        public class CustomSpaceAvailableSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
-                long spaceX = ((CacheRootViewModel)x).BytesAvailableForCaches;
-                long spaceY = ((CacheRootViewModel)y).BytesAvailableForCaches;
+                long spaceX = ((CacheRootViewModel)(reverse ? y : x)).BytesAvailableForCaches;
+                long spaceY = ((CacheRootViewModel)(reverse ? x : y)).BytesAvailableForCaches;
                 return spaceX.CompareTo(spaceY);
             }
         }
         public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }
 
-        public class CustomCachesInstalledSorter : IComparer
+        public class CustomCachesInstalledSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
                 // . sort by installed number of caches 1st, and installed cache bytes 2nd
-                int countX = ((CacheRootViewModel)x).CachesInstalled;
-                int countY = ((CacheRootViewModel)y).CachesInstalled;
-                long bytesX = ((CacheRootViewModel)x).cachesAggregateSizeOnDisk;
-                long bytesY = ((CacheRootViewModel)y).cachesAggregateSizeOnDisk;
+                var objX = (CacheRootViewModel)(reverse ? y : x);
+                var objY = (CacheRootViewModel)(reverse ? x : y);
+                int countX = objX.CachesInstalled;
+                int countY = objY.CachesInstalled;
+                long bytesX = objX.cachesAggregateSizeOnDisk;
+                long bytesY = objY.cachesAggregateSizeOnDisk;
                 return countX != countY ? countX.CompareTo(countY) : bytesX.CompareTo(bytesY);
             }
         }
         public CustomCachesInstalledSorter CustomCachesInstalledSort { get; private set; }
 
-        public class CustomMaxFillReservedSorter : IComparer
+        public class CustomMaxFillReservedSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
                 // . sort by max fill level 1st, and reserved bytes (reverse direction) 2nd
-                double fillX = ((CacheRootViewModel)x).MaxFillLevel;
-                double fillY = ((CacheRootViewModel)y).MaxFillLevel;
-                long bytesX = ((CacheRootViewModel)x).bytesReservedOnDevice;
-                long bytesY = ((CacheRootViewModel)y).bytesReservedOnDevice;
+                var objX = (CacheRootViewModel)(reverse ? y : x);
+                var objY = (CacheRootViewModel)(reverse ? x : y);
+                double fillX = objX.MaxFillLevel;
+                double fillY = objY.MaxFillLevel;
+                long bytesX = objX.bytesReservedOnDevice;
+                long bytesY = objY.bytesReservedOnDevice;
                 return fillX != fillY ? fillX.CompareTo(fillY) : bytesY.CompareTo(bytesX);
             }
         }

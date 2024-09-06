@@ -40,7 +40,8 @@
             Loaded="CacheRoots_ResizeColumns"
             PreviewMouseWheel="PreviewMouseWheelToParent"
             utils:GridViewUtils.HorizontalShiftWheelScroll="True"
-            utils:GridViewUtils.AutoSort="True">
+            utils:GridViewUtils.AutoSort="True"
+            utils:GridViewUtils.SecondaryAutoSortBy="Directory,Ascending">
 
             <ListView.View>
                 <GridView>
@@ -97,6 +98,7 @@
                     
                     <GridViewColumn 
                         DisplayMemberBinding="{Binding Directory}"
+                        utils:GridViewUtils.SortedByDefault="Ascending"
                         utils:GridViewUtils.AutoWidth="True"
                         utils:GridViewUtils.MinWidth="220"
                         utils:GridViewUtils.HideColumn="{Binding ShowDirectoryColumn, Converter={StaticResource BoolInvert}}">

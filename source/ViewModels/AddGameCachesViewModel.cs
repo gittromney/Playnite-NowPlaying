@@ -1,8 +1,8 @@
 ﻿using NowPlaying.Models;
+using NowPlaying.Utils;
 using NowPlaying.Views;
 using Playnite.SDK;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -46,13 +46,36 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public class CustomInstallSizeSorter : IComparer
+        public class CustomPlatformSorter : IReversableComparer
         {
-            public int Compare(object x, object y)
+            public override int Compare(object x, object y, bool reverse = false)
             {
-                long sizeX = ((GameViewModel)x).InstallSizeBytes;
-                long sizeY = ((GameViewModel)y).InstallSizeBytes;
-                return sizeX.CompareTo(sizeY);
+                // . primary sort: by "Platform", reversable 
+                string platformX = ((GameViewModel)(reverse ? y : x)).Platform.ToString();
+                string platformY = ((GameViewModel)(reverse ? x : y)).Platform.ToString();
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameViewModel)x).Title;
+                string titleY = ((GameViewModel)y).Title;
+
+                return platformX != platformY ? platformX.CompareTo(platformY) : titleX.CompareTo(titleY);
+            }
+        }
+        public CustomPlatformSorter CustomPlatformSort { get; private set; }
+
+        public class CustomInstallSizeSorter : IReversableComparer
+        {
+            public override int Compare(object x, object y, bool reverse = false)
+            {
+                // . primary sort: by Cache/Install size, reversable
+                long sizeX = ((GameViewModel)(reverse ? y : x)).InstallSizeBytes;
+                long sizeY = ((GameViewModel)(reverse ? x : y)).InstallSizeBytes;
+
+                // . secondary sort: by "Title", always ascending
+                string titleX = ((GameViewModel)x).Title;
+                string titleY = ((GameViewModel)y).Title;
+
+                return sizeX != sizeY ? sizeX.CompareTo(sizeY) : titleX.CompareTo(titleY);
             }
         }
         public CustomInstallSizeSorter CustomInstallSizeSort { get; private set; }
@@ -88,12 +111,13 @@ namespace NowPlaying.ViewModels
         {
             this.plugin = plugin;
             this.popup = popup;
+            this.CustomPlatformSort = new CustomPlatformSorter();
             this.CustomInstallSizeSort = new CustomInstallSizeSorter();
             this.cacheRoots = plugin.cacheManager.CacheRoots.ToList();
             this.SelectedGames = new List<GameViewModel>();
 
             var eligibles = plugin.PlayniteApi.Database.Games.Where(g => plugin.IsGameNowPlayingEligible(g) != GameCachePlatform.InEligible);
-            this.allEligibleGames = eligibles.Select(g => new GameViewModel(g)).ToList();
+            this.allEligibleGames = eligibles.Select(g => new GameViewModel(g)).OrderBy(g => g.Title).ToList();
 
             ClearSearchTextCommand = new RelayCommand(() => SearchText = string.Empty);
             SelectAllCommand = new RelayCommand(() => SelectAllGames());

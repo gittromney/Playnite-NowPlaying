@@ -11,13 +11,28 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Documents;
 using System.Windows.Data;
-using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Input;
-using System;
+using System.Windows.Media.Animation;
+using System.Security.Authentication.ExtendedProtection;
 
 namespace NowPlaying.Utils
 {
+
+    public abstract class IReversableComparer
+    {
+        public Comparer<object> forwardComparer;
+        public Comparer<object> reverseComparer;
+
+        public IReversableComparer()
+        {
+            this.forwardComparer = Comparer<object>.Create((x, y) => this.Compare(x, y));
+            this.reverseComparer = Comparer<object>.Create((x, y) => this.Compare(x, y, reverse: true));
+        }
+
+        public abstract int Compare(object x, object y, bool reverse = false);
+    }
+
     public static class GridViewUtils
     {
         #region Scrolling enhancers
@@ -147,6 +162,24 @@ namespace NowPlaying.Utils
             )
         );
 
+        public static string GetSecondaryAutoSortBy(DependencyObject obj)
+        {
+            return (string)obj.GetValue(SecondaryAutoSortByProperty);
+        }
+        public static void SetSecondaryAutoSortBy(DependencyObject obj, string value)
+        {
+            obj.SetValue(SecondaryAutoSortByProperty, value);
+        }
+
+        public static readonly DependencyProperty SecondaryAutoSortByProperty = DependencyProperty.RegisterAttached
+        (
+           "SecondaryAutoSortBy",
+           typeof(string),
+           typeof(GridViewUtils),
+           new UIPropertyMetadata(null)
+        );
+
+
         public static string GetPropertyName(DependencyObject obj)
         {
             return (string)obj.GetValue(PropertyNameProperty);
@@ -166,12 +199,12 @@ namespace NowPlaying.Utils
         );
 
 
-        public static IComparer GetCustomSort(DependencyObject obj)
+        public static IReversableComparer GetCustomSort(DependencyObject obj)
         {
-            return (IComparer)obj.GetValue(CustomSortProperty);
+            return (IReversableComparer)obj.GetValue(CustomSortProperty);
         }
 
-        public static void SetCustomSort(DependencyObject obj, IComparer value)
+        public static void SetCustomSort(DependencyObject obj, IReversableComparer value)
         {
             obj.SetValue(CustomSortProperty, value);
         }
@@ -179,10 +212,30 @@ namespace NowPlaying.Utils
         public static readonly DependencyProperty CustomSortProperty = DependencyProperty.RegisterAttached
         (
             "CustomSort",
-            typeof(IComparer),
+            typeof(IReversableComparer),
             typeof(GridViewUtils),
             new UIPropertyMetadata(null)
         );
+
+        
+        public static string GetSortedByDefault(DependencyObject obj)
+        {
+            return (string)obj.GetValue(SortedByDefaultProperty);
+        }
+
+        public static void SetSortedByDefault(DependencyObject obj, string value)
+        {
+            obj.SetValue(SortedByDefaultProperty, value);
+        }
+
+        public static readonly DependencyProperty SortedByDefaultProperty = DependencyProperty.RegisterAttached
+        (
+            "SortedByDefault", 
+            typeof(string), 
+            typeof(GridViewUtils),
+            new UIPropertyMetadata(null)
+        );
+
 
         public static bool GetShowSortGlyph(DependencyObject obj)
         {
@@ -294,7 +347,7 @@ namespace NowPlaying.Utils
                     {
                         if (GetAutoSort(listView))
                         {                
-                            ApplySort(listView.Items, propertyName, listView, headerClicked, GetCustomSort(headerClicked.Column));
+                            ApplySort(listView.Items, propertyName, listView, headerClicked);
                         }
                     }
                 }
@@ -328,8 +381,7 @@ namespace NowPlaying.Utils
             ICollectionView view, 
             string propertyName, 
             ListView listView, 
-            GridViewColumnHeader sortedColumnHeader,
-            IComparer customSort = null 
+            GridViewColumnHeader sortedColumnHeader
         )
         {
             var currentSortedColumnHeader = GetSortedColumnHeader(listView);
@@ -337,9 +389,17 @@ namespace NowPlaying.Utils
             {
                 RemoveSortGlyph(currentSortedColumnHeader);
             }
-
+           
             ListSortDirection direction = ListSortDirection.Ascending;
-            if (sortedColumnHeader == currentSortedColumnHeader)
+            
+            var sortedByDefault = GetSortedByDefault(sortedColumnHeader.Column);
+            if (currentSortedColumnHeader == null && sortedByDefault != null)
+            {
+                direction = sortedByDefault == "Ascending"
+                    ? ListSortDirection.Descending
+                    : ListSortDirection.Ascending;
+            }
+            else if (sortedColumnHeader == currentSortedColumnHeader)
             {
                 direction = GetSortDirection(listView) == ListSortDirection.Ascending 
                     ? ListSortDirection.Descending 
@@ -348,24 +408,41 @@ namespace NowPlaying.Utils
 
             if (!string.IsNullOrEmpty(propertyName))
             {
+                var customSort = GetCustomSort(sortedColumnHeader.Column);
                 if (customSort != null)
                 {
                     // . apply property-specified custom sorter to selected column
                     var lcView = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);
                     if (direction == ListSortDirection.Descending)
                     {
-                        lcView.CustomSort = Comparer<object>.Create((x, y) => customSort.Compare(y, x));
+                        lcView.CustomSort = customSort.reverseComparer;
                     }
                     else
                     {
-                        lcView.CustomSort = customSort;
+                        lcView.CustomSort = customSort.forwardComparer;
                     }
                 }
                 else
                 {
-                    // . apply default sorter to selected column
+                    // . apply default sorter to primary sort target (selected column)
                     view.SortDescriptions.Clear();
                     view.SortDescriptions.Add(new SortDescription(propertyName, direction));
+
+                    // . also add a secondary sort target, if specified
+                    var secondaryAutoSortBy = GetSecondaryAutoSortBy(listView);
+                    if (secondaryAutoSortBy != null)
+                    {
+                        string[] sortBy = secondaryAutoSortBy.Split(',');
+                        if (sortBy.Length == 2)
+                        {
+                            var sortColumn = sortBy[0];
+                            var sortDirection = sortBy[1] == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                            if (sortColumn != propertyName)
+                            {
+                                view.SortDescriptions.Add(new SortDescription(sortColumn, sortDirection));
+                            }
+                        }
+                    }
                 }
                 if (GetShowSortGlyph(listView))
                 {

@@ -4,8 +4,6 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Playnite.DesktopApp;component/Themes/Desktop/Default/Constants.xaml"/>
-                <ResourceDictionary Source="Playnite.DesktopApp;component/Themes/Desktop/Default/Common.xaml"/>
                 <ResourceDictionary Source="NowPlayingStyles.xaml"/>
                 <ResourceDictionary Source="Localization/en_US.xaml"/>
             </ResourceDictionary.MergedDictionaries>

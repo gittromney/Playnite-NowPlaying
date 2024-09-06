@@ -64,20 +64,7 @@
                             Content="Darker"
                             Foreground="{DynamicResource TextBrushDarker}"
                             IsChecked="{Binding Settings.StatusIconBrushDarker}"
-                            Margin="15,0,0,0"/> 
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal"  Margin="0,0,0,10">
-                        <TextBlock Text="Sidebar icon color (when unselected):"/>
-                        <CheckBox
-                            Content="Lighter"
-                            Foreground="{DynamicResource TextBrush}"
-                            IsChecked="{Binding Settings.SidebarIconBrushDarker, Converter={StaticResource BoolInvert}}"
                             Margin="15,0,0,0"/>
-                        <CheckBox
-                            Content="Darker"
-                            Foreground="{DynamicResource TextBrushDarker}"
-                            IsChecked="{Binding Settings.SidebarIconBrushDarker}"
-                            Margin="15,0,0,0"/>     
                     </StackPanel>
                     <TextBlock
                         Text="{DynamicResource LOCNowPlayingSettingsInstallAdjHeading}"

@@ -13,6 +13,7 @@ using Playnite.SDK;
 
 namespace NowPlaying.ViewModels
 {
+
     public class GameCacheManagerViewModel : ViewModelBase
     {
         public readonly NowPlaying plugin;
@@ -23,6 +24,9 @@ namespace NowPlaying.ViewModels
         private readonly string installAverageBpsJsonPath;
 
         public readonly GameCacheManager gameCacheManager;
+
+        public readonly Comparer<GameCacheViewModel> gameCacheSortComparer;
+        public readonly Comparer<CacheRootViewModel> cacheRootSortComparer;
 
         public ObservableCollection<CacheRootViewModel> CacheRoots { get; private set; }
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
@@ -43,6 +47,9 @@ namespace NowPlaying.ViewModels
             CacheRoots = new ObservableCollection<CacheRootViewModel>();
             GameCaches = new ObservableCollection<GameCacheViewModel>();
             InstallAverageBps = new SortedDictionary<string, long>();
+
+            gameCacheSortComparer = Comparer<GameCacheViewModel>.Create((x, y) => x.Title.CompareTo(y.Title));
+            cacheRootSortComparer = Comparer<CacheRootViewModel>.Create((x, y) => x.Directory.CompareTo(y.Directory));
         }
 
         public void UpdateGameCaches()
@@ -68,7 +75,7 @@ namespace NowPlaying.ViewModels
                 gameCacheManager.AddCacheRoot(root);
 
                 // . add cache root view model
-                CacheRoots.Add(new CacheRootViewModel(this, root));
+                CollectionsUtils.AddSorted<CacheRootViewModel>(CacheRoots, new CacheRootViewModel(this, root), cacheRootSortComparer);
 
                 SaveCacheRootsToJson();
                 logger.Info($"Added cache root '{rootDirectory}' with {maximumFillLevel}% max fill.");
@@ -142,11 +149,14 @@ namespace NowPlaying.ViewModels
                 // . use UI dispatcher if necessary (i.e. if this is called from a Game Enabler / background task)
                 if (plugin.panelView.Dispatcher.CheckAccess())
                 {
-                    GameCaches.Add(gameCache);
+                    CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, gameCache, gameCacheSortComparer);
                 }
                 else
                 {
-                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(() => GameCaches.Add(gameCache)));
+                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart
+                    (
+                        () => CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, gameCache, gameCacheSortComparer)
+                    ));
                 }
 
                 // . update respective cache root view model of added game cache
@@ -318,7 +328,7 @@ namespace NowPlaying.ViewModels
         {
             try
             {
-                File.WriteAllText(installAverageBpsJsonPath, Serialization.ToJson(InstallAverageBps));
+                File.WriteAllText(installAverageBpsJsonPath, Serialization.ToJson(InstallAverageBps, formatted: true));
             }
             catch (Exception ex)
             {
@@ -350,7 +360,7 @@ namespace NowPlaying.ViewModels
         {
             try
             {
-                File.WriteAllText(cacheRootsJsonPath, Serialization.ToJson(gameCacheManager.GetCacheRoots()));
+                File.WriteAllText(cacheRootsJsonPath, Serialization.ToJson(gameCacheManager.GetCacheRoots().OrderBy(r => r.Directory), formatted: true));
             }
             catch (Exception ex)
             {
@@ -365,7 +375,7 @@ namespace NowPlaying.ViewModels
                 var roots = new List<CacheRoot>();
                 try
                 {
-                    roots = Serialization.FromJsonFile<List<CacheRoot>>(cacheRootsJsonPath);
+                    roots = Serialization.FromJsonFile<List<CacheRoot>>(cacheRootsJsonPath).OrderBy(r => r.Directory).ToList(); ;
                 }
                 catch (Exception ex)
                 {
@@ -377,7 +387,7 @@ namespace NowPlaying.ViewModels
                     if (DirectoryUtils.ExistsAndIsWritable(root.Directory) || DirectoryUtils.MakeDir(root.Directory))
                     {
                         gameCacheManager.AddCacheRoot(root);
-                        CacheRoots.Add(new CacheRootViewModel(this, root));
+                        CollectionsUtils.AddSorted<CacheRootViewModel>(CacheRoots, new CacheRootViewModel(this, root), cacheRootSortComparer);
                     }
                     else
                     {
@@ -392,7 +402,7 @@ namespace NowPlaying.ViewModels
         {
             try
             {
-                File.WriteAllText(gameCacheEntriesJsonPath, Serialization.ToJson(gameCacheManager.GetGameCacheEntries()));
+                File.WriteAllText(gameCacheEntriesJsonPath, Serialization.ToJson(gameCacheManager.GetGameCacheEntries().OrderBy(e => e.Title), formatted: true));
             }
             catch (Exception ex)
             {
@@ -409,7 +419,7 @@ namespace NowPlaying.ViewModels
                 var entries = new List<GameCacheEntry>();
                 try
                 {
-                    entries = Serialization.FromJsonFile<List<GameCacheEntry>>(gameCacheEntriesJsonPath);
+                    entries = Serialization.FromJsonFile<List<GameCacheEntry>>(gameCacheEntriesJsonPath).OrderBy(e => e.Title).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -428,7 +438,7 @@ namespace NowPlaying.ViewModels
                                 needToUpdateCacheStats.Add(entry.Id);
                             }
                             gameCacheManager.AddGameCacheEntry(entry);
-                            GameCaches.Add(new GameCacheViewModel(this, entry, cacheRoot));
+                            CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, new GameCacheViewModel(this, entry, cacheRoot), gameCacheSortComparer);
                         }
                         else
                         {

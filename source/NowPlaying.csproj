@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Playnite.SDK, Version=6.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\PlayniteSDK.6.9.0\lib\net462\Playnite.SDK.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\CollectionsUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Utils\ImageUtils.cs" />
     <Compile Include="Utils\DirectoryUtils.cs" />
@@ -190,6 +191,20 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\now-playing-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Playnite\source\Playnite.DesktopApp\Playnite.DesktopApp.csproj">
+      <Project>{26dcc539-e67f-4cb5-970f-f02c1f5c6e00}</Project>
+      <Name>Playnite.DesktopApp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Playnite\source\PlayniteSDK\Playnite.SDK.csproj">
+      <Project>{19bc9097-5705-4352-90e2-99f0c63230d0}</Project>
+      <Name>Playnite.SDK</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Playnite\source\Playnite\Playnite.csproj">
+      <Project>{ad271e73-8a13-4c4e-bfdc-3076646b59e3}</Project>
+      <Name>Playnite</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 using Playnite.SDK;
 using Playnite.SDK.Events;
@@ -20,13 +19,12 @@ using NowPlaying.Properties;
 using NowPlaying.Views;
 using NowPlaying.ViewModels;
 using System.Reflection;
-using System.Windows.Controls;
 using Playnite.SDK.Data;
-using System.Drawing;
 using Rectangle = System.Windows.Shapes.Rectangle;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
 using System.Drawing.Imaging;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace NowPlaying
 {
@@ -35,7 +33,6 @@ namespace NowPlaying
         public override Guid Id { get; } = Guid.Parse("0dbead64-b7ed-47e5-904c-0ccdb5d5ff59");
         public override string LibraryIcon { get; }
         public string StatusIconPath { get; }
-        public string SidebarBrush { get; set; }
 
         public override string Name => "NowPlaying Game Cacher";
         public static readonly ILogger logger = LogManager.GetLogger();
@@ -56,6 +53,7 @@ namespace NowPlaying
 
         public readonly Rectangle sidebarIcon;
         public readonly SidebarItem sidebarItem;
+        public readonly Brush sidebarIconInactiveBrush;
 
         public readonly NowPlayingPanelViewModel panelViewModel;
         public readonly NowPlayingPanelView panelView;
@@ -115,9 +113,10 @@ namespace NowPlaying
                 Visible = false
             };
 
+            this.sidebarIconInactiveBrush = GetSidebarIconInactiveBrush();
             this.sidebarIcon = new Rectangle()
             {
-                Fill = (Brush)PlayniteApi.Resources.GetResource(Settings.SidebarIconBrushDarker ? "TextBrushDarker" : "TextBrush"),
+                Fill = sidebarIconInactiveBrush,
                 Width = 256,
                 Height = 256,
                 OpacityMask = new ImageBrush()
@@ -138,7 +137,7 @@ namespace NowPlaying
                     sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource("GlyphBrush");
                     return panelView;
                 },
-                Closed = () => sidebarIcon.Fill = (Brush)PlayniteApi.Resources.GetResource(Settings.SidebarIconBrushDarker ? "TextBrushDarker" : "TextBrush")
+                Closed = () => sidebarIcon.Fill = sidebarIconInactiveBrush
             };
 
             if (ColorizeStatusIcon() == false)
@@ -146,6 +145,52 @@ namespace NowPlaying
                 NotifyWarning("Failed to color status info/menu tip icon (status-icon.png); using standard icon instead.");
                 StatusIconPath = LibraryIcon;
             }
+        }
+
+        public Brush GetSidebarIconInactiveBrush()
+        {
+            Brush inactiveBrush = null;
+
+            // . use theme's SidebarItem Style.Foreground, if that can be found; otherwise use TextBrush
+            var sidebarItemStyle = (Style)panelView.TryFindResource("SidebarItemStyle");
+            var foregroundProperty = SearchBasedOnStyleForSetterProperty(sidebarItemStyle, "Foreground");
+            var propType = foregroundProperty.GetType();
+            if (propType == typeof(DynamicResourceExtension))
+            {
+                string resourceKey = ((DynamicResourceExtension)foregroundProperty).ResourceKey?.ToString();
+                if (resourceKey != null)
+                {
+                    inactiveBrush = (Brush)PlayniteApi.Resources.GetResource(resourceKey);
+                }
+            }
+            else if (propType == typeof(Brush) || propType.IsSubclassOf(typeof(Brush)))
+            {
+                inactiveBrush = (Brush)foregroundProperty;
+            }
+            return inactiveBrush ?? (Brush)PlayniteApi.Resources.GetResource("TextBrush");
+        }
+
+        private object SearchBasedOnStyleForSetterProperty(Style sidebarItemStyle, string targetSetterPropName)
+        {
+            object value = null;
+            Style style = sidebarItemStyle;
+            Setter setter = null;
+            while (value == null && style != null)
+            {
+                // check Style's Setters
+                setter = (Setter)style.Setters?.Where((s) => ((Setter)s).Property.Name == targetSetterPropName)?.FirstOrDefault();
+                if (setter != null)
+                {
+                    // target property found
+                    value = setter.Value;
+                }
+                else
+                {
+                    // not found - continue search @ BasedOn style
+                    style = style.BasedOn;
+                }
+            }
+            return value;
         }
 
         // . create "status-icon.png" for "NowPlaying status" menu items, color matched to theme's TextColor/TextColorDarker 
