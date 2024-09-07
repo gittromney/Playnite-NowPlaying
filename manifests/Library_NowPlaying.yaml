@@ -5,7 +5,7 @@ Packages:
     ReleaseDate: 2024-09-06
     PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.3.6/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_3_6.pext
     Changelog:
-    - Changes NowPlaying sidebar icon's (inactive/unselected) coloring to now come from Theme's SidebarItem.Foreground property.
+    - Changes NowPlaying sidebar icon's (inactive/unselected) coloring to now come from Theme's SidebarItem.Foreground property. This addresses Github issue 16.
     - Fixes NowPlaying panel view's cache roots icon to use Theme's Button style coloring
     - Removes Settings option to choose Sidebar Icon color (see previous bullet).
     - Updates to Panel view & Add Game Caches popup list views, which are now by Ascending-order-sorted according to Title/Directory by default. 
