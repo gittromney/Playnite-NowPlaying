@@ -24,6 +24,7 @@ namespace NowPlaying.ViewModels
         private readonly ILogger logger = NowPlaying.logger;
         private readonly NowPlaying plugin;
         private readonly BitmapImage rootsIcon;
+        private readonly BitmapImage sidebarIcon;
 
         private bool modalDimming = false;
         public bool ModalDimming
@@ -41,6 +42,7 @@ namespace NowPlaying.ViewModels
         public string ModalDimmingVisibility => ModalDimming ? "Visible" : "Hidden";
 
         public BitmapImage RootsIcon => rootsIcon;
+        public BitmapImage SidebarIcon => sidebarIcon;
 
         public NowPlayingPanelViewModel(NowPlaying plugin)
         {
@@ -57,6 +59,7 @@ namespace NowPlaying.ViewModels
             this.RerootCachesSubMenuItems = new List<MenuItem>();
 
             this.rootsIcon = ImageUtils.BitmapToBitmapImage(Resources.roots_icon);
+            this.sidebarIcon = ImageUtils.BitmapToBitmapImage(Resources.now_playing_icon);
 
             this.RefreshCachesCommand = new RelayCommand(() => RefreshGameCaches());
             this.InstallCachesCommand = new RelayCommand(() => InstallSelectedCaches(SelectedGameCaches), () => InstallCachesCanExecute);

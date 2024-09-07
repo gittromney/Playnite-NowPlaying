@@ -53,6 +53,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\SidebarIcon.xaml.cs">
+      <DependentUpon>SidebarIcon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
     <Compile Include="Utils\CollectionsUtils.cs" />
@@ -137,6 +140,10 @@
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\SidebarIcon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="NowPlayingStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
