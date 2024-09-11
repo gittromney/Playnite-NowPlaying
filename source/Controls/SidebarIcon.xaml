@@ -9,10 +9,10 @@
             Width="256" Height="256">
             <Rectangle.Style>
                 <Style TargetType="Rectangle">
-                    <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=SidebarItem}}"/>
+                    <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=SidebarItem}}" Value="True">
-                            <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=SidebarItem}}"/>
+                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                            <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

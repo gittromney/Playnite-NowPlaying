@@ -13,8 +13,9 @@ using System.Windows.Documents;
 using System.Windows.Data;
 using System.Collections.Generic;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
-using System.Security.Authentication.ExtendedProtection;
+using ListView = System.Windows.Controls.ListView;
+using Binding = System.Windows.Data.Binding;
+using Control = System.Windows.Controls.Control;
 
 namespace NowPlaying.Utils
 {
@@ -333,21 +334,21 @@ namespace NowPlaying.Utils
 
             if (headerClicked != null && headerClicked.Column != null)
             {
-                string propertyName = GetPropertyName(headerClicked.Column);
+                string columnName = GetPropertyName(headerClicked.Column);
 
-                if (string.IsNullOrEmpty(propertyName))
+                if (string.IsNullOrEmpty(columnName))
                 {
-                    propertyName = GetDisplayMemberBindingPath(headerClicked);
+                    columnName = GetDisplayMemberBindingPath(headerClicked);
                 }
 
-                if (!string.IsNullOrEmpty(propertyName))
+                if (!string.IsNullOrEmpty(columnName))
                 {
                     ListView listView = GetAncestor<ListView>(headerClicked);
                     if (listView != null)
                     {
                         if (GetAutoSort(listView))
                         {                
-                            ApplySort(listView.Items, propertyName, listView, headerClicked);
+                            ApplySort(listView, headerClicked, columnName);
                         }
                     }
                 }
@@ -378,12 +379,13 @@ namespace NowPlaying.Utils
 
         public static void ApplySort
         (
-            ICollectionView view, 
-            string propertyName, 
             ListView listView, 
-            GridViewColumnHeader sortedColumnHeader
+            GridViewColumnHeader headerClicked,
+            string columnName
         )
         {
+            ICollectionView view = listView.Items;
+
             var currentSortedColumnHeader = GetSortedColumnHeader(listView);
             if (currentSortedColumnHeader != null)
             {
@@ -392,71 +394,93 @@ namespace NowPlaying.Utils
            
             ListSortDirection direction = ListSortDirection.Ascending;
             
-            var sortedByDefault = GetSortedByDefault(sortedColumnHeader.Column);
+            var sortedByDefault = GetSortedByDefault(headerClicked.Column);
             if (currentSortedColumnHeader == null && sortedByDefault != null)
             {
                 direction = sortedByDefault == "Ascending"
                     ? ListSortDirection.Descending
                     : ListSortDirection.Ascending;
             }
-            else if (sortedColumnHeader == currentSortedColumnHeader)
+            else if (headerClicked == currentSortedColumnHeader)
             {
                 direction = GetSortDirection(listView) == ListSortDirection.Ascending 
                     ? ListSortDirection.Descending 
                     : ListSortDirection.Ascending;
             }
 
-            if (!string.IsNullOrEmpty(propertyName))
+            if (!string.IsNullOrEmpty(columnName))
             {
-                var customSort = GetCustomSort(sortedColumnHeader.Column);
-                if (customSort != null)
-                {
-                    // . apply property-specified custom sorter to selected column
-                    var lcView = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);
-                    if (direction == ListSortDirection.Descending)
-                    {
-                        lcView.CustomSort = customSort.reverseComparer;
-                    }
-                    else
-                    {
-                        lcView.CustomSort = customSort.forwardComparer;
-                    }
-                }
-                else
-                {
-                    // . apply default sorter to primary sort target (selected column)
-                    view.SortDescriptions.Clear();
-                    view.SortDescriptions.Add(new SortDescription(propertyName, direction));
-
-                    // . also add a secondary sort target, if specified
-                    var secondaryAutoSortBy = GetSecondaryAutoSortBy(listView);
-                    if (secondaryAutoSortBy != null)
-                    {
-                        string[] sortBy = secondaryAutoSortBy.Split(',');
-                        if (sortBy.Length == 2)
-                        {
-                            var sortColumn = sortBy[0];
-                            var sortDirection = sortBy[1] == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
-                            if (sortColumn != propertyName)
-                            {
-                                view.SortDescriptions.Add(new SortDescription(sortColumn, sortDirection));
-                            }
-                        }
-                    }
-                }
+                SortListViewByColumn(listView, columnName, direction, GetCustomSort(headerClicked.Column));
+                
                 if (GetShowSortGlyph(listView))
                 {
                     AddSortGlyph
                     (
-                        sortedColumnHeader,
+                        headerClicked,
                         direction,
                         direction == ListSortDirection.Ascending
                             ? GetSortGlyphAscending(listView)
                             : GetSortGlyphDescending(listView)
                     );
                 }
-                SetSortedColumnHeader(listView, sortedColumnHeader);
+                SetSortedColumnHeader(listView, headerClicked);
                 SetSortDirection(listView, direction);
+            }
+        }
+
+        public static void RefreshSort(ListView listView)
+        {
+            var currentSortedColumnHeader = GetSortedColumnHeader(listView);
+            if (currentSortedColumnHeader != null)
+            {
+                string columnName = GetPropertyName(currentSortedColumnHeader.Column);
+
+                if (string.IsNullOrEmpty(columnName))
+                {
+                    columnName = GetDisplayMemberBindingPath(currentSortedColumnHeader);
+                }
+                var direction = GetSortDirection(listView);
+                SortListViewByColumn(listView, columnName, direction, GetCustomSort(currentSortedColumnHeader.Column));
+            }
+        }
+
+        private static void SortListViewByColumn(ListView listView, string columnName, ListSortDirection direction, IReversableComparer customSort)
+        {
+            if (customSort != null)
+            {
+                // . apply property-specified custom sorter to selected column
+                var lcView = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);
+                if (direction == ListSortDirection.Descending)
+                {
+                    lcView.CustomSort = customSort.reverseComparer;
+                }
+                else
+                {
+                    lcView.CustomSort = customSort.forwardComparer;
+                }
+            }
+            else
+            {
+                // . apply default sorter to primary sort target (selected column)
+                ICollectionView view = listView.Items;
+                view.SortDescriptions.Clear();
+                view.SortDescriptions.Add(new SortDescription(columnName, direction));
+
+                // . also add a secondary sort target, if specified
+                var secondaryAutoSortBy = GetSecondaryAutoSortBy(listView);
+                if (secondaryAutoSortBy != null)
+                {
+                    string[] sortBy = secondaryAutoSortBy.Split(',');
+                    if (sortBy.Length == 2)
+                    {
+                        var sortColumn = sortBy[0];
+                        var sortDirection = sortBy[1] == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                        if (sortColumn != columnName)
+                        {
+                            view.SortDescriptions.Add(new SortDescription(sortColumn, sortDirection));
+                        }
+                    }
+                }
             }
         }
 

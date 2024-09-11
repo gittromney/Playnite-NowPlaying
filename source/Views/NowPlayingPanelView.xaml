@@ -1,7 +1,8 @@
 ﻿<UserControl x:Class="NowPlaying.Views.NowPlayingPanelView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:utils="clr-namespace:NowPlaying.Utils">
+             xmlns:utils="clr-namespace:NowPlaying.Utils"
+             xmlns:ctrls="clr-namespace:NowPlaying.Controls">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -21,16 +22,15 @@
             </StackPanel>
         </StackPanel>
 
-        <DockPanel Margin="0,28,0,0">
+        <DockPanel Margin="0,25,0,0">
             
             <!--menu buttons-->
             <StackPanel DockPanel.Dock="Top">
-                <StackPanel Orientation="Horizontal" Margin="20,0,0,10">
-                    <Button 
-                        Content="🔧" FontSize="17"
-                        Command="{Binding ToggleShowSettings}"
-                        ToolTip="{Binding ShowSettingsToolTip}"
-                        Style="{DynamicResource TopPanelButton}"/>
+                <StackPanel Orientation="Horizontal" Margin="5,0,0,5">
+                    <ctrls:PluginSearchBox
+                        Height="32" Width="300" Margin="0,0,10,0"
+                        SearchText="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
+                        ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"/>
                     <Button
                         Command="{Binding ToggleShowCacheRoots}"
                         ToolTip="{Binding ShowCacheRootsToolTip}"
@@ -52,6 +52,12 @@
                             </Rectangle.OpacityMask>
                         </Rectangle>
                     </Button>
+                    <Button
+                        Content="🔧" FontSize="17"
+                        Command="{Binding ToggleShowSettings}"
+                        ToolTip="{Binding ShowSettingsToolTip}"
+                        Style="{DynamicResource TopPanelButton}"/>
+
                 </StackPanel>
                 <Separator DockPanel.Dock="Top" Background="{DynamicResource NormalBrush}"/>
             </StackPanel>
@@ -85,7 +91,7 @@
             
             <!--Main panel - scroll viewer-->
             <ScrollViewer
-                Margin="20,10,5,10"
+                Margin="20,5,5,5"
                 HorizontalAlignment="Stretch">
                 
                 <StackPanel 

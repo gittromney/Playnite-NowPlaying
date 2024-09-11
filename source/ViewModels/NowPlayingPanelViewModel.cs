@@ -16,6 +16,9 @@ using System.Windows.Media.Imaging;
 using NowPlaying.Properties;
 using System.Windows;
 using System;
+using System.Linq;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
@@ -54,6 +57,7 @@ namespace NowPlaying.ViewModels
             this.isTopPanelVisible = false;
             this.showSettings = false;
             this.showCacheRoots = false;
+            this.gameCaches = new ObservableCollection<GameCacheViewModel>();
             this.SelectedGameCaches = new List<GameCacheViewModel>();
             this.selectionContext = new SelectedCachesContext();
             this.RerootCachesSubMenuItems = new List<MenuItem>();
@@ -162,14 +166,22 @@ namespace NowPlaying.ViewModels
                 popup.ShowDialog();
             });
 
-            // . track game cache list changes, in order to auto-adjust title column width 
-            this.GameCaches.CollectionChanged += GameCaches_CollectionChanged;
+            // . track game cache list changes, in order to auto-adjust title column width, refresh sorting, etc.
+            plugin.cacheManager.GameCaches.CollectionChanged += GameCaches_CollectionChanged;
         }
 
         private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            plugin.panelView.GameCaches_ClearSelected();
-            GridViewUtils.ColumnResize(plugin.panelView.GameCaches);
+            if (String.IsNullOrEmpty(SearchText) == false)
+            {
+                RefreshSearchableGameCaches(SearchText);
+            }
+            else
+            {
+                // . resize columns only if we're viewing all games (empty search text)
+                GridViewUtils.ColumnResize(plugin.panelView.GameCaches);
+                plugin.panelView.GameCaches_ClearSelected();
+            }
         }
 
         public class CustomPlatformSorter : IReversableComparer
@@ -261,8 +273,50 @@ namespace NowPlaying.ViewModels
         public ICommand CancelQueuedInstallsCommand { get; private set; }
         public ICommand PauseInstallCommand { get; private set; }
         public ICommand CancelInstallCommand { get; private set; }
+        
+        public ObservableCollection<GameCacheViewModel> gameCaches;
+        public ObservableCollection<GameCacheViewModel> GameCaches => gameCaches;
 
-        public ObservableCollection<GameCacheViewModel> GameCaches => plugin.cacheManager.GameCaches;
+        private void RefreshSearchableGameCaches(string searchText, bool searchTextUpdated = false)
+        {
+            var useFilteredGamesList = string.IsNullOrWhiteSpace(searchText) == false;
+            if (searchTextUpdated)
+            {
+                Task.Run(() =>
+                {
+                    Task.Delay(100);  // time slot for UI search box text update before list view is updated/sorted/etc.
+
+                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(() =>
+                    {
+                        if (useFilteredGamesList)
+                        {
+                            gameCaches = plugin.cacheManager.GameCaches.Where(g => g.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0).ToObservable();
+                        }
+                        else
+                        {
+                            gameCaches = plugin.cacheManager.GameCaches;
+                        }
+                        OnPropertyChanged(nameof(GameCaches));
+                        plugin.panelView.GameCaches_ClearSelected();
+                        GridViewUtils.RefreshSort(plugin.panelView.GameCaches);
+                    }));
+                });
+            }
+            else
+            {
+                if (useFilteredGamesList)
+                {
+                    gameCaches = plugin.cacheManager.GameCaches.Where(g => g.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0).ToObservable();
+                }
+                else
+                {
+                    gameCaches = plugin.cacheManager.GameCaches;
+                }
+                OnPropertyChanged(nameof(GameCaches));
+                plugin.panelView.GameCaches_ClearSelected();
+                GridViewUtils.RefreshSort(plugin.panelView.GameCaches);
+            }
+        }
 
         public bool AreCacheRootsNonEmpty => plugin.cacheManager.CacheRoots.Count > 0;
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;
@@ -271,6 +325,20 @@ namespace NowPlaying.ViewModels
         public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
 
 
+        private string searchText;
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                if (searchText != value)
+                {
+                    searchText = value;
+                    OnPropertyChanged();
+                    RefreshSearchableGameCaches(searchText, searchTextUpdated: true);
+                }
+            }
+        }
         public bool ShowTitleColumn
         {
             get => plugin.Settings.ShowGameCacheTitle;

@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:utils="clr-namespace:NowPlaying.Utils"
+             xmlns:ctrls="clr-namespace:NowPlaying.Controls"
              MinWidth="1250" 
              MinHeight="650">
     
@@ -31,54 +32,17 @@
             Grid.Row="1"
             Visibility="{Binding EligibleGamesVisibility}" 
             Margin="0,0,18,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*" MaxWidth="500"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
 
-            <!--title search box with inset clear button-->
-            <Label 
-                Grid.Column="0"
-                Content="🔎" 
-                Margin="0,0,1,0"/>
-            <Grid
-                Grid.Column="1">
-                <TextBox 
-                    Name="SearchBox"
-                    Padding="5,0,25,0"
-                    Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                    ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
-                    ToolTipService.InitialShowDelay="150"
-                    ToolTipService.BetweenShowDelay="0">
-                    <TextBox.Style>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=ClearSearch, Path=IsMouseOver}" Value="True">
-                                    <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
-                <Button
-                    Name="ClearSearch"
-                    Content="⌫"
-                    Command="{Binding ClearSearchTextCommand}"
-                    Style="{DynamicResource InTextBoxButton}"
-                    Foreground="{Binding ElementName=SearchBox, Path=Foreground}"
-                    HorizontalAlignment="Right"
-                    Margin="0,0,4,0"/>
-            </Grid>
-            
             <StackPanel
-                Grid.Column="2"
-                Orientation="Horizontal"
-                Margin="15,0,0,0">
-                <Button 
+                Orientation="Horizontal">
+                <ctrls:PluginSearchBox
+                    Height="32" Width="300" Margin="0,0,10,0"
+                    SearchText="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
+                    ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"/>
+                <Button
                     Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
                     Command="{Binding SelectAllCommand}"
-                    Margin="0,0,15,0"/> 
+                    Margin="0,0,10,0"/> 
                 <Button 
                     Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
                     Command="{Binding SelectNoneCommand}"/>
