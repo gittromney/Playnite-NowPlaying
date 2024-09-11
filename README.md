@@ -1,4 +1,4 @@
-## NowPlaying Game Cacher, a library extension for [Playnite](https://github.com/JosefNemec/Playnite)
+## <img src="NowPlayingLogo.png" height=28> NowPlaying Game Cacher, a library extension for [Playnite](https://github.com/JosefNemec/Playnite)
 
 [![Downloads](https://img.shields.io/github/downloads/gittromney/Playnite-NowPlaying/total)](https://github.com/gittromney/Playnite-NowPlaying/archive/refs/heads/master.zip)
 [![LatestVersion](https://img.shields.io/github/v/release/gittromney/Playnite-NowPlaying?include_prereleases)](https://github.com/gittromney/Playnite-NowPlaying/releases)
