@@ -4,10 +4,7 @@ using Playnite.SDK;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using Window = System.Windows.Window;
 
 namespace NowPlaying.ViewModels
 {
@@ -33,8 +30,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootDevice != value)
                 {
-                    plugin.Settings.ShowRootDevice = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootDevice = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -46,8 +43,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootDirectory != value)
                 {
-                    plugin.Settings.ShowRootDirectory = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootDirectory = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -59,8 +56,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootSpaceAvail != value)
                 {
-                    plugin.Settings.ShowRootSpaceAvail = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootSpaceAvail = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -72,8 +69,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootGames != value)
                 {
-                    plugin.Settings.ShowRootGames = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootGames = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -85,8 +82,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootInstalled != value)
                 {
-                    plugin.Settings.ShowRootInstalled = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootInstalled = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -98,8 +95,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowRootMaxFill != value)
                 {
-                    plugin.Settings.ShowRootMaxFill = value;
-                    plugin.panelViewModel.SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowRootMaxFill = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }

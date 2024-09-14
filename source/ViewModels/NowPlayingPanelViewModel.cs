@@ -400,8 +400,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheTitle != value)
                 {
-                    plugin.Settings.ShowGameCacheTitle = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheTitle = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -413,8 +413,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCachePlatform != value)
                 {
-                    plugin.Settings.ShowGameCachePlatform = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCachePlatform = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -426,8 +426,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheSourceDir != value)
                 {
-                    plugin.Settings.ShowGameCacheSourceDir = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheSourceDir = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -439,8 +439,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheStatus != value)
                 {
-                    plugin.Settings.ShowGameCacheStatus = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheStatus = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -452,8 +452,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheCanInstall != value)
                 {
-                    plugin.Settings.ShowGameCacheCanInstall = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheCanInstall = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -465,8 +465,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheInstallEta != value)
                 {
-                    plugin.Settings.ShowGameCacheInstallEta = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheInstallEta = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -478,8 +478,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheSize != value)
                 {
-                    plugin.Settings.ShowGameCacheSize = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheSize = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -491,8 +491,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheRoot != value)
                 {
-                    plugin.Settings.ShowGameCacheRoot = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheRoot = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
@@ -504,8 +504,8 @@ namespace NowPlaying.ViewModels
             {
                 if (plugin.Settings.ShowGameCacheSpaceAvail != value)
                 {
-                    plugin.Settings.ShowGameCacheSpaceAvail = value;
-                    SaveSettingsCommand?.Execute(plugin);
+                    plugin.settingsViewModel.Settings.ShowGameCacheSpaceAvail = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                 }
             }
