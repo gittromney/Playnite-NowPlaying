@@ -57,6 +57,7 @@
     <Compile Include="Controls\SidebarIcon.xaml.cs">
       <DependentUpon>SidebarIcon.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PluginTopPanelItem.cs" />
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
     <Compile Include="Utils\CollectionsUtils.cs" />
@@ -208,6 +209,10 @@
     <ProjectReference Include="..\..\Playnite\source\PlayniteSDK\Playnite.SDK.csproj">
       <Project>{19bc9097-5705-4352-90e2-99f0c63230d0}</Project>
       <Name>Playnite.SDK</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Playnite\source\Playnite\Playnite.csproj">
+      <Project>{ad271e73-8a13-4c4e-bfdc-3076646b59e3}</Project>
+      <Name>Playnite</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
+using System.Windows.Controls;
 
 namespace NowPlaying.ViewModels
 {
@@ -149,11 +150,37 @@ namespace NowPlaying.ViewModels
                 var view = new AddGameCachesView(viewModel);
                 popup.Content = view;
 
+                // tweak window to make it captionless (no area reserved for title, min/max/close buttons)
+                view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+                var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
+
                 // setup popup and center within the current application window
-                popup.Width = view.MinWidth;
-                popup.MinWidth = view.MinWidth;
-                popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
-                popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                if (viewModel.EligibleGamesExist)
+                {
+                    // popup content: list view + controls to enable eligible games
+                    popup.Width = view.MinWidth;
+                    popup.MinWidth = view.MinWidth;
+                    popup.Height = view.MinHeight + captionHeight;
+                    popup.MinHeight = view.MinHeight + captionHeight;
+                }
+                else
+                {
+                    // popup content: no further eligible games warning/info 
+                    // -> make window smaller to fit content and fixed size
+                    var style = (Style)view.TryFindResource("FixedSizeWindow");
+                    if (style != null)
+                    {
+                        popup.Style = style;
+                    }
+                    view.MinWidth = 800;
+                    view.MinHeight = 500;
+                    popup.Width = view.MinWidth;
+                    popup.MinWidth = view.MinWidth;
+                    popup.MaxWidth = view.MinWidth;
+                    popup.Height = view.MinHeight + captionHeight;
+                    popup.MinHeight = view.MinHeight + captionHeight;
+                    popup.MaxHeight = view.MinHeight + captionHeight;
+                }
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
                 popup.ContentRendered += (s, e) =>
@@ -168,6 +195,33 @@ namespace NowPlaying.ViewModels
 
             // . track game cache list changes, in order to auto-adjust title column width, refresh sorting, etc.
             plugin.cacheManager.GameCaches.CollectionChanged += GameCaches_CollectionChanged;
+        }
+
+        public void MakeWindowCaptionlessOnUserControlLoaded(object sender, RoutedEventArgs e)
+        {
+            var window = GridViewUtils.GetRootAncestor(sender as UserControl) as Window;
+            var contentPresenter = GridViewUtils.GetAncestor<ContentPresenter>(sender as UserControl);
+            var titleText = GridViewUtils.GetChildByName(window, "PART_TextTitle", skipThisObj: contentPresenter) as TextBlock;
+
+            if (contentPresenter != null && titleText != null)
+            {
+                // . collapse the window's Title property, if found
+                //  (note: this will collapse the caption region since control buttons are already collapsed)
+                titleText.Visibility = Visibility.Collapsed;
+
+                // . clear our ContentPresenter's Margin.Top, so the whole window area can be used
+                var margin = contentPresenter.Margin;
+                margin.Top = 0;
+                contentPresenter.Margin = margin;
+            }
+
+            else if (window != null)
+            {
+                // . adjust the window's height assuming a Captioned window 
+                window.Height += 2 * SystemParameters.WindowCaptionHeight;
+                window.MinHeight += 2 * SystemParameters.WindowCaptionHeight;
+                window.MaxHeight += 2 * SystemParameters.WindowCaptionHeight;
+            }
         }
 
         private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

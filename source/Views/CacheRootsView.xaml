@@ -51,36 +51,24 @@
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu Name="ColumnShowHideMenu">
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsDevice}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowDeviceColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsDirectory}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowDirectoryColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowSpaceAvailColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsGames}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowGamesColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsInstalled}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowInstalledColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{DynamicResource LOCNowPlayingTermsMaxFillLevel}">
-                                            <MenuItem.Icon>
-                                                <CheckBox IsChecked="{Binding ShowMaxFillColumn}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsDevice}"
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowDeviceColumn}"/>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsDirectory}"
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowDirectoryColumn}"/>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}"
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSpaceAvailColumn}"/>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsGames}"
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowGamesColumn}"/>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsInstalled}"  
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowInstalledColumn}"/>
+                                        <MenuItem 
+                                            Header="{DynamicResource LOCNowPlayingTermsMaxFillLevel}"  
+                                            StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowMaxFillColumn}"/>
                                     </ContextMenu>
                                 </Setter.Value>
                             </Setter>

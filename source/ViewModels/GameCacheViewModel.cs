@@ -59,6 +59,11 @@ namespace NowPlaying.ViewModels
             "TextBrush"
         );
 
+        public string InstalledColor =>
+        (
+            Status == plugin.GetResourceString("LOCNowPlayingTermsInstalled") ? "TextBrush" : "TextBrushDarker"
+        );
+
         public string CacheInstalledSize => cacheInstalledSize;
         public string CacheInstalledSizeColor => 
         (
@@ -121,6 +126,7 @@ namespace NowPlaying.ViewModels
         {
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(StatusColor));
+            OnPropertyChanged(nameof(InstalledColor));
             OnPropertyChanged(nameof(CanInstallCache));
             OnPropertyChanged(nameof(CanInstallCacheColor));
             OnPropertyChanged(nameof(CacheInstalledSizeColor));
@@ -135,6 +141,7 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(InstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusColor));
+                OnPropertyChanged(nameof(InstalledColor));
             }
         }
 
@@ -146,6 +153,7 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(UninstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusColor));
+                OnPropertyChanged(nameof(InstalledColor));
             }
         }
 
@@ -166,6 +174,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(NowUninstalling));
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(StatusColor));
+            OnPropertyChanged(nameof(InstalledColor));
             OnPropertyChanged(nameof(CanInstallCache));
             OnPropertyChanged(nameof(CanInstallCacheColor));
             OnPropertyChanged(nameof(CacheInstalledSizeColor));
@@ -182,6 +191,7 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(NowUninstalling));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusColor));
+                OnPropertyChanged(nameof(InstalledColor));
                 OnPropertyChanged(nameof(CanInstallCache));
                 OnPropertyChanged(nameof(CanInstallCacheColor));
                 OnPropertyChanged(nameof(CacheInstalledSizeColor));

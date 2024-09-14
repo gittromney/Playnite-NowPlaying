@@ -9,26 +9,9 @@ namespace NowPlaying.Controls
     /// <summary>
     /// version of Playnite's SearchBox control for general plugin use.
     /// </summary>
-    [ContentProperty(name: "SearchText")]
+    [ContentProperty(name: "Text")]
     public class PluginSearchBox : SearchBox
     {
-        public string SearchText
-        {
-            get { return (string)GetValue(SearchTextProperty); }
-            set { SetValue(SearchTextProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for SearchText.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SearchTextProperty =
-            DependencyProperty.Register("SearchText", typeof(string), typeof(PluginSearchBox), new PropertyMetadata(string.Empty));
-
-        static PluginSearchBox()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PluginSearchBox), new FrameworkPropertyMetadata(typeof(PluginSearchBox)));
-        }
-
-        public PluginSearchBox() {}
-
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
@@ -36,6 +19,8 @@ namespace NowPlaying.Controls
             var TextInputText = Template.FindName("PART_TextInpuText", this) as TextBox;
             if (TextInputText != null)
             {
+                // . replace SearchBox's binding of Text property (which is broken/has wrong OnWay direction)
+                BindingOperations.ClearBinding(TextInputText, TextBox.TextProperty);
                 BindingOperations.SetBinding
                 (
                     TextInputText,
@@ -43,7 +28,7 @@ namespace NowPlaying.Controls
                     new Binding()
                     {
                         Source = this,
-                        Path = new PropertyPath(nameof(SearchText)),
+                        Path = new PropertyPath(nameof(Text)),
                         Mode = BindingMode.OneWayToSource,
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
                         NotifyOnTargetUpdated = true

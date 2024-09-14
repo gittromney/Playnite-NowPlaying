@@ -78,7 +78,7 @@ namespace NowPlaying.ViewModels
 
         private void UpdateSaveCommandCanExectue()
         {
-            bool value = HasSpaceForCaches;
+            bool value = MaximumFillLevel >= 50 && MaximumFillLevel <= 100;
             if (SaveCommandCanExecute != value)
             {
                 SaveCommandCanExecute = value;

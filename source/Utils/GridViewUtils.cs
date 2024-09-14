@@ -105,6 +105,7 @@ namespace NowPlaying.Utils
                     {
                         scrollViewer.LineLeft();
                     }
+                    e.Handled = true;
                 }
             }
         }
@@ -118,6 +119,28 @@ namespace NowPlaying.Utils
                 var child = VisualTreeHelper.GetChild(depObj, i);
                 var result = (child as T) ?? GetChildOfType<T>(child);
                 if (result != null) return result;
+            }
+            return null;
+        }
+
+        public static DependencyObject GetChildByName(this DependencyObject depObj, string targetName, DependencyObject skipThisObj = null)
+        {
+            if (depObj == null || targetName == null || depObj == skipThisObj) return null;
+
+            var childrenCount = VisualTreeHelper.GetChildrenCount(depObj);
+
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(depObj, i);
+                if (child != skipThisObj)
+                {
+                    var name = (child is FrameworkElement) ? ((FrameworkElement)child).Name : null;
+                    if (name != targetName)
+                    {
+                        child = GetChildByName(child, targetName);
+                    }
+                    if (child != null) return child;
+                }
             }
             return null;
         }
@@ -375,6 +398,18 @@ namespace NowPlaying.Utils
                 return (T)parent;
             else
                 return null;
+        }
+
+        public static DependencyObject GetRootAncestor(DependencyObject reference)
+        { 
+            var root = reference;
+            var parent = VisualTreeHelper.GetParent(reference);
+            while (parent != null)
+            {
+                root = parent;
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            return root;
         }
 
         public static void ApplySort

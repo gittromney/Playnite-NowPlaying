@@ -3,8 +3,21 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:ctrls="clr-namespace:NowPlaying.Controls">
 
-    <Style TargetType="{x:Type ctrls:PluginSearchBox}" BasedOn="{StaticResource {x:Type SearchBox}}"/>
+    <Style TargetType="{x:Type ctrls:PluginSearchBox}" BasedOn="{StaticResource {x:Type SearchBox}}">
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource TopPanelSearchBoxBackgroundBrush}"/>
+    </Style>
+    <Style TargetType="{x:Type ctrls:PluginTopPanelItem}" BasedOn="{StaticResource {x:Type TopPanelItem}}"/>
 
+    <Style x:Key="FixedSizeWindow" TargetType="{x:Type WindowBase}" BasedOn="{StaticResource StandardWindowStyle}">
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <WindowChrome CaptionHeight="25" CornerRadius="0" ResizeBorderThickness="0"
+                              NonClientFrameEdges ="None" UseAeroCaptionButtons="False" GlassFrameThickness="0"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Color x:Key="SlowInstallColor">#FFF0D020</Color>
     <Color x:Key="TopPanelProcessingFgColor">#80F2F2F2</Color>
     <Color x:Key="TopPanelProcessingBgColor">#FF000000</Color>
@@ -32,7 +45,7 @@
     <SolidColorBrush x:Key="TopPanelUninstallBgBrush" Color="{DynamicResource TopPanelUninstallBgColor}"/>
     <SolidColorBrush x:Key="TransparentBgBrush" Color="{DynamicResource TransparentBgColor}"/>
 
-    <Style TargetType="TextBlock">
+    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
@@ -50,11 +63,10 @@
         <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
 
-    <Style x:Key="TopPanelButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Width" Value="34"/>
-        <Setter Property="Height" Value="34"/>
+    <Style x:Key="TopPanelButton" TargetType="ctrls:PluginTopPanelItem" BasedOn="{StaticResource {x:Type ctrls:PluginTopPanelItem}}">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
         <Setter Property="Padding" Value="0,0,0,0"/>
-        <Setter Property="Focusable" Value="False"/>
         <Setter Property="ToolTipService.InitialShowDelay" Value="150"/>
         <Setter Property="ToolTipService.BetweenShowDelay" Value="0"/>
         <Setter Property="Margin" Value="0,0,8,0"/>

@@ -4,7 +4,10 @@ using Playnite.SDK;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Window = System.Windows.Window;
 
 namespace NowPlaying.ViewModels
 {
@@ -122,11 +125,22 @@ namespace NowPlaying.ViewModels
                 var view = new AddCacheRootView(viewModel);
                 popup.Content = view;
 
+                // tweak window to make it fixed size and headless (no area reserved for title, min/max/close buttons)
+                view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+                var style = (Style)view.TryFindResource("FixedSizeWindow");
+                if (style != null)
+                {
+                    popup.Style = style;
+                }
+                var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
+
                 // setup up popup and center within the current application window
                 popup.Width = view.MinWidth;
                 popup.MinWidth = view.MinWidth;
-                popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
-                popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                popup.MaxWidth = view.MaxWidth;
+                popup.Height = view.MinHeight + captionHeight;
+                popup.MinHeight = view.MinHeight + captionHeight;
+                popup.MaxHeight = view.MaxHeight + captionHeight;
                 popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                 popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
                 plugin.panelViewModel.ModalDimming = true;
@@ -146,11 +160,22 @@ namespace NowPlaying.ViewModels
                     var view = new EditMaxFillView(viewModel);
                     popup.Content = view;
 
+                    // tweak window to make it fixed size and headless (no area reserved for title, min/max/close buttons)
+                    view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+                    var style = (Style)view.TryFindResource("FixedSizeWindow");
+                    if (style != null)
+                    {
+                        popup.Style = style;
+                    }
+                    var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
+
                     // setup up popup and center within the current application window
                     popup.Width = view.MinWidth;
                     popup.MinWidth = view.MinWidth;
-                    popup.Height = view.MinHeight + SystemParameters.WindowCaptionHeight;
-                    popup.MinHeight = view.MinHeight + SystemParameters.WindowCaptionHeight;
+                    popup.MaxWidth = view.MaxWidth;
+                    popup.Height = view.MinHeight + captionHeight;
+                    popup.MinHeight = view.MinHeight + captionHeight;
+                    popup.MaxHeight = view.MaxHeight + captionHeight;
                     popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
                     popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
                     plugin.panelViewModel.ModalDimming = true;
@@ -179,6 +204,7 @@ namespace NowPlaying.ViewModels
         {
             plugin.cacheRootsView.UnselectCacheRoots();
             GridViewUtils.ColumnResize(plugin.cacheRootsView.CacheRoots);
+            GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
         }
 
         public void RefreshCacheRoots()
@@ -192,6 +218,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(NonEmptyRootsVisible));
             plugin.cacheRootsView.UnselectCacheRoots();
             plugin.panelViewModel.UpdateCacheRoots();
+            GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
         }
 
         public class CustomSpaceAvailableSorter : IReversableComparer

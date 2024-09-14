@@ -105,6 +105,7 @@ namespace NowPlaying.ViewModels
 
         public string SelectedCacheRoot { get; set; }
 
+        public bool EligibleGamesExist => allEligibleGames.Count > 0;
         public string EligibleGamesVisibility => allEligibleGames.Count > 0 ? "Visible" : "Collapsed";
         public string NoEligibleGamesVisibility => allEligibleGames.Count > 0 ? "Collapsed" : "Visible";
 
@@ -131,6 +132,7 @@ namespace NowPlaying.ViewModels
 
             EligibleGames = allEligibleGames;
             OnPropertyChanged(nameof(EligibleGames));
+            OnPropertyChanged(nameof(EligibleGamesExist));
             OnPropertyChanged(nameof(EligibleGamesVisibility));
             OnPropertyChanged(nameof(NoEligibleGamesVisibility));
         }

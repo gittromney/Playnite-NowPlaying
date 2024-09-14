@@ -13,53 +13,51 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <Grid Margin="25,0,12,25">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
 
-        <TextBlock
-            Grid.Row="0"
-            Text="{DynamicResource LOCNowPlayingAddGamesHeading}"
-            Style="{DynamicResource HeadingText}"
-            Margin="0,0,0,20"/>
+    <Grid>
+        <Grid 
+            Visibility="{Binding EligibleGamesVisibility}"
+            Margin="20,20,15,25">
 
-        <Grid
-            Grid.Row="1"
-            Visibility="{Binding EligibleGamesVisibility}" 
-            Margin="0,0,18,15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
 
-            <StackPanel
-                Orientation="Horizontal">
-                <ctrls:PluginSearchBox
-                    Height="32" Width="300" Margin="0,0,10,0"
-                    SearchText="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
-                    ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"/>
-                <Button
-                    Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
-                    Command="{Binding SelectAllCommand}"
-                    Margin="0,0,10,0"/> 
-                <Button 
-                    Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
-                    Command="{Binding SelectNoneCommand}"/>
-            </StackPanel>
-        </Grid>
+            <TextBlock
+                Grid.Row="0"
+                Text="{DynamicResource LOCNowPlayingAddGamesHeading}"
+                Style="{DynamicResource HeadingText}"
+                Margin="0,0,0,20"/>
+            <Grid
+                Grid.Row="1"
+                Margin="5,0,18,15">
+                <StackPanel
+                    Orientation="Horizontal">
+                    <ctrls:PluginSearchBox
+                        Height="32" Width="300" Margin="0,0,10,0"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
+                        ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"/>
+                    <Button
+                        Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
+                        Command="{Binding SelectAllCommand}"
+                        Margin="0,0,10,0"/>
+                    <Button 
+                        Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
+                        Command="{Binding SelectNoneCommand}"/>
+                </StackPanel>
+            </Grid>
 
-        <ScrollViewer
-            Grid.Row="2" 
-            Margin="0,0,0,20"
-            Visibility="{Binding EligibleGamesVisibility}">
             <ListView 
+                Grid.Row="2" 
+                Margin="5,0,0,10"
                 Name="EligibleGames"
                 ItemsSource="{Binding EligibleGames}"
-                IsSynchronizedWithCurrentItem="True"
-                MouseUp="EligibleGames_OnMouseUp"
                 SelectionMode="Extended"
-                PreviewMouseWheel="PreviewMouseWheelToParent"
+                MouseUp="EligibleGames_OnMouseUp"
+                IsSynchronizedWithCurrentItem="True"
                 utils:GridViewUtils.HorizontalShiftWheelScroll="True"
                 utils:GridViewUtils.AutoSort="True"
                 utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending">
@@ -102,48 +100,48 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-        </ScrollViewer>
 
-        <StackPanel 
-            Grid.Row="3" 
-            Margin="0,0,18,0"
-            Orientation="Horizontal"
-            HorizontalAlignment="Right">
-            <Label 
-                Content="{DynamicResource LOCNowPlayingAddGamesCacheTo}" 
-                Visibility="{Binding EligibleGamesVisibility}"
-                Margin="0,0,10,0"/>
-            <ComboBox 
-                SelectedIndex="0" 
-                ItemsSource="{Binding CacheRoots}"
-                SelectedItem="{Binding SelectedCacheRoot}"
-                Visibility="{Binding EligibleGamesVisibility}"
-                Width="300" Margin="0,0,15,0"/>
-            <Button 
-                Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
-                Visibility="{Binding EligibleGamesVisibility}"
-                Command="{Binding EnableSelectedGamesCommand}"
-                Margin="0,0,10,0"/>
-            <Button 
-                Content="{DynamicResource LOCNowPlayingTermsClose}" 
-                Command="{Binding CloseCommand}"/>
-        </StackPanel>
+            <StackPanel 
+                Grid.Row="3" 
+                Margin="0,0,15,0"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+                <Label 
+                    Content="{DynamicResource LOCNowPlayingAddGamesCacheTo}" 
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0"/>
+                <ComboBox 
+                    SelectedIndex="0" 
+                    ItemsSource="{Binding CacheRoots}"
+                    SelectedItem="{Binding SelectedCacheRoot}"
+                    VerticalAlignment="Center"
+                    Width="300" Height="35" Margin="0,0,15,0"/>
+                <Button 
+                    Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
+                    Command="{Binding EnableSelectedGamesCommand}"
+                    Style="{DynamicResource BottomButton}" Height="35"
+                    Margin="0,0,10,0"/>
+                <Button 
+                    Content="{DynamicResource LOCNowPlayingTermsClose}" 
+                    Command="{Binding CloseCommand}"
+                    Style="{DynamicResource BottomButton}" Height="35"/>
+            </StackPanel>
+        </Grid>
 
         <!--No eligible games warning and info-->
         <StackPanel
-            Grid.Row="2"
-            Margin="0,0,18,0"
+            Margin="20,20,20,20"
+            Visibility="{Binding NoEligibleGamesVisibility}"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Visibility="{Binding NoEligibleGamesVisibility}">
+            VerticalAlignment="Center">
             <TextBlock 
                 Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
                 Foreground="{DynamicResource WarningBrush}" 
                 FontSize="{DynamicResource FontSizeLarge}"
                 TextWrapping="Wrap"
-                Margin="0,0,0,20"/>
+                Margin="0,0,0,25"/>
             <StackPanel
-                Margin="0,0,0,100"
+                Margin="0,0,0,10"
                 HorizontalAlignment="Center">
                 <StackPanel.Resources>
                     <Style TargetType="Label" BasedOn="{StaticResource BulletedLabel}">
@@ -169,7 +167,16 @@
                     <Label Content="{DynamicResource LOCNowPlayingEmuPlatform7}"/>
                 </StackPanel>
             </StackPanel>
+            <StackPanel 
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <Button 
+                    Content="{DynamicResource LOCNowPlayingTermsClose}" 
+                    Command="{Binding CloseCommand}"
+                    Style="{DynamicResource BottomButton}" Height="35"
+                    Margin="0,0,0,0"/>
+            </StackPanel>
         </StackPanel>
-
     </Grid>
 </UserControl>
