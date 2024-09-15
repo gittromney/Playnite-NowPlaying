@@ -60,6 +60,7 @@
     <Compile Include="Controls\PluginTopPanelItem.cs" />
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\WpfUtils.cs" />
     <Compile Include="Utils\CollectionsUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Utils\ImageUtils.cs" />

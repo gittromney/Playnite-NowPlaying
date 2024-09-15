@@ -94,7 +94,7 @@ namespace NowPlaying.Utils
         {
             if (Keyboard.Modifiers == ModifierKeys.Shift)
             {
-                var scrollViewer = GetChildOfType<ScrollViewer>(sender as ListView);
+                var scrollViewer = WpfUtils.GetChildOfType<ScrollViewer>(sender as ListView);
                 if (scrollViewer != null)
                 {
                     if (e.Delta < 0)
@@ -108,41 +108,6 @@ namespace NowPlaying.Utils
                     e.Handled = true;
                 }
             }
-        }
-
-        public static T GetChildOfType<T>(this DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj == null) return null;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-            {
-                var child = VisualTreeHelper.GetChild(depObj, i);
-                var result = (child as T) ?? GetChildOfType<T>(child);
-                if (result != null) return result;
-            }
-            return null;
-        }
-
-        public static DependencyObject GetChildByName(this DependencyObject depObj, string targetName, DependencyObject skipThisObj = null)
-        {
-            if (depObj == null || targetName == null || depObj == skipThisObj) return null;
-
-            var childrenCount = VisualTreeHelper.GetChildrenCount(depObj);
-
-            for (int i = 0; i < childrenCount; i++)
-            {
-                var child = VisualTreeHelper.GetChild(depObj, i);
-                if (child != skipThisObj)
-                {
-                    var name = (child is FrameworkElement) ? ((FrameworkElement)child).Name : null;
-                    if (name != targetName)
-                    {
-                        child = GetChildByName(child, targetName);
-                    }
-                    if (child != null) return child;
-                }
-            }
-            return null;
         }
 
         #endregion
@@ -366,7 +331,7 @@ namespace NowPlaying.Utils
 
                 if (!string.IsNullOrEmpty(columnName))
                 {
-                    ListView listView = GetAncestor<ListView>(headerClicked);
+                    ListView listView = WpfUtils.GetAncestor<ListView>(headerClicked);
                     if (listView != null)
                     {
                         if (GetAutoSort(listView))
@@ -385,31 +350,6 @@ namespace NowPlaying.Utils
                 return ((Binding)headerClicked.Column.DisplayMemberBinding).Path.Path;
             }
             return null;
-        }
-
-        public static T GetAncestor<T>(DependencyObject reference) where T : DependencyObject
-        {
-            DependencyObject parent = VisualTreeHelper.GetParent(reference);
-            while (!(parent is T))
-            {
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-            if (parent != null)
-                return (T)parent;
-            else
-                return null;
-        }
-
-        public static DependencyObject GetRootAncestor(DependencyObject reference)
-        { 
-            var root = reference;
-            var parent = VisualTreeHelper.GetParent(reference);
-            while (parent != null)
-            {
-                root = parent;
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-            return root;
         }
 
         public static void ApplySort

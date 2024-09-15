@@ -181,8 +181,8 @@ namespace NowPlaying.ViewModels
                     popup.MinHeight = view.MinHeight + captionHeight;
                     popup.MaxHeight = view.MinHeight + captionHeight;
                 }
-                popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
-                popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
+                popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
+                popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
                 popup.ContentRendered += (s, e) =>
                 {
                     // . clear auto-selection of 1st item
@@ -199,9 +199,9 @@ namespace NowPlaying.ViewModels
 
         public void MakeWindowCaptionlessOnUserControlLoaded(object sender, RoutedEventArgs e)
         {
-            var window = GridViewUtils.GetRootAncestor(sender as UserControl) as Window;
-            var contentPresenter = GridViewUtils.GetAncestor<ContentPresenter>(sender as UserControl);
-            var titleText = GridViewUtils.GetChildByName(window, "PART_TextTitle", skipThisObj: contentPresenter) as TextBlock;
+            var window = WpfUtils.GetRootAncestor(sender as UserControl) as Window;
+            var contentPresenter = WpfUtils.GetAncestor<ContentPresenter>(sender as UserControl);
+            var titleText = WpfUtils.GetChildByName(window, "PART_TextTitle", skipThisObj: contentPresenter) as TextBlock;
 
             if (contentPresenter != null && titleText != null)
             {

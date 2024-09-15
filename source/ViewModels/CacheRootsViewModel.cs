@@ -138,8 +138,8 @@ namespace NowPlaying.ViewModels
                 popup.Height = view.MinHeight + captionHeight;
                 popup.MinHeight = view.MinHeight + captionHeight;
                 popup.MaxHeight = view.MaxHeight + captionHeight;
-                popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
-                popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
+                popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
+                popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
                 plugin.panelViewModel.ModalDimming = true;
                 popup.ShowDialog();
             });
@@ -173,8 +173,8 @@ namespace NowPlaying.ViewModels
                     popup.Height = view.MinHeight + captionHeight;
                     popup.MinHeight = view.MinHeight + captionHeight;
                     popup.MaxHeight = view.MaxHeight + captionHeight;
-                    popup.Left = appWindow.Left + (appWindow.Width - popup.Width) / 2;
-                    popup.Top = appWindow.Top + (appWindow.Height - popup.Height) / 2;
+                    popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
+                    popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
                     plugin.panelViewModel.ModalDimming = true;
                     popup.ShowDialog();
                 },
