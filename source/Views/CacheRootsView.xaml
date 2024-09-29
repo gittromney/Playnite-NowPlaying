@@ -40,8 +40,11 @@
             Loaded="CacheRoots_ResizeColumns"
             PreviewMouseWheel="PreviewMouseWheelToParent"
             utils:GridViewUtils.HorizontalShiftWheelScroll="True"
+            utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
             utils:GridViewUtils.AutoSort="True"
-            utils:GridViewUtils.SecondaryAutoSortBy="Directory,Ascending">
+            utils:GridViewUtils.SecondaryAutoSortBy="Directory,Ascending"
+            utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
+            ItemContainerStyle="{DynamicResource ThemeListViewItem}">
 
             <ListView.View>
                 <GridView>
@@ -76,16 +79,26 @@
                     </GridView.ColumnHeaderContainerStyle>
 
                     <GridViewColumn 
-                        DisplayMemberBinding="{Binding Device}"
+                        utils:GridViewUtils.PropertyName="Device" 
                         utils:GridViewUtils.MinWidth="70"
                         utils:GridViewUtils.HideColumn="{Binding ShowDeviceColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDevice}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock x:Name="Text1" Text="{Binding Device}"/>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     
-                    <GridViewColumn 
-                        DisplayMemberBinding="{Binding Directory}"
+                    <GridViewColumn
+                        utils:GridViewUtils.PropertyName="Directory" 
                         utils:GridViewUtils.SortedByDefault="Ascending"
                         utils:GridViewUtils.AutoWidth="True"
                         utils:GridViewUtils.MinWidth="220"
@@ -93,6 +106,16 @@
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsDirectory}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDirectoryToolTip}"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock x:Name="Text1" Text="{Binding Directory}"/>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     
                     <GridViewColumn 
@@ -105,37 +128,33 @@
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <!--bottom layer: is selected text (black)-->
-                                    <TextBlock Text="{Binding SpaceAvailableForCaches}" Foreground="Black"/>
-
-                                    <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                    <TextBlock
-                                        x:Name="NormalText"
-                                        Text="{Binding SpaceAvailableForCaches}"
-                                        Foreground="{utils:DynamicResourceBinding SpaceAvailableForCachesColor}"/>
-                                </Grid>
+                                <TextBlock x:Name="Text1" Text="{Binding SpaceAvailableForCaches}" Foreground="{Binding SpaceAvailableForCachesBrush}"/>
                                 <DataTemplate.Triggers>
-                                    <DataTrigger 
-                                        Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" 
-                                        Value="True">
-                                        <Setter 
-                                            TargetName="NormalText" 
-                                            Property="Visibility" 
-                                            Value="Hidden"/>
+                                    <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     
-                    <GridViewColumn 
-                        DisplayMemberBinding="{Binding GamesEnabled}"
+                    <GridViewColumn
+                        utils:GridViewUtils.PropertyName="GamesEnabled"
                         utils:GridViewUtils.MinWidth="70"
                         utils:GridViewUtils.HideColumn="{Binding ShowGamesColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             Content="{DynamicResource LOCNowPlayingTermsGames}" 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock x:Name="Text1" Text="{Binding GamesEnabled}"/>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     
                     <GridViewColumn
@@ -149,20 +168,13 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock 
-                                        x:Name="Installed" 
-                                        Text="{Binding CachesInstalled}" 
-                                        Foreground="{DynamicResource TextBrush}"
-                                        Margin="0,0,10,0"/>
-                                    <TextBlock 
-                                        x:Name="InstalledSize" 
-                                        Text="{Binding CachesInstalledSize}" 
-                                        Foreground="{DynamicResource TextBrushDarker}"/>
+                                    <TextBlock x:Name="Text1" Text="{Binding CachesInstalled}" Foreground="{Binding Theme.TextBrush}" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="Text2" Text="{Binding CachesInstalledSize}" Foreground="{Binding Theme.TextBrushDarker}"/>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                        <Setter TargetName="Installed" Property="Foreground" Value="Black"/>
-                                        <Setter TargetName="InstalledSize" Property="Foreground" Value="Black"/>
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        <Setter TargetName="Text2" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -180,20 +192,13 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock 
-                                        x:Name="MaxFill" 
-                                        Text="{Binding MaxFillLevel, StringFormat={}{0}%}" 
-                                        Foreground="{DynamicResource TextBrush}"
-                                        Margin="0,0,15,0"/>
-                                    <TextBlock 
-                                        x:Name="Reserved" 
-                                        Text="{Binding ReservedSpaceOnDevice}" 
-                                        Foreground="{DynamicResource TextBrushDarker}"/>
+                                    <TextBlock x:Name="Text1" Text="{Binding MaxFillLevelPercent}" Foreground="{Binding Theme.TextBrush}" Margin="0,0,10,0"/>
+                                    <TextBlock x:Name="Text2" Text="{Binding ReservedSpaceOnDevice}" Foreground="{Binding Theme.TextBrushDarker}"/>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                        <Setter TargetName="MaxFill" Property="Foreground" Value="Black"/>
-                                        <Setter TargetName="Reserved" Property="Foreground" Value="Black"/>
+                                        <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        <Setter TargetName="Text2" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>

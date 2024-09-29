@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:utils="clr-namespace:NowPlaying.Utils"
              xmlns:ctrls="clr-namespace:NowPlaying.Controls"
-             MinWidth="1250" 
-             MinHeight="650">
+             MinWidth="1080"
+             MinHeight="500">
     
     <UserControl.Resources>
         <ResourceDictionary>
@@ -38,7 +38,7 @@
                     Orientation="Horizontal">
                     <ctrls:PluginSearchBox
                         Height="32" Width="300" Margin="0,0,10,0"
-                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
                         ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"/>
                     <Button
                         Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
@@ -52,51 +52,103 @@
 
             <ListView 
                 Grid.Row="2" 
-                Margin="5,0,0,10"
                 Name="EligibleGames"
                 ItemsSource="{Binding EligibleGames}"
                 SelectionMode="Extended"
                 MouseUp="EligibleGames_OnMouseUp"
                 IsSynchronizedWithCurrentItem="True"
                 utils:GridViewUtils.HorizontalShiftWheelScroll="True"
+                utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
                 utils:GridViewUtils.AutoSort="True"
-                utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending">
+                utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
+                 Style="{StaticResource ThemeListView}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn 
                             Header="{DynamicResource LOCNowPlayingTermsTitle}" 
-                            DisplayMemberBinding="{Binding Path=Title}"
+                            utils:GridViewUtils.PropertyName="Title"
                             utils:GridViewUtils.SortedByDefault="Ascending"
                             utils:GridViewUtils.AutoWidth="True"
-                            utils:GridViewUtils.MinWidth="200"/>
+                            utils:GridViewUtils.MinWidth="200">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="Text1" Text="{Binding Title}"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn 
-                            DisplayMemberBinding="{Binding Platform}"
+                            utils:GridViewUtils.PropertyName="Platform"
                             utils:GridViewUtils.MinWidth="80"
                             utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}">
                             <GridViewColumnHeader
                                 Content="{DynamicResource LOCNowPlayingTermsPlatform}" 
                                 ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="Text1" Text="{Binding Platform}"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn 
-                            DisplayMemberBinding="{Binding InstallDir}"
+                            utils:GridViewUtils.PropertyName="InstallDir"
                             utils:GridViewUtils.AutoWidth="True"
                             utils:GridViewUtils.MinWidth="130">
                             <GridViewColumnHeader
                                 Content="{DynamicResource LOCNowPlayingTermsSourceDirectory}" 
                                 ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}"/>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="Text1" Text="{Binding InstallDir}"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn 
-                            DisplayMemberBinding="{Binding Path=InstallSize}"
+                            utils:GridViewUtils.PropertyName="InstallSize"
                             utils:GridViewUtils.MinWidth="95" 
                             utils:GridViewUtils.CustomSort="{Binding CustomInstallSizeSort}">
                             <GridViewColumnHeader Content="{DynamicResource LOCNowPlayingTermsInstallSize}"/>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="Text1" Text="{Binding InstallSize}"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn
-                            x:Name="GenresColumn"
                             Header="{DynamicResource LOCNowPlayingTermsGenres}" 
-                            DisplayMemberBinding="{Binding Path=Genres}"
+                            utils:GridViewUtils.PropertyName="Genres"
                             utils:GridViewUtils.AutoWidth="True"
-                            utils:GridViewUtils.MinWidth="100"/>
+                            utils:GridViewUtils.MinWidth="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock x:Name="Text1" Text="{Binding Genres}"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

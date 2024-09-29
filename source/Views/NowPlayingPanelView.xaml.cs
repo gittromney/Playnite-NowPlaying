@@ -31,14 +31,7 @@ namespace NowPlaying.Views
 
         public void GameCaches_ClearSelected()
         {
-            if (Dispatcher.CheckAccess())
-            {
-                GameCaches.SelectedItems.Clear();
-            }
-            else
-            {
-                Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(() => GameCaches.SelectedItems.Clear()));
-            }
+            DispatcherUtils.Invoke(Dispatcher, () => GameCaches.SelectedItems.Clear());
             viewModel.SelectedGameCaches = new List<GameCacheViewModel>();
         }
 

@@ -19,6 +19,9 @@ namespace NowPlaying.ViewModels
         private readonly List<CacheRootViewModel> cacheRoots;
         private readonly List<GameViewModel> allEligibleGames;
 
+        public NowPlayingSettings Settings => plugin.Settings;
+        public ThemeResources Theme => plugin.themeResources;
+
         private string searchText;
         public string SearchText
         {
@@ -177,14 +180,7 @@ namespace NowPlaying.ViewModels
         public void CloseWindow()
         {
             plugin.panelViewModel.ModalDimming = false;
-            if (popup.Dispatcher.CheckAccess())
-            {
-                popup.Close();
-            }
-            else
-            {
-                popup.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(popup.Close));
-            }
+            DispatcherUtils.Invoke(popup.Dispatcher, popup.Close);
         }
     }
 }

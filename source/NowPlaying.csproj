@@ -58,8 +58,14 @@
       <DependentUpon>SidebarIcon.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PluginTopPanelItem.cs" />
+    <Compile Include="Extensions\ColumnSortableObject.cs" />
+    <Compile Include="Utils\CovertersBindableParameter.cs" />
+    <Compile Include="Extensions\ColumnSortableCollection.cs" />
+    <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="ViewModels\ThemeResources.cs" />
     <Compile Include="Utils\BoolInvert.cs" />
     <Compile Include="Utils\BoolToOpacityConverter.cs" />
+    <Compile Include="Utils\BoolToVisibilityConverter.cs" />
     <Compile Include="Utils\WpfUtils.cs" />
     <Compile Include="Utils\CollectionsUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />

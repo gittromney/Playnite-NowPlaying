@@ -15,19 +15,15 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!--Note: 'HorizontalScrollBarVisibility = ActualWidth < [Tag value] ? "Visible" : "Hidden"' implemented in code-behind -->
-    <ScrollViewer 
-        Name="Scroller"
-        SizeChanged="Scroller_SizeChanged" Tag="520"
-        HorizontalAlignment="Left"
-        Margin="20,0,0,0">
+    <Grid
+        HorizontalAlignment="Stretch"
+        Margin="10,0,0,0">
 
         <TabControl
-            MinWidth="520"
             HorizontalAlignment="Stretch"
             Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}">
-
-            <TabItem Header="{DynamicResource LOCNowPlayingSettingsGeneralTab}" Padding="200,0,0,0">
+            <TabItem
+                Header="{DynamicResource LOCNowPlayingSettingsGeneralTab}" Padding="200,0,0,0">
                 <StackPanel Margin="0,20,0,15">
                     <CheckBox
                         Content="{DynamicResource LOCNowPlayingSettingsConfirmUninstall}"
@@ -40,6 +36,11 @@
                         IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"
                         Margin="0,0,0,10"/>
                     <CheckBox
+                        Content="Flip direction of horizontal list scrolling (hold Shift + mouse scroll)"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.HorizontalScrollFlipped}"
+                        Margin="0,0,0,10"/>
+                    <CheckBox
                         Content="Show 'Uninstall cache + Disable caching' combo on Playnite's right-click game menus"
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.ShowUninstallAndDisableMenu}"
@@ -50,10 +51,11 @@
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.ShowStatusAndMenuTips}"
                         Margin="0,0,0,10"/>
-                    <StackPanel Orientation="Horizontal"
-                                Opacity="{Binding ElementName=ShowStatusButton, Path=IsChecked, Converter={StaticResource BoolToOpacity}}"
-                                IsEnabled="{Binding ElementName=ShowStatusButton, Path=IsChecked}"
-                                Margin="33,0,0,10">
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Opacity="{Binding ElementName=ShowStatusButton, Path=IsChecked, Converter={StaticResource BoolToOpacity}}"
+                        IsEnabled="{Binding ElementName=ShowStatusButton, Path=IsChecked}"
+                        Margin="33,0,0,10">
                         <TextBlock Text="Status/menu tips icon color:"/>
                         <CheckBox
                             Content="Lighter"
@@ -92,7 +94,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="{DynamicResource LOCNowPlayingSettingsSyncTab}">
+            <TabItem Background="Black" Opacity="1" Header="{DynamicResource LOCNowPlayingSettingsSyncTab}">
                 <StackPanel Margin="0,20,0,0">
                     <TextBlock 
                         Text="{DynamicResource LOCNowPlayingSettingsSyncHeading}" 
@@ -123,7 +125,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="{DynamicResource LOCNowPlayingSettingsWhilePlayingTab}">
+            <TabItem Background="Black" Opacity="1" Header="{DynamicResource LOCNowPlayingSettingsWhilePlayingTab}">
                 <StackPanel Margin="0,20,0,0">
                     <TextBlock 
                         Text="{DynamicResource LOCNowPlayingSettingsWhilePlayingHeading}" 
@@ -287,7 +289,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="{DynamicResource LOCNowPlayingSettingsPartialFileResumeTab}">
+            <TabItem Background="Black" Opacity="1" Header="{DynamicResource LOCNowPlayingSettingsPartialFileResumeTab}">
                 <StackPanel Margin="0,20,0,0">
                     <TextBlock 
                         Text="{DynamicResource LOCNowPlayingSettingsPartialFileResumeHeading}" 
@@ -337,6 +339,6 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-    </ScrollViewer>
+    </Grid>
 
 </UserControl>

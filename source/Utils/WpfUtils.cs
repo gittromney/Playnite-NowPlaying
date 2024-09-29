@@ -80,6 +80,20 @@ namespace NowPlaying.Utils
             return null;
         }
 
+        public static int FindIndexOfChild(this DependencyObject depObj, DependencyObject targetChild)
+        {
+            if (depObj == null || targetChild == null) return -1;
+
+            var childrenCount = VisualTreeHelper.GetChildrenCount(depObj);
+
+            for (int index = 0; index < childrenCount; index++)
+            {
+                var child = VisualTreeHelper.GetChild(depObj, index);
+                if (child == targetChild) return index;
+            }
+            return -1;
+        }
+
         public static DependencyObject GetChildByName(this DependencyObject depObj, string targetName, DependencyObject skipThisObj = null)
         {
             if (depObj == null || targetName == null || depObj == skipThisObj) return null;

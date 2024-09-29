@@ -52,8 +52,8 @@
                     <TextBox
                         Name="DirTextBox"
                         Text="{Binding RootDirectory, UpdateSourceTrigger=PropertyChanged}"
-                        VerticalAlignment="Center" Height="28"
-                        Padding="5,5,25,5">
+                        VerticalAlignment="Center" VerticalContentAlignment="Center" Height="28"
+                        Padding="5,0,25,0">
                         <TextBox.Style>
                             <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                 <Style.Triggers>

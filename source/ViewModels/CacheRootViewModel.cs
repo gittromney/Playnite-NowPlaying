@@ -3,17 +3,21 @@ using NowPlaying.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Media;
+using NowPlaying.Extensions;
 
 namespace NowPlaying.ViewModels
 {
-    public class CacheRootViewModel : ObservableObject
+    public class CacheRootViewModel : ColumnSortableObject
     {
         public readonly GameCacheManagerViewModel manager;
         public readonly NowPlaying plugin;
+        public readonly ThemeResources theme;
         public CacheRoot root;
+        public ThemeResources Theme => theme;
+        
         public string Directory => root.Directory;
         public string Device => System.IO.Directory.GetDirectoryRoot(Directory);
-        public double MaxFillLevel => root.MaxFillLevel;
 
         public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
         public long GamesEnabled { get; private set; }
@@ -23,7 +27,10 @@ namespace NowPlaying.ViewModels
         public string CachesInstalledSize => cachesAggregateSizeOnDisk > 0 ? "(" + SmartUnits.Bytes(cachesAggregateSizeOnDisk) + ")" : "";
         public long BytesAvailableForCaches { get; private set; }
         public string SpaceAvailableForCaches { get; private set; }
-        public string SpaceAvailableForCachesColor => BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
+        public Brush SpaceAvailableForCachesBrush => BytesAvailableForCaches > 0 ? Theme.TextBrush : Theme.WarningBrush;
+
+        public double MaxFillLevel => root.MaxFillLevel;
+        public string MaxFillLevelPercent => string.Format($"{MaxFillLevel:#,0.#}%");
 
         public long bytesReservedOnDevice;
         public string ReservedSpaceOnDevice { get; private set; }
@@ -32,6 +39,7 @@ namespace NowPlaying.ViewModels
         {
             this.manager = manager;
             this.plugin = manager.plugin;
+            this.theme = plugin.themeResources;
             this.root = root;
             this.cachesAggregateSizeOnDisk = 0;
 
@@ -46,18 +54,20 @@ namespace NowPlaying.ViewModels
 
             OnPropertyChanged(nameof(GameCaches));
             OnPropertyChanged(nameof(GamesEnabled));
-
+            OnSortableColumnChanged(Directory, "GamesEnabled");
             UpdateCachesInstalled();
             UpdateSpaceAvailableForCaches();
         }
 
         public void UpdateCachesInstalled()
         {
+            bool sortableColumnChanged = false;
             int ival = GameCaches.Where(gc => IsCacheInstalled(gc)).Count();
             if (CachesInstalled != ival)
             {
                 CachesInstalled = ival;
                 OnPropertyChanged(nameof(CachesInstalled));
+                sortableColumnChanged = true;
             }
 
             long lval = GetAggregateCacheSizeOnDisk(GameCaches.Where(gc => IsCacheNonEmpty(gc)).ToList());
@@ -66,6 +76,11 @@ namespace NowPlaying.ViewModels
                 cachesAggregateSizeOnDisk = lval;
                 OnPropertyChanged(nameof(cachesAggregateSizeOnDisk));
                 OnPropertyChanged(nameof(CachesInstalledSize));
+                sortableColumnChanged = true;
+            }
+            if (sortableColumnChanged)
+            {
+                OnSortableColumnChanged(Directory, "CachesInstalledAndSize");
             }
         }
 
@@ -92,7 +107,8 @@ namespace NowPlaying.ViewModels
             }
             SpaceAvailableForCaches = SmartUnits.Bytes(BytesAvailableForCaches);
             OnPropertyChanged(nameof(SpaceAvailableForCaches));
-            OnPropertyChanged(nameof(SpaceAvailableForCachesColor));
+            OnPropertyChanged(nameof(SpaceAvailableForCachesBrush));
+            OnSortableColumnChanged(Directory, "SpaceAvailableForCaches");
         }
 
         private long GetAggregateCacheSizeOnDisk(List<GameCacheViewModel> gameCaches)
@@ -115,6 +131,7 @@ namespace NowPlaying.ViewModels
         {
             root.MaxFillLevel = maximumFillLevel;
             OnPropertyChanged(nameof(MaxFillLevel));
+            OnPropertyChanged(nameof(MaxFillLevelPercent));
 
             bytesReservedOnDevice = GetReservedSpaceOnDevice(Directory, MaxFillLevel);
 
@@ -127,7 +144,7 @@ namespace NowPlaying.ViewModels
                 ReservedSpaceOnDevice = "";
             }
             OnPropertyChanged(nameof(ReservedSpaceOnDevice));
-
+            OnSortableColumnChanged(Directory, "MaxFillAndReserved");
             UpdateSpaceAvailableForCaches();
         }
     }

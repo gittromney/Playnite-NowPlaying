@@ -46,6 +46,19 @@ namespace NowPlaying
             }
         }
 
+        private bool horizontalScrollFlipped;
+        public bool HorizontalScrollFlipped
+        {
+            get => horizontalScrollFlipped;
+            set
+            {
+                if (horizontalScrollFlipped != value)
+                {
+                    horizontalScrollFlipped = value;
+                    OnPropertyChanged(nameof(HorizontalScrollFlipped));
+                }
+            }
+        }
 
         private DoWhen changeProblematicInstallDir_DoWhen;
         public DoWhen ChangeProblematicInstallDir_DoWhen
@@ -207,6 +220,8 @@ namespace NowPlaying
             this.ShowUninstallAndDisableMenu = false;
             this.ShowStatusAndMenuTips = false;
             this.StatusIconBrushDarker = false;
+
+            this.HorizontalScrollFlipped = false;
         }
     }
 }

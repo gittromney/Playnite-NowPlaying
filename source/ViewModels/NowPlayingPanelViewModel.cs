@@ -5,7 +5,6 @@ using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Threading.Tasks;
@@ -17,9 +16,8 @@ using NowPlaying.Properties;
 using System.Windows;
 using System;
 using System.Linq;
-using System.Threading;
-using System.Windows.Threading;
 using System.Windows.Controls;
+using NowPlaying.Extensions;
 
 namespace NowPlaying.ViewModels
 {
@@ -29,10 +27,13 @@ namespace NowPlaying.ViewModels
         private readonly NowPlaying plugin;
         private readonly BitmapImage rootsIcon;
         private readonly BitmapImage sidebarIcon;
+        private readonly ThemeResources theme;
+        public NowPlayingSettings Settings => plugin.Settings;
+        public ThemeResources Theme => theme;
 
         private bool modalDimming = false;
         public bool ModalDimming
-        { 
+        {
             get => modalDimming;
             set
             {
@@ -48,9 +49,15 @@ namespace NowPlaying.ViewModels
         public BitmapImage RootsIcon => rootsIcon;
         public BitmapImage SidebarIcon => sidebarIcon;
 
-        public NowPlayingPanelViewModel(NowPlaying plugin)
+        public bool ShowInstallProgressView => InstallProgressView != null;
+
+        public ColumnSortableCollection<GameCacheViewModel> GameCaches => plugin.cacheManager.GameCaches;
+        public string SortedColumnName { get; set; }
+
+        public NowPlayingPanelViewModel(NowPlaying plugin, ThemeResources theme)
         {
             this.plugin = plugin;
+            this.theme = theme;
             this.CustomPlatformSort = new CustomPlatformSorter();
             this.CustomEtaSort = new CustomEtaSorter();
             this.CustomSizeSort = new CustomSizeSorter();
@@ -58,7 +65,6 @@ namespace NowPlaying.ViewModels
             this.isTopPanelVisible = false;
             this.showSettings = false;
             this.showCacheRoots = false;
-            this.gameCaches = new ObservableCollection<GameCacheViewModel>();
             this.SelectedGameCaches = new List<GameCacheViewModel>();
             this.selectionContext = new SelectedCachesContext();
             this.RerootCachesSubMenuItems = new List<MenuItem>();
@@ -193,8 +199,42 @@ namespace NowPlaying.ViewModels
                 popup.ShowDialog();
             });
 
+            // . forward settings property changes
+            plugin.SettingsUpdated += (s, e) => OnPropertyChanged(nameof(Settings));
+
             // . track game cache list changes, in order to auto-adjust title column width, refresh sorting, etc.
             plugin.cacheManager.GameCaches.CollectionChanged += GameCaches_CollectionChanged;
+            plugin.cacheManager.GameCaches.SortableColumnsChanged += GameCaches_SortableColumnsChanged;
+        }
+
+        private void GameCaches_SortableColumnsChanged(object sender, SortableColumnsChangedArgs e)
+        {
+            if (!string.IsNullOrEmpty(SortedColumnName))
+            {
+                if (e.changedColumns.Contains(SortedColumnName))
+                {
+                    DispatcherUtils.Invoke(plugin.panelView.Dispatcher, () =>
+                    {
+                        RefreshUpdatedGameCacheSorting(e.itemId);
+                    });
+                }
+            }
+        }
+
+        private void RefreshUpdatedGameCacheSorting(string gameCacheId)
+        {
+            var gameCache = plugin.cacheManager.FindGameCache(gameCacheId);
+            if (gameCache != null)
+            {
+                // . fastest option: 'edit' updated game cache item to force its re-sort
+                plugin.cacheManager.gameCachesCollectionView.EditItem(gameCache);
+                plugin.cacheManager.gameCachesCollectionView.CommitEdit();
+            }
+            else
+            {
+                // . fallback: refresh sorting of whole collection
+                plugin.cacheManager.gameCachesCollectionView.Refresh();
+            }
         }
 
         public void MakeWindowCaptionlessOnUserControlLoaded(object sender, RoutedEventArgs e)
@@ -226,11 +266,7 @@ namespace NowPlaying.ViewModels
 
         private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (String.IsNullOrEmpty(SearchText) == false)
-            {
-                RefreshSearchableGameCaches(SearchText);
-            }
-            else
+            if (String.IsNullOrEmpty(SearchText))
             {
                 // . resize columns only if we're viewing all games (empty search text)
                 GridViewUtils.ColumnResize(plugin.panelView.GameCaches);
@@ -280,9 +316,9 @@ namespace NowPlaying.ViewModels
                 // . primary sort: by Cache/Install size, reversable
                 var objX = (GameCacheViewModel)(reverse ? y : x);
                 var objY = (GameCacheViewModel)(reverse ? x : y);
-                long cacheSizeX   = objX.CacheSize;
+                long cacheSizeX = objX.CacheSize;
                 long installSizeX = objX.InstallSize;
-                long cacheSizeY   = objY.CacheSize;
+                long cacheSizeY = objY.CacheSize;
                 long installSizeY = objY.InstallSize;
                 long sizeX = cacheSizeX > 0 ? cacheSizeX : Int64.MinValue + installSizeX;
                 long sizeY = cacheSizeY > 0 ? cacheSizeY : Int64.MinValue + installSizeY;
@@ -327,50 +363,6 @@ namespace NowPlaying.ViewModels
         public ICommand CancelQueuedInstallsCommand { get; private set; }
         public ICommand PauseInstallCommand { get; private set; }
         public ICommand CancelInstallCommand { get; private set; }
-        
-        public ObservableCollection<GameCacheViewModel> gameCaches;
-        public ObservableCollection<GameCacheViewModel> GameCaches => gameCaches;
-
-        private void RefreshSearchableGameCaches(string searchText, bool searchTextUpdated = false)
-        {
-            var useFilteredGamesList = string.IsNullOrWhiteSpace(searchText) == false;
-            if (searchTextUpdated)
-            {
-                Task.Run(() =>
-                {
-                    Task.Delay(100);  // time slot for UI search box text update before list view is updated/sorted/etc.
-
-                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(() =>
-                    {
-                        if (useFilteredGamesList)
-                        {
-                            gameCaches = plugin.cacheManager.GameCaches.Where(g => g.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0).ToObservable();
-                        }
-                        else
-                        {
-                            gameCaches = plugin.cacheManager.GameCaches;
-                        }
-                        OnPropertyChanged(nameof(GameCaches));
-                        plugin.panelView.GameCaches_ClearSelected();
-                        GridViewUtils.RefreshSort(plugin.panelView.GameCaches);
-                    }));
-                });
-            }
-            else
-            {
-                if (useFilteredGamesList)
-                {
-                    gameCaches = plugin.cacheManager.GameCaches.Where(g => g.Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0).ToObservable();
-                }
-                else
-                {
-                    gameCaches = plugin.cacheManager.GameCaches;
-                }
-                OnPropertyChanged(nameof(GameCaches));
-                plugin.panelView.GameCaches_ClearSelected();
-                GridViewUtils.RefreshSort(plugin.panelView.GameCaches);
-            }
-        }
 
         public bool AreCacheRootsNonEmpty => plugin.cacheManager.CacheRoots.Count > 0;
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;
@@ -389,10 +381,25 @@ namespace NowPlaying.ViewModels
                 {
                     searchText = value;
                     OnPropertyChanged();
-                    RefreshSearchableGameCaches(searchText, searchTextUpdated: true);
+                    UpdateGameCachesFilter(searchText);
                 }
             }
         }
+
+        private void UpdateGameCachesFilter(string searchText)
+        {
+            var useFilteredGamesList = string.IsNullOrWhiteSpace(searchText) == false;
+            var collectionView = plugin.cacheManager.gameCachesCollectionView;
+            if (useFilteredGamesList)
+            {
+                collectionView.Filter = (gc) => ((GameCacheViewModel)gc).Title.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            else
+            {
+                collectionView.Filter = null;
+            }
+        }
+
         public bool ShowTitleColumn
         {
             get => plugin.Settings.ShowGameCacheTitle;
@@ -432,6 +439,19 @@ namespace NowPlaying.ViewModels
                 }
             }
         }
+
+        private double? savedStatusColumnWidth = null;
+        public double StatusColumnMinWidth { get; set; } = 100;
+        public void OnInstallUninstallQueuesUpdated()
+        {
+            var value = (plugin.cacheInstallQueue.Count > 1 || plugin.cacheUninstallQueue.Count > 1) ? 190 : 100;
+            if (StatusColumnMinWidth != value)
+            {
+                StatusColumnMinWidth = value;
+                OnPropertyChanged(nameof(StatusColumnMinWidth));
+            }
+        }
+
         public bool ShowStatusColumn
         {
             get => plugin.Settings.ShowGameCacheStatus;
@@ -604,17 +624,7 @@ namespace NowPlaying.ViewModels
         }
 
 
-        private UserControl topPanelView;
-        public UserControl TopPanelView
-        {
-            get => topPanelView;
-            set
-            {
-                topPanelView = value;
-                OnPropertyChanged();
-            }
-        }
-
+        public UserControl TopPanelView => plugin.topPanelView;
 
         private bool isTopPanelVisible;
         public bool IsTopPanelVisible
@@ -628,14 +638,13 @@ namespace NowPlaying.ViewModels
 
                     if (isTopPanelVisible)
                     {
-                        TopPanelView = plugin.topPanelView;
                         plugin.topPanelViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(TopPanelView));
                     }
                     else
                     {
-                        TopPanelView = null;
                         plugin.topPanelViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(TopPanelView));
                     }
+                    OnPropertyChanged();
                 }
             }
         }
@@ -679,7 +688,7 @@ namespace NowPlaying.ViewModels
                 }
             }
         }
-
+        
         private UserControl installProgressView;
         public UserControl InstallProgressView
         {
@@ -688,6 +697,7 @@ namespace NowPlaying.ViewModels
             {
                 installProgressView = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowInstallProgressView));
             }
         }
 
@@ -729,6 +739,21 @@ namespace NowPlaying.ViewModels
                         plugin.settingsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(SettingsView));
                         SettingsView = null;
                     }
+                }
+            }
+        }
+
+        private Style topPanelProgressBarStyle;
+        public Style TopPanelProgressBarStyle
+        {
+            get => topPanelProgressBarStyle;
+            set
+            {
+                if (topPanelProgressBarStyle != value)
+                {
+                    topPanelProgressBarStyle = value;
+                    OnPropertyChanged(nameof(TopPanelProgressBarStyle));
+                    plugin.topPanelViewModel?.UpdateProgressBarStyle();
                 }
             }
         }

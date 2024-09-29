@@ -44,6 +44,7 @@ namespace NowPlaying
             this.jobStats = new RoboStats(partialFileResume: partialFileResume);
             this.progressViewModel = new InstallProgressViewModel(this, speedLimitIpg, partialFileResume);
             this.progressView = new InstallProgressView(progressViewModel);
+            this.progressView.Loaded += (s, e) => plugin.OnInstallProgressViewLoaded?.Invoke();
             this.onPausedAction = null;
             this.speedLimitIpg = speedLimitIpg;
         }

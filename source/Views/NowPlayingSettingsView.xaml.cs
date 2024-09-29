@@ -12,20 +12,5 @@ namespace NowPlaying.Views
             InitializeComponent();
             DataContext = viewModel;
         }
-
-        private void Scroller_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (Scroller.ActualWidth < double.Parse((string)(Scroller.Tag ?? "0")))
-            {
-                Scroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
-            }
-            else
-            {
-                Scroller.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                Scroller.ScrollToLeftEnd();
-            }
-            e.Handled = true;
-        }
-
     }
 }

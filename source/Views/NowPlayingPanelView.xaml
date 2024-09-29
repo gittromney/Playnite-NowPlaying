@@ -7,88 +7,160 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <utils:BoolInvert x:Key="BoolInvert"/>
+            <utils:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Width="auto" Height="auto">
+    <Grid>
         
-        <!--top panel cache activity/status-->
-        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,9.5,126,0">
-                <UserControl Content="{Binding TopPanelView}"/>
-            </StackPanel>
-        </StackPanel>
+        <!--Top/lower/main panel background coloring/darkening + optional drop shadow-->
 
-        <DockPanel Margin="0,8.5,0,0">
+        <!--main panel-->
+        <FadeImage ImageDarkeningBrush="{Binding Theme.MainPanelDarkeningBrush}"/>
+        <Border Background="{Binding Theme.MainPanelBackgroundBrush}">
+            <DockPanel>
+
+                <!--top panel-->
+                <Border
+                    DockPanel.Dock="Top"
+                    Background="{Binding Theme.TopPanelBackgroundBrush}"
+                    BorderBrush="{Binding Theme.TopPanelBorderBrush}"
+                    BorderThickness="{Binding Theme.TopPanelBorderThickness}"
+                    Effect="{Binding Theme.TopPanelDropShadow}"
+                    Height="{Binding Theme.TopPanelHeight}"/>
+
+                <!--lower panel-->
+                <Border
+                    BorderBrush="{Binding Theme.LowerPanelBorderBrush}"
+                    BorderThickness="{Binding Theme.LowerPanelBorderThickness}"/>
+
+            </DockPanel>
+        </Border>
+
+
+        <!--NowPlaying panel view contents-->
+        <DockPanel>
             
-            <!--top menu buttons-->
-            <StackPanel DockPanel.Dock="Top">
-                <StackPanel Orientation="Horizontal" Margin="5,0,0,5">
-                    <ctrls:PluginSearchBox
-                        Height="31" Width="300"
-                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
-                        ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
-                        Margin="0,0,10,0"/>
-                    <ctrls:PluginTopPanelItem
-                        Command="{Binding ToggleShowCacheRoots}"
-                        ToolTip="{Binding ShowCacheRootsToolTip}"
-                        Style="{DynamicResource TopPanelButton}">
-                        <Rectangle 
-                            Width="22" Height="22">
-                            <Rectangle.Style>
-                                <Style TargetType="Rectangle">
-                                    <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}" Value="True">
-                                            <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Rectangle.Style>
-                            <Rectangle.OpacityMask>
-                                <ImageBrush ImageSource="{Binding RootsIcon}"/>
-                            </Rectangle.OpacityMask>
-                        </Rectangle>
-                    </ctrls:PluginTopPanelItem>
-                    <ctrls:PluginTopPanelItem
-                        Content="🔧" FontSize="17"
-                        Command="{Binding ToggleShowSettings}"
-                        ToolTip="{Binding ShowSettingsToolTip}"
-                        Style="{DynamicResource TopPanelButton}"/>
+            <!--TopPanel contents + separator-->
+            <Grid DockPanel.Dock="Top" Height="{Binding Theme.TopPanelHeight}" Margin="0,0,0,10">
+                <Grid 
+                    HorizontalAlignment="{Binding Theme.TopPanelHorizontalAlignment}" 
+                    Margin="{Binding Theme.TopPanelMargin}"
+                    VerticalAlignment="Bottom"> 
 
-                </StackPanel>
-                <Separator DockPanel.Dock="Top" Background="{DynamicResource PanelSeparatorBrush}"/>
-            </StackPanel>
-        
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition MinWidth="{Binding Theme.TopPanelMinCenterGap}" Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--search + menu buttons-->
+                    <StackPanel
+                        Grid.Column="0"
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom">
+
+                        <ctrls:PluginSearchBox
+                            Height="{Binding Theme.TopPanelSearchBoxHeight}" 
+                            Width="{Binding Theme.TopPanelSearchBoxWidth}"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
+                            ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
+                            Style="{Binding Theme.TopPanelSearchBoxStyle}"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Margin="0"/>
+                        
+                        <!--optional spacing between search box and menu items-->
+                        <Border Margin="0" Width="{Binding Theme.TopPanelSearchGap}" Visibility="{Binding Theme.TopPanelSearchGapEnable, Converter={StaticResource BoolToVisibility}}"/>
+
+                        <ctrls:PluginTopPanelItem
+                            Command="{Binding ToggleShowCacheRoots}"
+                            ToolTip="{Binding ShowCacheRootsToolTip}"
+                            Style="{Binding Theme.TopPanelItemStyle}">
+                            <Rectangle 
+                                Width="22" Height="22">
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}" Value="True">
+                                                <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{Binding RootsIcon}"/>
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </ctrls:PluginTopPanelItem>
+                        <ctrls:PluginTopPanelItem
+                            Content="🔧" FontSize="17"
+                            Command="{Binding ToggleShowSettings}"
+                            ToolTip="{Binding ShowSettingsToolTip}"
+                            Style="{Binding Theme.TopPanelItemStyle}"/>
+                    </StackPanel>
+
+                    <!--progress bar-->
+                    <ctrls:PluginTopPanelItem
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Visibility="{Binding IsTopPanelVisible, Converter={StaticResource BoolToVisibility}}"
+                        ToolTip="{DynamicResource LOCNowPlayingTopPanelToolTip}"
+                        Style="{Binding Theme.TopPanelItemStyle}"
+                        Height="{Binding Theme.TopPanelProgressBarHeight}"
+                        Margin="{Binding Theme.TopPanelProgressBarMargin}">
+                        <UserControl Content="{Binding TopPanelView}"/>
+                    </ctrls:PluginTopPanelItem>
+                </Grid>
+                <Separator VerticalAlignment="Bottom" Margin="0" Background="{Binding Theme.TopPanelSeparatorBrush}"/>
+            </Grid>
+
             <!--settings panel-->
-            <StackPanel DockPanel.Dock="Bottom" Visibility="{Binding SettingsVisibility}">
-                <Separator DockPanel.Dock="Top" Margin="0,5,0,0" Background="{DynamicResource PanelSeparatorBrush}"/>
-                <TextBlock 
-                    Text="{DynamicResource LOCNowPlayingSettingsHeading}" 
-                    Style="{DynamicResource HeadingText}" Margin="10,10,0,10"/>
-                <UserControl 
-                    Content="{Binding SettingsView}"
-                    Margin="0,0,0,15"/>
-                <StackPanel 
-                    Orientation="Horizontal" 
-                    Margin="20,0,0,20">
-                    <Button 
-                        Content="{DynamicResource LOCNowPlayingTermsSave}" 
-                        Command="{Binding SaveSettingsCommand}" 
-                        Style="{DynamicResource BottomButton}" Width="70" Height="35" 
-                        Margin="0,0,10,0"/>
-                    <Button 
-                        Content="{DynamicResource LOCNowPlayingTermsCancel}" 
-                        Style="{DynamicResource BottomButton}" Width="70" Height="35" 
-                        Command="{Binding CancelSettingsCommand}"/>
+            <Border 
+                DockPanel.Dock="Bottom" Margin="0,5,0,0" 
+                Visibility="{Binding SettingsVisibility}"
+                BorderBrush="{Binding Theme.MainPanelBorderBrush}" 
+                BorderThickness="0,1,0,0">
+                <StackPanel>
+                    <Separator Margin="0" Background="{Binding Theme.MainPanelSeparatorBrush}"/>
+                    <TextBlock 
+                        Text="{DynamicResource LOCNowPlayingSettingsHeading}" 
+                        Style="{DynamicResource HeadingText}" Margin="10,10,0,10"/>
+                    <UserControl 
+                        Content="{Binding SettingsView}"
+                        Margin="0,0,0,15"/>
+                    <StackPanel 
+                        Orientation="Horizontal" 
+                        Margin="20,0,0,20">
+                        <Button 
+                            Content="{DynamicResource LOCNowPlayingTermsSave}" 
+                            Command="{Binding SaveSettingsCommand}" 
+                            Style="{DynamicResource BottomButton}" Width="70" Height="35" 
+                            Margin="0,0,10,0"/>
+                        <Button 
+                            Content="{DynamicResource LOCNowPlayingTermsCancel}" 
+                            Style="{DynamicResource BottomButton}" Width="70" Height="35" 
+                            Command="{Binding CancelSettingsCommand}"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </Border>
 
             <!--cache installation progress panel-->
-            <UserControl DockPanel.Dock="Bottom" Content="{Binding InstallProgressView}"/>
+            <Border 
+                DockPanel.Dock="Bottom" 
+                Visibility="{Binding ShowInstallProgressView, Converter={StaticResource BoolToVisibility}}"
+                BorderBrush="{Binding Theme.MainPanelBorderBrush}" 
+                BorderThickness="0,1,0,0">
+                <StackPanel>
+                    <Separator Background="{Binding Theme.MainPanelSeparatorBrush}" Margin="0,0,0,10"/>
+                    <UserControl Content="{Binding InstallProgressView}"/>
+                </StackPanel>
+            </Border>
             
             <!--cache roots view panel-->
             <UserControl DockPanel.Dock="Top" Margin="10,0,0,0" Content="{Binding CacheRootsView}"/>
@@ -96,24 +168,22 @@
             <!--game caches heading-->
             <StackPanel 
                 DockPanel.Dock="Top" Margin="10,0,0,0"
-                Orientation="Horizontal" 
                 Visibility="{Binding GameCachesVisibility}">
                 <TextBlock 
-                    Text="{DynamicResource LOCNowPlayingGameCachesHeading}" 
+                    Text="{DynamicResource LOCNowPlayingGameCachesHeading}"
                     Style="{DynamicResource HeadingText}"/>
             </StackPanel>
            
             <!--game caches list view + controls, using up available dock space-->
             <Grid 
-                MaxHeight="{Binding Path=ActualHeight, RelativeSource={RelativeSource AncestorType=Dock}}"
                 VerticalAlignment="Top">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ListView 
-                    Grid.Row="0" Margin="10,0,0,0" 
+                <ListView
+                    Grid.Row="0" Margin="10,0,0,0" Padding="0,0,0,0" 
                     Name="GameCaches" 
                     Visibility="{Binding GameCachesVisibility}"
                     ItemsSource="{Binding GameCaches}"
@@ -122,8 +192,11 @@
                     MouseUp="GameCaches_OnMouseUp"
                     Loaded="GameCaches_ResizeColumns"
                     utils:GridViewUtils.HorizontalShiftWheelScroll="True"
+                    utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
                     utils:GridViewUtils.AutoSort="True"
-                    utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending">
+                    utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
+                    utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
+                    Style="{StaticResource ThemeListView}">
 
                     <ListView.View>
                         <GridView>
@@ -166,30 +239,21 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
 
-                            <GridViewColumn 
+                            <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Title"
                                 utils:GridViewUtils.SortedByDefault="Ascending"
                                 utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="220"
                                 utils:GridViewUtils.HideColumn="{Binding ShowTitleColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
+                                <GridViewColumnHeader
                                     Content="{DynamicResource LOCNowPlayingTermsTitle}" 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding Title}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock 
-                                                x:Name="NormalText"
-                                                Text="{Binding Title}" 
-                                                Foreground="{utils:DynamicResourceBinding InstalledColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
@@ -206,19 +270,10 @@
                                     ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding Platform}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock 
-                                                x:Name="NormalText"
-                                                Text="{Binding Platform}" 
-                                                Foreground="{utils:DynamicResourceBinding InstalledColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
@@ -235,47 +290,30 @@
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding InstallDir}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock 
-                                                x:Name="NormalText"
-                                                Text="{Binding InstallDir}" 
-                                                Foreground="{utils:DynamicResourceBinding InstalledColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
+                                <!--utils:GridViewUtils.MinWidth="190"-->
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="Status"
-                                utils:GridViewUtils.MinWidth="190"
+                                utils:GridViewUtils.MinWidth="{Binding StatusColumnMinWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     Content="{DynamicResource LOCNowPlayingTermsStatus}" 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding Status}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock 
-                                                x:Name="NormalText"
-                                                Text="{Binding Status}" 
-                                                Foreground="{utils:DynamicResourceBinding StatusColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
@@ -291,19 +329,10 @@
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding CanInstallCache}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock
-                                                x:Name="NormalText"
-                                                Text="{Binding CanInstallCache}" 
-                                                Foreground="{utils:DynamicResourceBinding CanInstallCacheColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
@@ -311,13 +340,23 @@
                             </GridViewColumn>
 
                             <GridViewColumn 
-                                DisplayMemberBinding="{Binding InstallEta}" 
+                                utils:GridViewUtils.PropertyName="InstallEta"
                                 utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
                                 utils:GridViewUtils.MinWidth="92"
                                 utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     Content="{DynamicResource LOCNowPlayingTermsInstallEta}" 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}"/>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock x:Name="Text1" Text="{Binding InstallEta}"/>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
                             <GridViewColumn 
@@ -330,32 +369,33 @@
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding CacheInstalledSize}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock
-                                                x:Name="NormalText"
-                                                Text="{Binding CacheInstalledSize}"
-                                                Foreground="{utils:DynamicResourceBinding CacheInstalledSizeColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
-                            <GridViewColumn 
-                                DisplayMemberBinding="{Binding Device}"
+                            <GridViewColumn
+                                utils:GridViewUtils.PropertyName="Device"
                                 utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     Content="{DynamicResource LOCNowPlayingTermsRoot}" 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}"/>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock x:Name="Text1" Text="{Binding Device}"/>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
                             <GridViewColumn 
@@ -368,19 +408,10 @@
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}"/>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
-                                            <!--bottom layer: is selected text (black)-->
-                                            <TextBlock Text="{Binding CacheRootSpaceAvailable}" Foreground="Black"/>
-
-                                            <!--top layer: normal text (color varies, dynamically bound, hidden when selected)-->
-                                            <TextBlock
-                                                x:Name="NormalText"
-                                                Text="{Binding CacheRootSpaceAvailable}"
-                                                Foreground="{utils:DynamicResourceBinding CacheRootSpaceAvailableColor}"/>
-                                        </Grid>
+                                        <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}"/>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
-                                                <Setter TargetName="NormalText" Property="Visibility" Value="Hidden"/>
+                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>

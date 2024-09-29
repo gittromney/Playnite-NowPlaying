@@ -1,18 +1,22 @@
 ﻿using NowPlaying.Utils;
 using NowPlaying.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Windows.Media;
+using NowPlaying.Extensions;
 
 namespace NowPlaying.ViewModels
 {
-    public class GameCacheViewModel : ObservableObject
+
+    public class GameCacheViewModel : ColumnSortableObject
     {
         private readonly NowPlaying plugin;
+        private readonly ThemeResources theme;
         public readonly GameCacheManagerViewModel manager;
         public readonly GameCacheEntry entry;
         public CacheRootViewModel cacheRoot;
 
+        public ThemeResources Theme => theme;
         public string Title => entry.Title;
         public string Root => entry.CacheRoot;
         public string Device => Directory.GetDirectoryRoot(Root);
@@ -51,25 +55,18 @@ namespace NowPlaying.ViewModels
             plugin.SpeedLimitIpg > 0,
             nowUninstalling
         );
-        public string StatusColor => 
+
+        public Brush InstalledBrush =>
         (
-            State == GameCacheState.Unknown || State == GameCacheState.Invalid ? "WarningBrush" : 
-            Status == plugin.GetResourceString("LOCNowPlayingTermsUninstalled") ? "TextBrushDarker" : 
-            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush") :
-            "TextBrush"
+            Status == plugin.GetResourceString("LOCNowPlayingTermsInstalled") ? theme.TextBrush : theme.TextBrushDarker
         );
 
-        public string InstalledColor =>
+        public Brush StatusBrush =>
         (
-            Status == plugin.GetResourceString("LOCNowPlayingTermsInstalled") ? "TextBrush" : "TextBrushDarker"
-        );
-
-        public string CacheInstalledSize => cacheInstalledSize;
-        public string CacheInstalledSizeColor => 
-        (
-            CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? "WarningBrush" : 
-            State == GameCacheState.Empty ? "TextBrushDarker" : 
-            "TextBrush"
+            State == GameCacheState.Unknown || State == GameCacheState.Invalid ? theme.WarningBrush :
+            Status == plugin.GetResourceString("LOCNowPlayingTermsUninstalled") ? theme.TextBrushDarker :
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? theme.SlowInstallBrush : theme.InstallBrush) :
+            theme.TextBrush
         );
 
         public bool CacheWillFit { get; private set; }
@@ -79,13 +76,21 @@ namespace NowPlaying.ViewModels
             ? plugin.GetResourceString(CacheWillFit ? "LOCNowPlayingTermsYes" : "LOCNowPlayingTermsNo") 
             : "-"
         );
-        public string CanInstallCacheColor => CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? "WarningBrush" : "TextBrush";
+        public Brush CanInstallCacheBrush => CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? theme.WarningBrush : theme.TextBrush;
 
         public TimeSpan InstallEtaTimeSpan { get; private set; }
         public string InstallEta { get; private set; }
 
+        public string CacheInstalledSize => cacheInstalledSize;
+        public Brush CacheInstalledSizeBrush => 
+        (
+            CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? theme.WarningBrush : 
+            State == GameCacheState.Empty ? theme.TextBrushDarker : 
+            theme.TextBrush
+        );
+
         public string CacheRootSpaceAvailable { get; private set; }
-        public string CacheRootSpaceAvailableColor => cacheRoot.BytesAvailableForCaches > 0 ? "TextBrush" : "WarningBrush";
+        public Brush CacheRootSpaceAvailableBrush => cacheRoot.BytesAvailableForCaches > 0 ? theme.TextBrush : theme.WarningBrush;
 
         public bool PartialFileResume { get; set; }
 
@@ -93,6 +98,7 @@ namespace NowPlaying.ViewModels
         {
             this.manager = manager;
             this.plugin = manager.plugin;
+            this.theme = plugin.themeResources;
             this.entry = entry;
             this.cacheRoot = cacheRoot;
             this.nowInstalling = manager.IsPopulateInProgess(entry.Id);
@@ -116,6 +122,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(Root));
             OnPropertyChanged(nameof(Device));
             OnPropertyChanged(nameof(CacheDir));
+            OnSortableColumnChanged(Id, "Device");
             UpdateStatus();
             UpdateCacheSize();
             UpdateCacheSpaceWillFit();
@@ -125,11 +132,12 @@ namespace NowPlaying.ViewModels
         public void UpdateStatus()
         {
             OnPropertyChanged(nameof(Status));
-            OnPropertyChanged(nameof(StatusColor));
-            OnPropertyChanged(nameof(InstalledColor));
+            OnPropertyChanged(nameof(StatusBrush));
+            OnPropertyChanged(nameof(InstalledBrush));
             OnPropertyChanged(nameof(CanInstallCache));
-            OnPropertyChanged(nameof(CanInstallCacheColor));
-            OnPropertyChanged(nameof(CacheInstalledSizeColor));
+            OnPropertyChanged(nameof(CanInstallCacheBrush));
+            OnPropertyChanged(nameof(CacheInstalledSizeBrush));
+            OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache" });
             cacheRoot.UpdateGameCaches();
         }
 
@@ -140,8 +148,9 @@ namespace NowPlaying.ViewModels
                 installQueueStatus = value;
                 OnPropertyChanged(nameof(InstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
-                OnPropertyChanged(nameof(StatusColor));
-                OnPropertyChanged(nameof(InstalledColor));
+                OnPropertyChanged(nameof(StatusBrush));
+                OnPropertyChanged(nameof(InstalledBrush));
+                OnSortableColumnChanged(Id, "Status");
             }
         }
 
@@ -152,8 +161,9 @@ namespace NowPlaying.ViewModels
                 uninstallQueueStatus = value;
                 OnPropertyChanged(nameof(UninstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
-                OnPropertyChanged(nameof(StatusColor));
-                OnPropertyChanged(nameof(InstalledColor));
+                OnPropertyChanged(nameof(StatusBrush));
+                OnPropertyChanged(nameof(InstalledBrush));
+                OnSortableColumnChanged(Id, "Status");
             }
         }
 
@@ -173,11 +183,12 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(NowInstalling));
             OnPropertyChanged(nameof(NowUninstalling));
             OnPropertyChanged(nameof(Status));
-            OnPropertyChanged(nameof(StatusColor));
-            OnPropertyChanged(nameof(InstalledColor));
+            OnPropertyChanged(nameof(StatusBrush));
+            OnPropertyChanged(nameof(InstalledBrush));
             OnPropertyChanged(nameof(CanInstallCache));
-            OnPropertyChanged(nameof(CanInstallCacheColor));
-            OnPropertyChanged(nameof(CacheInstalledSizeColor));
+            OnPropertyChanged(nameof(CanInstallCacheBrush));
+            OnPropertyChanged(nameof(CacheInstalledSizeBrush));
+            OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache", "CacheInstalledSize" });
         }
 
         public void UpdateNowUninstalling(bool value)
@@ -190,11 +201,12 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(NowInstalling));
                 OnPropertyChanged(nameof(NowUninstalling));
                 OnPropertyChanged(nameof(Status));
-                OnPropertyChanged(nameof(StatusColor));
-                OnPropertyChanged(nameof(InstalledColor));
+                OnPropertyChanged(nameof(StatusBrush));
+                OnPropertyChanged(nameof(InstalledBrush));
                 OnPropertyChanged(nameof(CanInstallCache));
-                OnPropertyChanged(nameof(CanInstallCacheColor));
-                OnPropertyChanged(nameof(CacheInstalledSizeColor));
+                OnPropertyChanged(nameof(CanInstallCacheBrush));
+                OnPropertyChanged(nameof(CacheInstalledSizeBrush));
+                OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache", "CacheInstalledSize" });
             }
         }
 
@@ -207,7 +219,8 @@ namespace NowPlaying.ViewModels
             {
                 cacheInstalledSize = value;
                 OnPropertyChanged(nameof(CacheInstalledSize));
-                OnPropertyChanged(nameof(CacheInstalledSizeColor));
+                OnPropertyChanged(nameof(CacheInstalledSizeBrush));
+                OnSortableColumnChanged(Id, "CacheInstalledSize");
                 cacheRoot.UpdateCachesInstalled();
                 cacheRoot.UpdateSpaceAvailableForCaches();
             }
@@ -221,15 +234,17 @@ namespace NowPlaying.ViewModels
                 CacheWillFit = bval;
                 OnPropertyChanged(nameof(CacheWillFit));
                 OnPropertyChanged(nameof(CanInstallCache));
-                OnPropertyChanged(nameof(CanInstallCacheColor));
-                OnPropertyChanged(nameof(CacheInstalledSizeColor));
+                OnPropertyChanged(nameof(CanInstallCacheBrush));
+                OnPropertyChanged(nameof(CacheInstalledSizeBrush));
+                OnSortableColumnsChanged(Id, new string[] { "CanInstallCache", "CacheInstalledSize" });
             }
             string sval = SmartUnits.Bytes(cacheRoot.BytesAvailableForCaches, decimals: 1);
             if (CacheRootSpaceAvailable != sval || cacheRoot.BytesAvailableForCaches <= 0)
             {
                 CacheRootSpaceAvailable = sval;
                 OnPropertyChanged(nameof(CacheRootSpaceAvailable));
-                OnPropertyChanged(nameof(CacheRootSpaceAvailableColor));
+                OnPropertyChanged(nameof(CacheRootSpaceAvailableBrush));
+                OnSortableColumnChanged(Id, "CacheRootSpaceAvailable");
             }
         }
 
@@ -247,6 +262,7 @@ namespace NowPlaying.ViewModels
                 InstallEta = GetInstallEta(InstallEtaTimeSpan);
                 OnPropertyChanged(nameof(InstallEtaTimeSpan));
                 OnPropertyChanged(nameof(InstallEta));
+                OnSortableColumnChanged(Id, "InstallEta");
             }
         }
 

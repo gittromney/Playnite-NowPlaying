@@ -1,23 +1,29 @@
-﻿using NowPlaying.Utils;
+﻿using NowPlaying.Extensions;
+using NowPlaying.Utils;
 using NowPlaying.Views;
 using Playnite.SDK;
-using System.Collections.ObjectModel;
+using System;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
     public class CacheRootsViewModel : ViewModelBase
     {
-        public readonly NowPlaying plugin;
+        private readonly NowPlaying plugin;
+        public NowPlayingSettings Settings => plugin.Settings;
 
         public ICommand RefreshRootsCommand { get; private set; }
         public ICommand AddCacheRootCommand { get; private set; }
         public ICommand EditMaxFillCommand { get; private set; }
         public ICommand RemoveCacheRootCommand { get; private set; }
 
-        public ObservableCollection<CacheRootViewModel> CacheRoots => plugin.cacheManager.CacheRoots;
+        public ColumnSortableCollection<CacheRootViewModel> CacheRoots => plugin.cacheManager.CacheRoots;
+        public string SortedColumnName { get; set; }
         public CacheRootViewModel SelectedCacheRoot { get; set; }
 
         public string EmptyRootsVisible => CacheRoots.Count > 0 ? "Collapsed" : "Visible";
@@ -193,15 +199,52 @@ namespace NowPlaying.ViewModels
 
             RefreshRootsCommand = new RelayCommand(() => RefreshCacheRoots());
 
+            // . forward settings property changes
+            plugin.SettingsUpdated += (s, e) => OnPropertyChanged(nameof(Settings));
+
             // . track cache roots list changes, in order to auto-adjust directory column width 
             this.CacheRoots.CollectionChanged += CacheRoots_CollectionChanged;
+            plugin.cacheManager.CacheRoots.SortableColumnsChanged += CacheRoots_SortableColumnsChanged;
+        }
+
+        private void CacheRoots_SortableColumnsChanged(object sender, SortableColumnsChangedArgs e)
+        {
+            if (!string.IsNullOrEmpty(SortedColumnName))
+            {
+                if (e.changedColumns.Contains(SortedColumnName))
+                {
+                    DispatcherUtils.Invoke(plugin.cacheRootsView.Dispatcher, () =>
+                    {
+                        RefreshUpdatedCacheRootSorting(e.itemId);
+                    });
+                }
+            }
+        }
+
+        private void RefreshUpdatedCacheRootSorting(string rootDirectory)
+        {
+            var cacheRoot = plugin.cacheManager.FindCacheRoot(rootDirectory);
+            if (cacheRoot != null)
+            {
+                // . fastest option: 'edit' updated game cache item to force its re-sort
+                plugin.cacheManager.cacheRootsCollectionView.EditItem(cacheRoot);
+                plugin.cacheManager.cacheRootsCollectionView.CommitEdit();
+            }
+            else
+            {
+                // . fallback: refresh sorting of whole collection
+                plugin.cacheManager.cacheRootsCollectionView.Refresh();
+            }
         }
 
         private void CacheRoots_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             plugin.cacheRootsView.UnselectCacheRoots();
             GridViewUtils.ColumnResize(plugin.cacheRootsView.CacheRoots);
-            GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
+
+            //GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
+        
+        
         }
 
         public void RefreshCacheRoots()
@@ -215,16 +258,24 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(NonEmptyRootsVisible));
             plugin.cacheRootsView.UnselectCacheRoots();
             plugin.panelViewModel.UpdateCacheRoots();
-            GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
+
+
+            //GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
         }
 
         public class CustomSpaceAvailableSorter : IReversableComparer
         {
             public override int Compare(object x, object y, bool reverse = false)
             {
+                // . primary sort: by "Space available", reversable 
                 long spaceX = ((CacheRootViewModel)(reverse ? y : x)).BytesAvailableForCaches;
                 long spaceY = ((CacheRootViewModel)(reverse ? x : y)).BytesAvailableForCaches;
-                return spaceX.CompareTo(spaceY);
+
+                // . secondary sort: by "Directory", always ascending
+                string directoryX = ((CacheRootViewModel)x).Directory;
+                string directoryY = ((CacheRootViewModel)y).Directory;
+
+                return spaceX != spaceY ? spaceX.CompareTo(spaceY) : directoryX.CompareTo(directoryY);
             }
         }
         public CustomSpaceAvailableSorter CustomSpaceAvailableSort { get; private set; }
@@ -236,10 +287,15 @@ namespace NowPlaying.ViewModels
                 // . sort by installed number of caches 1st, and installed cache bytes 2nd
                 var objX = (CacheRootViewModel)(reverse ? y : x);
                 var objY = (CacheRootViewModel)(reverse ? x : y);
+
+                // . primary sort: by "caches installed", reversable 
                 int countX = objX.CachesInstalled;
                 int countY = objY.CachesInstalled;
+
+                // . secondary sort: by "installed size on disk", reversable 
                 long bytesX = objX.cachesAggregateSizeOnDisk;
                 long bytesY = objY.cachesAggregateSizeOnDisk;
+
                 return countX != countY ? countX.CompareTo(countY) : bytesX.CompareTo(bytesY);
             }
         }
@@ -252,10 +308,15 @@ namespace NowPlaying.ViewModels
                 // . sort by max fill level 1st, and reserved bytes (reverse direction) 2nd
                 var objX = (CacheRootViewModel)(reverse ? y : x);
                 var objY = (CacheRootViewModel)(reverse ? x : y);
+
+                // . primary sort: by "max fill level", reversable 
                 double fillX = objX.MaxFillLevel;
                 double fillY = objY.MaxFillLevel;
+
+                // . secondary sort: by "reserved space", reversable 
                 long bytesX = objX.bytesReservedOnDevice;
                 long bytesY = objY.bytesReservedOnDevice;
+
                 return fillX != fillY ? fillX.CompareTo(fillY) : bytesY.CompareTo(bytesX);
             }
         }

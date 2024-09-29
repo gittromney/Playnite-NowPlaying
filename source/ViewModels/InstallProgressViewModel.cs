@@ -3,13 +3,13 @@ using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
 using System.Timers;
-using System.Windows.Controls;
 
 namespace NowPlaying.ViewModels
 {
     public class InstallProgressViewModel : ViewModelBase
     {
         private readonly NowPlaying plugin;
+        private readonly ThemeResources theme;
         private readonly NowPlayingInstallController controller;
         private readonly GameCacheManagerViewModel cacheManager;
         private readonly GameCacheViewModel gameCache;
@@ -97,12 +97,14 @@ namespace NowPlaying.ViewModels
             plugin.FormatResourceString("LOCNowPlayingProgressTitleFmt", GameTitle)
         );
         
-        public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "GlyphBrush";
+        public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush";
 
         public string ProgressValue => PreparingToInstall ? "" : $"{percentDone:n1}%";
         public double PercentDone => percentDone;
-        public string ProgressBarBrush => speedLimitIpg > 0 ? "TopPanelSlowInstallFgBrush" : "TopPanelInstallFgBrush";
-        public string ProgressBgBrush => PreparingToInstall ? "TopPanelProcessingBgBrush" : "TransparentBgBrush";
+
+        public ThemeResources Theme => theme;
+        public string ProgressBarBrush => speedLimitIpg > 0 ? "ProgressSlowInstallFgBrush" : Theme.ProgressInstallFgBrush;
+        public string ProgressBgBrush => PreparingToInstall ? "TopPanelProcessingBgBrush" : "TransparentBrush";
 
         public string CopiedFilesAndBytesProgress =>
         (
@@ -126,6 +128,7 @@ namespace NowPlaying.ViewModels
         public InstallProgressViewModel(NowPlayingInstallController controller, int speedLimitIpg=0, bool partialFileResume=false)
         {
             this.plugin = controller.plugin;
+            this.theme = plugin.themeResources;
             this.controller = controller;
             this.cacheManager = controller.cacheManager;
             this.jobStats = controller.jobStats;

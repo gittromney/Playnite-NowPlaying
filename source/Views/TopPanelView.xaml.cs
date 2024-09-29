@@ -12,6 +12,6 @@ namespace NowPlaying.Views
         {
             InitializeComponent();
             DataContext = viewModel;
-        }       
+        }
     }
 }

@@ -65,7 +65,6 @@ namespace NowPlaying.Utils
             "Fifth", typeof(object), typeof(DynamicResourceBinding), new PropertyMetadata(null, ResourceKeyChanged)
         );
 
-
         static void ResourceKeyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var target = d as FrameworkElement;
@@ -81,7 +80,6 @@ namespace NowPlaying.Utils
                 target.SetValue(dp, dp.GetMetadata(target).DefaultValue);
                 return;
             }
-
             target.SetResourceReference(dp, newVal.Item1.ToString());
         }
 
@@ -131,35 +129,39 @@ namespace NowPlaying.Utils
                 NotifyOnSourceUpdated = true
             };
             multiBinding.Bindings.Add(binding);
+            var proxyProperty = GetFirstUnboundProxyProperty(targetObject);
+            targetObject.SetBinding(proxyProperty, multiBinding);
+            return null;
+        }
 
+        private static DependencyProperty GetFirstUnboundProxyProperty(DependencyObject targetObject)
+        {
             // . choose first unbound proxy property from the list
             if (BindingOperations.GetMultiBinding(targetObject, FirstProperty) == null)
             {
-                targetObject.SetBinding(FirstProperty, multiBinding);
+                return FirstProperty;
             }
             else if (BindingOperations.GetMultiBinding(targetObject, SecondProperty) == null)
             {
-                targetObject.SetBinding(SecondProperty, multiBinding);
+                return SecondProperty;
             }
             else if (BindingOperations.GetMultiBinding(targetObject, ThirdProperty) == null)
             {
-                targetObject.SetBinding(ThirdProperty, multiBinding);
+                return ThirdProperty;
             }
             else if (BindingOperations.GetMultiBinding(targetObject, FourthProperty) == null)
             {
-                targetObject.SetBinding(FourthProperty, multiBinding);
+                return FourthProperty;
             }
             else if (BindingOperations.GetMultiBinding(targetObject, FifthProperty) == null)
             {
-                targetObject.SetBinding(FifthProperty, multiBinding);
+                return FifthProperty;
             }
             else
             {
                 throw new InvalidOperationException("All available proxy binder properties already in use.");
             }
-            return null;
         }
-
 
         #region Binding Members
 
@@ -247,11 +249,6 @@ namespace NowPlaying.Utils
             set;
         }
 
-
-        #endregion
-
-        #region BindingBase Members
-
         /// <summary> Value to use when source cannot provide a value </summary>
         /// <remarks>
         ///     Initialized to DependencyProperty.UnsetValue; if FallbackValue is not set, BindingExpression
@@ -264,8 +261,6 @@ namespace NowPlaying.Utils
         }
 
         #endregion
-
-
 
         #region Nested types
 

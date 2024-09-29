@@ -10,6 +10,8 @@ using System.Threading;
 using System.Windows.Threading;
 using static NowPlaying.Models.GameCacheManager;
 using Playnite.SDK;
+using System.Windows.Data;
+using NowPlaying.Extensions;
 
 namespace NowPlaying.ViewModels
 {
@@ -27,9 +29,12 @@ namespace NowPlaying.ViewModels
 
         public readonly Comparer<GameCacheViewModel> gameCacheSortComparer;
         public readonly Comparer<CacheRootViewModel> cacheRootSortComparer;
+        
+        public ColumnSortableCollection<CacheRootViewModel> CacheRoots { get; private set; }
+        public ColumnSortableCollection<GameCacheViewModel> GameCaches { get; private set; }
 
-        public ObservableCollection<CacheRootViewModel> CacheRoots { get; private set; }
-        public ObservableCollection<GameCacheViewModel> GameCaches { get; private set; }
+        public readonly ListCollectionView cacheRootsCollectionView; 
+        public readonly ListCollectionView gameCachesCollectionView; 
 
         public SortedDictionary<string, long> InstallAverageBps { get; private set; }
 
@@ -38,18 +43,20 @@ namespace NowPlaying.ViewModels
             this.plugin = plugin;
             this.logger = logger;
             this.pluginUserDataPath = plugin.GetPluginUserDataPath();
-
             cacheRootsJsonPath = Path.Combine(pluginUserDataPath, "CacheRoots.json");
             gameCacheEntriesJsonPath = Path.Combine(pluginUserDataPath, "gameCacheEntries.json");
             installAverageBpsJsonPath = Path.Combine(pluginUserDataPath, "InstallAverageBps.json");
 
             gameCacheManager = new GameCacheManager(logger);
-            CacheRoots = new ObservableCollection<CacheRootViewModel>();
-            GameCaches = new ObservableCollection<GameCacheViewModel>();
+            CacheRoots = new ColumnSortableCollection<CacheRootViewModel>();
+            GameCaches = new ColumnSortableCollection<GameCacheViewModel>();
             InstallAverageBps = new SortedDictionary<string, long>();
 
             gameCacheSortComparer = Comparer<GameCacheViewModel>.Create((x, y) => x.Title.CompareTo(y.Title));
             cacheRootSortComparer = Comparer<CacheRootViewModel>.Create((x, y) => x.Directory.CompareTo(y.Directory));
+
+            cacheRootsCollectionView = (ListCollectionView)CollectionViewSource.GetDefaultView(CacheRoots);
+            gameCachesCollectionView = (ListCollectionView)CollectionViewSource.GetDefaultView(GameCaches);
         }
 
         public void UpdateGameCaches()
@@ -75,7 +82,7 @@ namespace NowPlaying.ViewModels
                 gameCacheManager.AddCacheRoot(root);
 
                 // . add cache root view model
-                CollectionsUtils.AddSorted<CacheRootViewModel>(CacheRoots, new CacheRootViewModel(this, root), cacheRootSortComparer);
+                CacheRoots.AddSortedItem(new CacheRootViewModel(this, root), cacheRootSortComparer);
 
                 SaveCacheRootsToJson();
                 logger.Info($"Added cache root '{rootDirectory}' with {maximumFillLevel}% max fill.");
@@ -90,7 +97,7 @@ namespace NowPlaying.ViewModels
                 gameCacheManager.RemoveCacheRoot(rootDirectory);
 
                 // . remove cache root view model
-                CacheRoots.Remove(FindCacheRoot(rootDirectory));
+                CacheRoots.RemoveItem(FindCacheRoot(rootDirectory));
 
                 SaveCacheRootsToJson();
                 logger.Info($"Removed cache root '{rootDirectory}'.");
@@ -147,17 +154,10 @@ namespace NowPlaying.ViewModels
                 var gameCache = new GameCacheViewModel(this, entry, cacheRoot);
 
                 // . use UI dispatcher if necessary (i.e. if this is called from a Game Enabler / background task)
-                if (plugin.panelView.Dispatcher.CheckAccess())
+                DispatcherUtils.Invoke(plugin.panelView.Dispatcher, () =>
                 {
-                    CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, gameCache, gameCacheSortComparer);
-                }
-                else
-                {
-                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart
-                    (
-                        () => CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, gameCache, gameCacheSortComparer)
-                    ));
-                }
+                    GameCaches.AddSortedItem(gameCache, gameCacheSortComparer);
+                });
 
                 // . update respective cache root view model of added game cache
                 cacheRoot.UpdateGameCaches();
@@ -185,15 +185,11 @@ namespace NowPlaying.ViewModels
                 gameCacheManager.RemoveGameCacheEntry(cacheId);
 
                 // . remove game cache view model
-                //   -> use UI dispatcher if necessary (i.e. if this is called from a Game Enabler / background task)
-                if (plugin.panelView.Dispatcher.CheckAccess())
+                //   -> use UI dispatcher if necessary (i.e. if called from another thread)
+                DispatcherUtils.Invoke(plugin.panelView.Dispatcher, () =>
                 {
-                    GameCaches.Remove(gameCache);
-                }
-                else
-                {
-                    plugin.panelView.Dispatcher.Invoke(DispatcherPriority.Normal, new ThreadStart(() => GameCaches.Remove(gameCache)));
-                }
+                    GameCaches.RemoveItem(gameCache);
+                });
 
                 // . notify cache root view model of the change
                 gameCache.cacheRoot.UpdateGameCaches();
@@ -387,7 +383,7 @@ namespace NowPlaying.ViewModels
                     if (DirectoryUtils.ExistsAndIsWritable(root.Directory) || DirectoryUtils.MakeDir(root.Directory))
                     {
                         gameCacheManager.AddCacheRoot(root);
-                        CollectionsUtils.AddSorted<CacheRootViewModel>(CacheRoots, new CacheRootViewModel(this, root), cacheRootSortComparer);
+                        CacheRoots.AddSortedItem(new CacheRootViewModel(this, root), cacheRootSortComparer);
                     }
                     else
                     {
@@ -438,7 +434,7 @@ namespace NowPlaying.ViewModels
                                 needToUpdateCacheStats.Add(entry.Id);
                             }
                             gameCacheManager.AddGameCacheEntry(entry);
-                            CollectionsUtils.AddSorted<GameCacheViewModel>(GameCaches, new GameCacheViewModel(this, entry, cacheRoot), gameCacheSortComparer);
+                            GameCaches.AddSortedItem(new GameCacheViewModel(this, entry, cacheRoot), gameCacheSortComparer);
                         }
                         else
                         {

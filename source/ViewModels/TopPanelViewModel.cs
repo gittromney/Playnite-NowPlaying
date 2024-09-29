@@ -1,17 +1,20 @@
 ﻿using NowPlaying.Utils;
+using NowPlaying.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Windows;
+using Brush = System.Windows.Media.Brush;
 
 namespace NowPlaying.ViewModels
 {
-
-
     public class TopPanelViewModel : ViewModelBase
     {
         public enum Mode { Processing, Enable, Uninstall, Install, SlowInstall };
 
         private readonly NowPlaying plugin;
+        private readonly ThemeResources theme;
 
         private string formatStringXofY;
         private int gamesToEnable;
@@ -32,17 +35,20 @@ namespace NowPlaying.ViewModels
         public double PercentDone { get; private set; }
         public string Status { get; private set; }
 
+        public ThemeResources Theme => theme;
+
         public string ProgressIsIndeterminate => TopPanelMode==Mode.Install || TopPanelMode==Mode.SlowInstall ? "False" : "True";
+
         public string ProgressBarForeground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingFgBrush" :
                                                 TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : 
                                                 TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : 
-                                                TopPanelMode==Mode.SlowInstall ? "TopPanelSlowInstallFgBrush" :
-                                                "TopPanelInstallFgBrush");
+                                                TopPanelMode==Mode.SlowInstall ? "ProgressSlowInstallFgBrush" :
+                                                Theme.ProgressInstallFgBrush);
         public string ProgressBarBackground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingBgBrush" :
                                                 TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : 
                                                 TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" :
-                                                TopPanelMode == Mode.SlowInstall ? "TopPanelSlowInstallBgBrush" :
-                                                "TopPanelInstallBgBrush");
+                                                TopPanelMode == Mode.SlowInstall ? "ProgressSlowInstallBgBrush" :
+                                                Theme.ProgressInstallBgBrush);
 
         private Mode topPanelMode;
         public Mode TopPanelMode
@@ -76,11 +82,19 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public TopPanelViewModel(NowPlaying plugin)
+        public Style ProgressBarStyle => plugin.panelViewModel.TopPanelProgressBarStyle;
+
+        public TopPanelViewModel(NowPlaying plugin, ThemeResources theme)
         {
             this.plugin = plugin;
+            this.theme = theme;
             this.processingMessage = new LinkedList<string>();
             Reset();
+        }
+
+        public void UpdateProgressBarStyle()
+        {
+            OnPropertyChanged(nameof(ProgressBarStyle));
         }
 
         private void Reset()
