@@ -5,10 +5,8 @@ using Playnite.SDK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
@@ -18,7 +16,6 @@ namespace NowPlaying.ViewModels
         private readonly Window popup;
         private readonly List<CacheRootViewModel> cacheRoots;
         private readonly List<GameViewModel> allEligibleGames;
-
         public NowPlayingSettings Settings => plugin.Settings;
         public ThemeResources Theme => plugin.themeResources;
 
@@ -112,7 +109,6 @@ namespace NowPlaying.ViewModels
         public string EligibleGamesVisibility => allEligibleGames.Count > 0 ? "Visible" : "Collapsed";
         public string NoEligibleGamesVisibility => allEligibleGames.Count > 0 ? "Collapsed" : "Visible";
 
-
         public AddGameCachesViewModel(NowPlaying plugin, Window popup)
         {
             this.plugin = plugin;
@@ -123,7 +119,7 @@ namespace NowPlaying.ViewModels
             this.SelectedGames = new List<GameViewModel>();
 
             var eligibles = plugin.PlayniteApi.Database.Games.Where(g => plugin.IsGameNowPlayingEligible(g) != GameCachePlatform.InEligible);
-            this.allEligibleGames = eligibles.Select(g => new GameViewModel(g)).OrderBy(g => g.Title).ToList();
+            this.allEligibleGames = eligibles.Select(g => new GameViewModel(plugin, g)).OrderBy(g => g.Title).ToList();
 
             SelectAllCommand = new RelayCommand(() => SelectAllGames());
             SelectNoneCommand = new RelayCommand(() => SelectNoGames());

@@ -12,22 +12,18 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="3">
+    <Grid>
         <ProgressBar
             x:Name="TopPanelProgressBar"
             Value="{Binding PercentDone, Mode=OneWay}"
             IsIndeterminate="{Binding ProgressIsIndeterminate}"
-            Background="{utils:DynamicResourceBinding ProgressBarBackground}"
-            Foreground="{utils:DynamicResourceBinding ProgressBarForeground}"
-            Style="{Binding Theme.ProgressBarStyle}"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Center"
-            Width="202" Height="22"
-            BorderBrush="Transparent">
-            <ProgressBar.Clip>
-                <RectangleGeometry RadiusX="2" RadiusY="2" Rect="2,2,198,18"/>
-            </ProgressBar.Clip>
-        </ProgressBar>
+            Foreground="{Binding ProgressFgBrush}"
+            Background="{Binding ProgressBgBrush}"
+            BorderBrush="Transparent"
+            Width="{Binding Theme.TopPanelProgressBarWidth}"
+            Height="{Binding Theme.TopPanelProgressBarHeight}"
+            Margin="{Binding Theme.TopPanelProgressBarMargin}"
+            Style="{Binding Theme.TopPanelProgressBarStyle}"/>
 
         <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
             <!--drop shadow text-->
@@ -42,7 +38,7 @@
             <!--foreground text-->
             <TextBlock 
                 Text="{Binding Status}"
-                Foreground="{DynamicResource TextBrush}"
+                Foreground="{Binding Theme.ProgressBarTextBrush}"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Left"
                 FontSize="13" FontWeight="Bold"

@@ -8,6 +8,7 @@
         <ResourceDictionary>
             <utils:BoolInvert x:Key="BoolInvert"/>
             <utils:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+            <utils:IsNullConverter x:Key="IsNull"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -19,25 +20,27 @@
         <!--Top/lower/main panel background coloring/darkening + optional drop shadow-->
 
         <!--main panel-->
-        <FadeImage ImageDarkeningBrush="{Binding Theme.MainPanelDarkeningBrush}"/>
         <Border Background="{Binding Theme.MainPanelBackgroundBrush}">
-            <DockPanel>
+            <Grid>
+                <FadeImage ImageDarkeningBrush="{Binding Theme.MainPanelDarkeningBrush}"/>
+                <DockPanel>
 
-                <!--top panel-->
-                <Border
-                    DockPanel.Dock="Top"
-                    Background="{Binding Theme.TopPanelBackgroundBrush}"
-                    BorderBrush="{Binding Theme.TopPanelBorderBrush}"
-                    BorderThickness="{Binding Theme.TopPanelBorderThickness}"
-                    Effect="{Binding Theme.TopPanelDropShadow}"
-                    Height="{Binding Theme.TopPanelHeight}"/>
+                    <!--top panel-->
+                    <Border
+                        DockPanel.Dock="Top"
+                        Background="{Binding Theme.TopPanelBackgroundBrush}"
+                        BorderBrush="{Binding Theme.TopPanelBorderBrush}"
+                        BorderThickness="{Binding Theme.TopPanelBorderThickness}"
+                        Effect="{Binding Theme.TopPanelDropShadow}"
+                        Height="{Binding Theme.TopPanelHeight}"/>
 
-                <!--lower panel-->
-                <Border
-                    BorderBrush="{Binding Theme.LowerPanelBorderBrush}"
-                    BorderThickness="{Binding Theme.LowerPanelBorderThickness}"/>
+                    <!--lower panel-->
+                    <Border
+                        BorderBrush="{Binding Theme.LowerPanelBorderBrush}"
+                        BorderThickness="{Binding Theme.LowerPanelBorderThickness}"/>
 
-            </DockPanel>
+                </DockPanel>
+            </Grid>
         </Border>
 
 
@@ -65,7 +68,7 @@
                         VerticalAlignment="Bottom">
 
                         <ctrls:PluginSearchBox
-                            Height="{Binding Theme.TopPanelSearchBoxHeight}" 
+                            Height="{Binding Theme.TopPanelItemHeight}" 
                             Width="{Binding Theme.TopPanelSearchBoxWidth}"
                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
                             ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
@@ -79,7 +82,8 @@
                         <ctrls:PluginTopPanelItem
                             Command="{Binding ToggleShowCacheRoots}"
                             ToolTip="{Binding ShowCacheRootsToolTip}"
-                            Style="{Binding Theme.TopPanelItemStyle}">
+                            Style="{Binding Theme.TopPanelItemStyle}"
+                            Height="{Binding Theme.TopPanelItemHeight}">
                             <Rectangle 
                                 Width="22" Height="22">
                                 <Rectangle.Style>
@@ -101,7 +105,8 @@
                             Content="🔧" FontSize="17"
                             Command="{Binding ToggleShowSettings}"
                             ToolTip="{Binding ShowSettingsToolTip}"
-                            Style="{Binding Theme.TopPanelItemStyle}"/>
+                            Style="{Binding Theme.TopPanelItemStyle}"
+                            Height="{Binding Theme.TopPanelItemHeight}"/>
                     </StackPanel>
 
                     <!--progress bar-->
@@ -112,8 +117,7 @@
                         Visibility="{Binding IsTopPanelVisible, Converter={StaticResource BoolToVisibility}}"
                         ToolTip="{DynamicResource LOCNowPlayingTopPanelToolTip}"
                         Style="{Binding Theme.TopPanelItemStyle}"
-                        Height="{Binding Theme.TopPanelProgressBarHeight}"
-                        Margin="{Binding Theme.TopPanelProgressBarMargin}">
+                        Height="{Binding Theme.TopPanelItemHeight}">
                         <UserControl Content="{Binding TopPanelView}"/>
                     </ctrls:PluginTopPanelItem>
                 </Grid>
@@ -252,9 +256,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -272,9 +280,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -292,9 +304,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -312,9 +328,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -331,9 +351,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -351,9 +375,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding InstallEta}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -371,9 +399,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -390,9 +422,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Device}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
@@ -410,9 +446,13 @@
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}"/>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True">
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
                                                 <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </DataTrigger>
+                                            </MultiDataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

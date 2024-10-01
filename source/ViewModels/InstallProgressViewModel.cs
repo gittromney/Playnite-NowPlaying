@@ -3,6 +3,8 @@ using NowPlaying.Utils;
 using Playnite.SDK;
 using System;
 using System.Timers;
+using System.Windows;
+using System.Windows.Media;
 
 namespace NowPlaying.ViewModels
 {
@@ -18,6 +20,8 @@ namespace NowPlaying.ViewModels
         private readonly long speedEtaInterval = 500;  // calc avg speed, Eta every 1/2 second
         private long totalBytesCopied;
         private long prevTotalBytesCopied;
+        
+        public ThemeResources Theme => theme;
 
         private bool preparingToInstall;
         public bool PreparingToInstall
@@ -51,7 +55,7 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(ProgressPanelTitle));
                     OnPropertyChanged(nameof(ProgressTitleBrush));
-                    OnPropertyChanged(nameof(ProgressBarBrush));
+                    OnPropertyChanged(nameof(ProgressFgBrush));
                 }
             }
         }
@@ -97,14 +101,15 @@ namespace NowPlaying.ViewModels
             plugin.FormatResourceString("LOCNowPlayingProgressTitleFmt", GameTitle)
         );
         
-        public string ProgressTitleBrush => speedLimitIpg > 0 ? "SlowInstallBrush" : "InstallBrush";
+        public Brush ProgressTitleBrush => speedLimitIpg > 0 ? Theme.SlowInstallBrush : Theme.InstallBrush;
 
         public string ProgressValue => PreparingToInstall ? "" : $"{percentDone:n1}%";
         public double PercentDone => percentDone;
 
-        public ThemeResources Theme => theme;
-        public string ProgressBarBrush => speedLimitIpg > 0 ? "ProgressSlowInstallFgBrush" : Theme.ProgressInstallFgBrush;
-        public string ProgressBgBrush => PreparingToInstall ? "TopPanelProcessingBgBrush" : "TransparentBrush";
+        public Brush ProgressFgBrush => speedLimitIpg > 0 ? Theme.SlowInstallFgBrush : Theme.InstallFgBrush;
+        public Brush ProgressBgBrush => PreparingToInstall ? Theme.ProcessingBgBrush : Theme.SlowInstallBgBrush;
+
+        public double ProgressBarRadius => Theme.InstallProgressBarRadius;
 
         public string CopiedFilesAndBytesProgress =>
         (
@@ -251,7 +256,7 @@ namespace NowPlaying.ViewModels
                     OnPropertyChanged(nameof(CopiedFilesAndBytesProgress));
                     OnPropertyChanged(nameof(ProgressPanelTitle));
                     OnPropertyChanged(nameof(ProgressTitleBrush));
-                    OnPropertyChanged(nameof(ProgressBarBrush));
+                    OnPropertyChanged(nameof(ProgressFgBrush));
                     OnPropertyChanged(nameof(ProgressBgBrush));
                     OnPropertyChanged(nameof(ProgressValue));
                 }

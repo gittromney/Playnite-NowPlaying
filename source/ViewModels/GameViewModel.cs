@@ -7,8 +7,10 @@ namespace NowPlaying.ViewModels
 {
     public class GameViewModel : ViewModelBase
     {
+        private readonly NowPlaying plugin;
         public readonly Game game;
 
+        public ThemeResources Theme => plugin.themeResources;
         public string Title => game.Name;
         public string InstallDir => game.InstallDirectory;
         public string InstallSize => SmartUnits.Bytes((long)(game.InstallSize ?? 0));
@@ -16,8 +18,9 @@ namespace NowPlaying.ViewModels
         public string Genres => game.Genres != null ? string.Join(", ", game.Genres.Select(x => x.Name)) : "";
         public GameCachePlatform Platform { get; private set; }
 
-        public GameViewModel(Game game)
+        public GameViewModel(NowPlaying plugin, Game game)
         {
+            this.plugin = plugin;
             this.game = game;
             this.Platform = NowPlaying.GetGameCachePlatform(game);
         }

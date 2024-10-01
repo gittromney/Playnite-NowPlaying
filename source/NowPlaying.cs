@@ -79,6 +79,8 @@ namespace NowPlaying
         public string cacheInstallQueueStateJsonPath;
         public bool cacheInstallQueuePaused;
 
+        public Action OnInstallProgressViewLoaded = null;
+
         public NowPlaying(IPlayniteAPI api) : base(api)
         {
             Properties = new LibraryPluginProperties
@@ -108,7 +110,7 @@ namespace NowPlaying
             cacheRootsViewModel = new CacheRootsViewModel(this);
             cacheRootsView = new CacheRootsView(cacheRootsViewModel);
 
-            this.themeResources = new ThemeResources(settingsView);
+            this.themeResources = new ThemeResources(this, settingsView);
 
             panelViewModel = new NowPlayingPanelViewModel(this, themeResources);
             panelView = new NowPlayingPanelView(panelViewModel);
@@ -153,300 +155,15 @@ namespace NowPlaying
                 var headerBorder = WpfUtils.GetChildByName(settingsView, "HeaderBorder") as Border;
                 if (headerBorder != null)
                 {
-                    headerBorder.Background = settingsView.TryFindResource("TransparentBrush") as Brush;
+                    headerBorder.Background = themeResources.TransparentBrush;
                 }
                 var contentPanel = WpfUtils.GetChildByName(settingsView, "ContentPanel") as Border;
                 if (contentPanel != null)
                 {
-                    contentPanel.Background = settingsView.TryFindResource("TransparentBrush") as Brush;
+                    contentPanel.Background = themeResources.TransparentBrush;
                 }
                 // apply only once per view instance
                 settingsView.Loaded -= TweakSettingsViewThemeStyling;
-            }
-        }
-
-        public Action OnInstallProgressViewLoaded = null;
-
-        private void ApplyThemeStylingTweaks(ThemeResources theme)
-        {
-            theme.ResetToDefaults();
-
-            // apply theme-specific overrides
-            var currentTheme = PlayniteApi.ApplicationSettings.DesktopTheme;
-
-            // Classic
-            if (currentTheme == "Playnite_builtin_ClassicDesktop") { }
-            // Classic Blue
-            else if (currentTheme == "Playnite_builtin_ClassicDesktopBlue") { }
-            // Classic Green
-            else if (currentTheme == "Playnite_builtin_ClassicDesktopGreen") { }
-            // Classic Plain
-            else if (currentTheme == "Playnite_builtin_ClassicDesktopPlain") { }
-            // Daze
-            else if (currentTheme == "Daze_27790ca9-d3a4-480f-bffe-914ec6768363")
-            {
-                theme.TopPanelHeight = 60;
-                var margin = theme.TopPanelMargin; margin.Left = 25; margin.Right = 135;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxHeight = 31;
-                theme.TopPanelSearchGap = 15;
-                var brush = new BrushConverter().ConvertFromString("#FFF2F2F2") as Brush; brush.Opacity = 0.2;
-                theme.TopPanelBorderBrush = brush;
-
-                // attempt to override theme's fixed progress bar colors, biut otherwise keep styling intact
-                TweakDazeThemeProgressBar(topPanelItem.Icon as UserControl, "TopPanelProgressBar");
-                TweakDazeThemeProgressBar(topPanelView as UserControl, "TopPanelProgressBar");
-                OnInstallProgressViewLoaded = new Action(() => TweakDazeThemeProgressBar(panelViewModel.InstallProgressView as UserControl, "InstallProgressBar"));
-
-                // add height setter to theme's TopPanelItem style
-                var style = new Style(typeof(PluginTopPanelItem), basedOn: theme.GetResource("ThemeTopPanelItem") as Style);
-                style.Setters.Add(new Setter(PluginTopPanelItem.HeightProperty, 31.0));
-                theme.TopPanelItemStyle = style;
-            }
-            // Default
-            else if (currentTheme == "Playnite_builtin_DefaultDesktop") { }
-            // Default Red
-            else if (currentTheme == "Playnite_builtin_DefaultDesktopRed") { }
-            // DefaultExtend
-            else if (currentTheme == "playnite-defaultextend-theme") { }
-            // DH_Dawn
-            else if (currentTheme == "felixkmh_DesktopTheme_DH_Dawn") { }
-            // DH_Night
-            else if (currentTheme == "felixkmh_DuplicateHider_Night_Theme")
-            {
-                theme.TopPanelBorderBrush = theme.GetResource("BackgroundImage") as Brush;
-                theme.TopPanelSeparatorBrush = theme.GetResource("BackgroundImage") as Brush;
-                theme.MainPanelSeparatorBrush = theme.GetResource("BackgroundImage") as Brush;
-                theme.MainPanelBorderBrush = theme.GetResource("BackgroundImage") as Brush;
-            }
-            // eMixedNite
-            else if (currentTheme == "eMixedNite_d3544fdb-be37-4677-b317-7d747adc6b8e") { }
-            // eMixedNiteMC
-            else if (currentTheme == "eMixedNiteMC_4333b3b2-0374-43a1-a9eb-d27f3ea89ef8")
-            {
-                theme.TopPanelHeight = 44;
-                var margin = theme.TopPanelMargin; margin.Bottom = 6;
-                theme.TopPanelMargin = margin;
-            }
-            // Enhanced Grid View Extend
-            else if (currentTheme == "Enhaced_Grid_View_Extend_1") { }
-            // GridViewCards
-            else if (currentTheme == "GridViewCards_9af15fb8-f51c-45df-93fc-235c50bfcd39")
-            {
-                var margin = theme.TopPanelMargin; margin.Left = 30; margin.Right = 120;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 350;
-                theme.TopPanelSearchGap = 13;
-                theme.TopPanelBackgroundBrush = new BrushConverter().ConvertFromString("#FF2C2C2D") as Brush;
-                theme.MainPanelBackgroundBrush = new BrushConverter().ConvertFromString("#FF191919") as Brush;
-                theme.ProgressBarStyle = theme.GetResource("BasicProgressBarStyle") as Style;
-                theme.ProgressInstallFgBrush = "ProgressInstallFgBrush_GridViewCards";
-            }
-            // Harmony
-            else if (currentTheme == "Harmony_d49ef7bc-49de-4fd0-9a67-bd1f26b56047")
-            {
-                theme.TopPanelHeight = 52;
-                var margin = theme.TopPanelMargin; margin.Left = 20; margin.Right = 137;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 250;
-                theme.TopPanelSearchBoxHeight = 34;
-                theme.TopPanelSearchGap = 37;
-            }
-            // Helium
-            else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb1")
-            {
-                var margin = theme.TopPanelMargin; margin.Left = 0; // (default) margin.Bottom = 9.5;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 350;
-                theme.TopPanelSearchBoxHeight = 32;
-                theme.TopPanelBackgroundBrush = theme.GetResource("TopPanelBackgroundBrush") as Brush;
-                theme.TopPanelBorderBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelProgressBarMargin = new Thickness(0, 0, 0, -0.5);
-                theme.LowerPanelBorderBrush = theme.GetResource("PanelSeparatorBrush") as Brush;
-            }
-            // KNARZnite
-            else if (currentTheme == "KNARZnite_68cee656-e677-42ab-a33e-9d9e6dfbefb9")
-            {
-                theme.TopPanelBackgroundBrush = theme.GetResource("WindowBackgourndBrush") as Brush;
-                theme.TopPanelBorderBrush = theme.GetResource("PanelSeparatorBrush") as Brush;
-                theme.TopPanelDropShadow = theme.GetResource("DefaultDropShadow") as Effect;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-            }
-            // Minimal
-            else if (currentTheme == "Minimal_01b9013c-0777-46ba-a09e-035bd66a79e2") { }
-            // Mythic
-            else if (currentTheme == "Mythic_e231056c-4fa7-49d8-ad2b-0a6f1c589eb8")
-            {
-                theme.TopPanelHeight = 100;
-                var margin = theme.TopPanelMargin; margin.Left = 12; margin.Bottom = 31; margin.Right = 190;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 240;
-                theme.TopPanelSearchBoxHeight = 40;
-                theme.TopPanelSearchGap = 0;
-
-                // add background setter to theme's TopPanelSearchBox style
-                var style = new Style(typeof(SearchBox), basedOn: theme.GetResource("TopPanelSearchBox") as Style);
-                var brush = theme.GetResource("TopPanelSearchBoxBackgroundBrush") as Brush;
-                style.Setters.Add(new Setter(PluginSearchBox.BackgroundProperty, brush));
-                theme.TopPanelSearchBoxStyle = style;
-            }
-            // Neon
-            else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb2")
-            {
-                var margin = theme.TopPanelMargin; margin.Bottom = 10;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchGap = 0;
-                theme.TopPanelBackgroundBrush = theme.GetResource("TopPanelBackgroundBrush") as Brush;
-
-                // add height setter to theme's TopPanelItem style
-                var style = new Style(typeof(PluginTopPanelItem), basedOn: theme.GetResource("ThemeTopPanelItem") as Style);
-                style.Setters.Add(new Setter(PluginTopPanelItem.HeightProperty, 31.0));
-                theme.TopPanelItemStyle = style;
-            }
-            // Nova X
-            else if (currentTheme == "Nova_X_0a95b7a3-00e4-412d-b301-f2fa3f98dfad")
-            {
-                theme.TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                theme.TopPanelMinCenterGap = 22;
-                theme.TopPanelHeight = 84;
-                var margin = theme.TopPanelMargin; margin.Left = 5; margin.Bottom = 32; margin.Right = 5;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 120;
-                theme.TopPanelSearchGap = 0;
-                theme.TopPanelBorderBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-
-                // add background + fontweight setters to theme's TopPanelSearchBox style
-                var style = new Style(typeof(SearchBox), basedOn: theme.GetResource("SearchBoxTopPanel") as Style);
-                var brush = theme.GetResource("TopPanelSearchBoxBackgroundBrush") as Brush;
-                style.Setters.Add(new Setter(PluginSearchBox.BackgroundProperty, brush));
-                style.Setters.Add(new Setter(PluginSearchBox.FontWeightProperty, FontWeights.SemiBold));
-                theme.TopPanelSearchBoxStyle = style;
-            }
-            // Rwl
-            else if (currentTheme == "Raohmaru_Rwl_Desktop_e3065120-6742-4ebd-95de-b9ce142737ac")
-            {
-                var margin = theme.TopPanelMargin; margin.Bottom = 10;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxHeight = 32;
-                theme.TopPanelSearchGap = 0;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.MainPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelBorderBrush = theme.GetResource("PanelSeparatorBrush") as Brush;
-                theme.MainPanelBorderBrush = theme.GetResource("PanelSeparatorBrush") as Brush;
-
-                // add height setter to theme's TopPanelItem style
-                var style = new Style(typeof(PluginTopPanelItem), basedOn: theme.GetResource("ThemeTopPanelItem") as Style);
-                style.Setters.Add(new Setter(PluginTopPanelItem.HeightProperty, 31.0));
-                theme.TopPanelItemStyle = style;
-            }
-            // Seaside
-            else if (currentTheme == "Seaside_df4e11f8-2347-4a2d-b835-757aec63e15c")
-            {
-                theme.TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                theme.TopPanelMinCenterGap = 22;
-                theme.TopPanelHeight = 70;
-                var margin = theme.TopPanelMargin; margin.Left = 5; margin.Bottom = 10; margin.Right = 5;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 200;
-                theme.TopPanelSearchBoxHeight = 45;
-                theme.TopPanelSearchGap = 0;
-                theme.TopPanelBorderBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelBackgroundBrush = theme.GetResource("TopPanelFadeBackgroundBrush") as Brush;
-                theme.MainPanelDarkeningBrush = new BrushConverter().ConvertFromString("#701f1e20") as Brush; // trial-and-error value, btw
-
-                // add height setter to theme's TopPanelItem style
-                var style = new Style(typeof(PluginTopPanelItem), basedOn: theme.GetResource("ThemeTopPanelItem") as Style);
-                style.Setters.Add(new Setter(PluginTopPanelItem.HeightProperty, 45.0));
-                theme.TopPanelItemStyle = style;
-
-                // add background + fontweight setters to theme's SearchBox style
-                style = new Style(typeof(PluginSearchBox), basedOn: theme.GetResource("SearchBoxTopPanel") as Style);
-                var brush = theme.GetResource("TopPanelSearchBoxBackgroundBrush") as Brush;
-                style.Setters.Add(new Setter(PluginSearchBox.BackgroundProperty, brush));
-                style.Setters.Add(new Setter(PluginSearchBox.FontWeightProperty, FontWeights.SemiBold));
-                theme.TopPanelSearchBoxStyle = style;
-            }
-            // Standard X
-            else if (currentTheme == "StandardX") { }
-            // Stardust
-            else if (currentTheme == "Stardust 2.0_1fb333b2-255b-43dd-aec1-8e2f2d5ea002")
-            {
-                theme.TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                theme.TopPanelMinCenterGap = 22;
-                var margin = theme.TopPanelMargin; margin.Left = 5; margin.Bottom = 0; margin.Right = 5;
-                theme.TopPanelMargin = margin;
-                theme.TopPanelSearchBoxWidth = 200;
-                theme.TopPanelSearchBoxHeight = 35;
-                theme.TopPanelSearchGap = 0;
-                theme.TopPanelBorderBrush = theme.GetResource("TransparentBrush") as Brush;
-                theme.TopPanelSeparatorBrush = theme.GetResource("TransparentBrush") as Brush;
-
-                // add height setter to theme's TopPanelItem style
-                var style = new Style(typeof(PluginTopPanelItem), basedOn: theme.GetResource("ThemeTopPanelItem") as Style);
-                style.Setters.Add(new Setter(PluginTopPanelItem.HeightProperty, 35.0));
-                theme.TopPanelItemStyle = style;
-
-                // add background + fontweight + height setters to theme's SearchBox style
-                style = new Style(typeof(PluginSearchBox), basedOn: theme.GetResource("SearchBoxTopPanel") as Style);
-                var brush = theme.GetResource("TopPanelSearchBoxBackgroundBrush") as Brush;
-                style.Setters.Add(new Setter(PluginSearchBox.BackgroundProperty, brush));
-                style.Setters.Add(new Setter(PluginSearchBox.FontWeightProperty, FontWeights.SemiBold));
-                theme.TopPanelSearchBoxStyle = style;
-            }
-        }
-
-        private static void TweakDazeThemeProgressBar(UserControl view, string targetProgressBarName)
-        {
-            if (view != null && view.IsLoaded)
-            {
-                try
-                {
-                    var progressBar = view.FindName(targetProgressBarName) as ProgressBar;
-                    progressBar.ApplyTemplate();
-
-                    // bind progress bar's Foreground to indicator rectangle's Fill
-                    var indicator = progressBar.Template.FindName("PART_Indicator", progressBar) as Decorator;
-                    var rectangle = WpfUtils.GetChildOfType<Rectangle>(indicator) as Rectangle;
-                    BindingOperations.SetBinding
-                    (
-                        rectangle,
-                        Rectangle.FillProperty,
-                        new Binding()
-                        {
-                            Source = progressBar,
-                            Path = new PropertyPath("Foreground"),
-                            Mode = BindingMode.OneWay,
-                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                            NotifyOnTargetUpdated = true
-                        }
-                    );
-
-                    // bind progress bar's Background to animation rectangle's Fill
-                    var animation = progressBar.Template.FindName("Animation", progressBar) as Grid;
-                    rectangle = WpfUtils.GetChildOfType<Rectangle>(animation) as Rectangle;
-                    BindingOperations.SetBinding
-                    (
-                        rectangle,
-                        Rectangle.FillProperty,
-                        new Binding()
-                        {
-                            Source = progressBar,
-                            Path = new PropertyPath("Background"),
-                            Mode = BindingMode.OneWay,
-                            UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                            NotifyOnTargetUpdated = true
-                        }
-                    );
-                }
-                catch { }
-                view.Loaded -= (s, e) => TweakDazeThemeProgressBar(view, targetProgressBarName);
-            }
-            else if (view != null)
-            {
-                view.Loaded += (s, e) => TweakDazeThemeProgressBar(view, targetProgressBarName);
             }
         }
 
@@ -499,7 +216,7 @@ namespace NowPlaying
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            ApplyThemeStylingTweaks(themeResources);
+            themeResources.ApplyThemeStylingTweaks();
 
             cacheManager.LoadCacheRootsFromJson();
             cacheRootsViewModel.RefreshCacheRoots();
@@ -2040,6 +1757,9 @@ namespace NowPlaying
                     // . update transfer speed 
                     controller.speedLimitIpg = speedLimitIpg;
                 }
+
+                // . possibly adjust Status column width
+                panelViewModel.OnInstallUninstallQueuesUpdated();
 
                 string title = cacheInstallQueue.First().gameCache.Title;
                 if (speedLimitIpg > 0)

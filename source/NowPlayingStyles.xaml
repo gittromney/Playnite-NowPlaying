@@ -8,66 +8,29 @@
     <sys:Int32 x:Key="ToolTipInitialShowDelay">500</sys:Int32>
     <sys:Int32 x:Key="ToolTipBetweenShowDelay">1000</sys:Int32>
 
-    <Style TargetType="{x:Type ctrls:PluginSearchBox}" BasedOn="{StaticResource {x:Type SearchBox}}"/>
-    <Style x:Key="TopPanelPluginSearchBox" TargetType="ctrls:PluginSearchBox" BasedOn="{StaticResource {x:Type ctrls:PluginSearchBox}}">
-        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource TopPanelSearchBoxBackgroundBrush}"/>
-        <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTipInitialShowDelay}"/>
-        <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
-    </Style>
-    
-    <Style TargetType="{x:Type ctrls:PluginTopPanelItem}" BasedOn="{StaticResource {x:Type TopPanelItem}}"/>
-    <Style x:Key="ThemeTopPanelItem" TargetType="ctrls:PluginTopPanelItem" BasedOn="{StaticResource {x:Type ctrls:PluginTopPanelItem}}">
-        <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTipInitialShowDelay}"/>
-        <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
-    </Style>
-    
-    <Style x:Key="FixedSizeWindow" TargetType="{x:Type WindowBase}" BasedOn="{StaticResource StandardWindowStyle}">
-        <Setter Property="WindowChrome.WindowChrome">
-            <Setter.Value>
-                <WindowChrome CaptionHeight="25" CornerRadius="0" ResizeBorderThickness="0"
-                              NonClientFrameEdges ="None" UseAeroCaptionButtons="False" GlassFrameThickness="0"/>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <ImageBrush x:Key="SeasideMainWindowBackgroundBrush" 
-                ImageSource="{ThemeFile 'Images/BackgroundGradient.png'}" 
-                Stretch="UniformToFill" 
-                popt:Freeze="True"/>
-
-    <Style x:Key="ThemeProgressBarStyle" TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}"/>
-    <Style x:Key="BasicProgressBarStyle" TargetType="{x:Type ProgressBar}"/>
-
-    <Color x:Key="ProgressInstallFgColor">#FF247BA0</Color>
-    <Color x:Key="ProgressInstallBgColor">#30000000</Color>
-    <Color x:Key="ProgressSlowInstallFgColor">#80F0D020</Color>
-    <Color x:Key="ProgressSlowInstallBgColor">#80202b4d</Color>
-    
+    <Color x:Key="InstallBgColor">#30000000</Color>
     <Color x:Key="SlowInstallColor">#FFF0D020</Color>
-    <Color x:Key="TopPanelProcessingFgColor">#80F2F2F2</Color>
-    <Color x:Key="TopPanelProcessingBgColor">#FF000000</Color>
-    <Color x:Key="TopPanelEnableFgColor">#FF3CB371</Color>
-    <Color x:Key="TopPanelEnableBgColor">#FF1E7B47</Color>
-    <Color x:Key="TopPanelUninstallFgColor">#FFB22222</Color>
-    <Color x:Key="TopPanelUninstallBgColor">#FF700000</Color>
-    <Color x:Key="TransparentColor">#00000000</Color>
-
-    <SolidColorBrush x:Key="ProgressInstallFgBrush" Color="{DynamicResource GlyphColor}"/>
-    <SolidColorBrush x:Key="ProgressInstallBgBrush" Color="{DynamicResource ProgressInstallBgColor}"/>
-    <SolidColorBrush x:Key="ProgressInstallFgBrush_GridViewCards" Color="#FF959595"/>
-    <SolidColorBrush x:Key="ProgressSlowInstallFgBrush" Color="{DynamicResource ProgressSlowInstallFgColor}"/>
-    <SolidColorBrush x:Key="ProgressSlowInstallBgBrush" Color="{DynamicResource ProgressSlowInstallBgColor}"/>
+    <Color x:Key="ProcessingFgColor">#80F2F2F2</Color>
+    <Color x:Key="ProcessingBgColor">#FF000000</Color>
+    <Color x:Key="EnableFgColor">#FF3CB371</Color>
+    <Color x:Key="EnableBgColor">#FF1E7B47</Color>
+    <Color x:Key="UninstallFgColor">#FFB22222</Color>
+    <Color x:Key="UninstallBgColor">#FF700000</Color>
     
     <SolidColorBrush x:Key="InstallBrush" Color="{DynamicResource GlyphColor}"/>
+    <SolidColorBrush x:Key="InstallFgBrush" Color="{DynamicResource GlyphColor}" Opacity="0.7"/>
+    <SolidColorBrush x:Key="InstallBgBrush" Color="{DynamicResource InstallBgColor}"/>
     <SolidColorBrush x:Key="SlowInstallBrush" Color="{DynamicResource SlowInstallColor}"/>
-    <SolidColorBrush x:Key="TopPanelProcessingFgBrush" Color="{DynamicResource TopPanelProcessingFgColor}"/>
-    <SolidColorBrush x:Key="TopPanelProcessingBgBrush" Color="{DynamicResource TopPanelProcessingBgColor}"/>
-    <SolidColorBrush x:Key="TopPanelEnableFgBrush" Color="{DynamicResource TopPanelEnableFgColor}"/>
-    <SolidColorBrush x:Key="TopPanelEnableBgBrush" Color="{DynamicResource TopPanelEnableBgColor}"/>
-    <SolidColorBrush x:Key="TopPanelUninstallFgBrush" Color="{DynamicResource TopPanelUninstallFgColor}"/>
-    <SolidColorBrush x:Key="TopPanelUninstallBgBrush" Color="{DynamicResource TopPanelUninstallBgColor}"/>
-    <SolidColorBrush x:Key="TransparentBrush" Color="{DynamicResource TransparentColor}"/>
+    <SolidColorBrush x:Key="SlowInstallFgBrush" Color="{DynamicResource SlowInstallColor}" Opacity="0.7"/>
+    <SolidColorBrush x:Key="SlowInstallBgBrush" Color="{DynamicResource InstallBgColor}"/>
+    <SolidColorBrush x:Key="ProcessingFgBrush" Color="{DynamicResource ProcessingFgColor}"/>
+    <SolidColorBrush x:Key="ProcessingBgBrush" Color="{DynamicResource ProcessingBgColor}"/>
+    <SolidColorBrush x:Key="EnableFgBrush" Color="{DynamicResource EnableFgColor}"/>
+    <SolidColorBrush x:Key="EnableBgBrush" Color="{DynamicResource EnableBgColor}"/>
+    <SolidColorBrush x:Key="UninstallFgBrush" Color="{DynamicResource UninstallFgColor}"/>
+    <SolidColorBrush x:Key="UninstallBgBrush" Color="{DynamicResource UninstallBgColor}"/>
+    
+    <SolidColorBrush x:Key="ProgressInstallFgBrush_GridViewCards" Color="#FF959595"/>
 
     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
@@ -153,5 +116,97 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <utils:BorderClipConverter x:Key="BorderClipConverter"/>
     
+    <!--Theme specific styles-->
+
+    <Style TargetType="{x:Type ctrls:PluginSearchBox}" BasedOn="{StaticResource {x:Type SearchBox}}"/>
+    <Style x:Key="TopPanelPluginSearchBox" TargetType="ctrls:PluginSearchBox" BasedOn="{StaticResource {x:Type ctrls:PluginSearchBox}}">
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource TopPanelSearchBoxBackgroundBrush}"/>
+        <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTipInitialShowDelay}"/>
+        <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
+    </Style>
+
+    <Style TargetType="{x:Type ctrls:PluginTopPanelItem}" BasedOn="{StaticResource {x:Type TopPanelItem}}"/>
+    <Style x:Key="ThemeTopPanelItem" TargetType="ctrls:PluginTopPanelItem" BasedOn="{StaticResource {x:Type ctrls:PluginTopPanelItem}}">
+        <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTipInitialShowDelay}"/>
+        <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
+    </Style>
+
+    <Style x:Key="FixedSizeWindow" TargetType="{x:Type WindowBase}" BasedOn="{StaticResource StandardWindowStyle}">
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <WindowChrome CaptionHeight="25" CornerRadius="0" ResizeBorderThickness="0"
+                          NonClientFrameEdges ="None" UseAeroCaptionButtons="False" GlassFrameThickness="0"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ImageBrush x:Key="SeasideMainWindowBackgroundBrush" 
+            ImageSource="{ThemeFile 'Images/BackgroundGradient.png'}" 
+            Stretch="UniformToFill" 
+            popt:Freeze="True"/>
+
+    <Style x:Key="ThemeProgressBarStyle" TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}"/>
+
+    <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="{Binding ProgressBarRadius}">
+                        <Border.Clip>
+                            <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}"/>
+                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
+                                <Binding Path="CornerRadius" RelativeSource="{RelativeSource Self}"/>
+                            </MultiBinding>
+                        </Border.Clip>
+                        <Grid SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                            <Rectangle Fill="{TemplateBinding Background}"/>
+                            <Rectangle Name="PART_Track" Margin="0"/>
+                            <Decorator x:Name="PART_Indicator" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                                <Grid>
+                                    <Rectangle Fill="{TemplateBinding Foreground}"/>
+                                    <Grid x:Name="Animation" Visibility="Hidden">
+                                        <Rectangle Fill="{TemplateBinding Background}" Margin="0,0,50,0">
+                                            <Rectangle.RenderTransform>
+                                                <ScaleTransform x:Name="HiderPreTransform" ScaleX="0"/>
+                                            </Rectangle.RenderTransform>
+                                        </Rectangle>
+                                        <Rectangle Fill="{TemplateBinding Background}" RenderTransformOrigin="1, 0" Margin="50,0,0,0">
+                                            <Rectangle.RenderTransform>
+                                                <ScaleTransform x:Name="HiderPostTransform" ScaleX="1" />
+                                            </Rectangle.RenderTransform>
+                                        </Rectangle>
+                                    </Grid>
+                                </Grid>
+                            </Decorator>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsIndeterminate" Value="True">
+                            <Setter TargetName="Animation" Property="Visibility" Value="Visible" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="HiderPreTransform" Storyboard.TargetProperty="(ScaleTransform.ScaleX)"
+                                                         To="1" Duration="0:00:2" AutoReverse="True"/>
+                                        <DoubleAnimation Storyboard.TargetName="HiderPostTransform" Storyboard.TargetProperty="(ScaleTransform.ScaleX)"
+                                                         To="0" Duration="0:00:2" AutoReverse="True"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

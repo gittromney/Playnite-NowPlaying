@@ -1,10 +1,7 @@
 ﻿using NowPlaying.Utils;
-using NowPlaying.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Windows;
 using Brush = System.Windows.Media.Brush;
 
 namespace NowPlaying.ViewModels
@@ -37,18 +34,19 @@ namespace NowPlaying.ViewModels
 
         public ThemeResources Theme => theme;
 
-        public string ProgressIsIndeterminate => TopPanelMode==Mode.Install || TopPanelMode==Mode.SlowInstall ? "False" : "True";
+        public string ProgressIsIndeterminate => TopPanelMode == Mode.Install || TopPanelMode == Mode.SlowInstall ? "False" : "True";
 
-        public string ProgressBarForeground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingFgBrush" :
-                                                TopPanelMode==Mode.Enable ? "TopPanelEnableFgBrush" : 
-                                                TopPanelMode==Mode.Uninstall ? "TopPanelUninstallFgBrush" : 
-                                                TopPanelMode==Mode.SlowInstall ? "ProgressSlowInstallFgBrush" :
-                                                Theme.ProgressInstallFgBrush);
-        public string ProgressBarBackground => (TopPanelMode==Mode.Processing ? "TopPanelProcessingBgBrush" :
-                                                TopPanelMode==Mode.Enable ? "TopPanelEnableBgBrush" : 
-                                                TopPanelMode==Mode.Uninstall ? "TopPanelUninstallBgBrush" :
-                                                TopPanelMode == Mode.SlowInstall ? "ProgressSlowInstallBgBrush" :
-                                                Theme.ProgressInstallBgBrush);
+        public Brush ProgressFgBrush => (TopPanelMode == Mode.Processing ? Theme.ProcessingFgBrush :
+                                         TopPanelMode == Mode.Enable ? Theme.EnableFgBrush :
+                                         TopPanelMode == Mode.Uninstall ? Theme.UninstallFgBrush :
+                                         TopPanelMode == Mode.SlowInstall ? Theme.SlowInstallFgBrush :
+                                         Theme.InstallFgBrush);
+        public Brush ProgressBgBrush => (TopPanelMode == Mode.Processing ? Theme.ProcessingBgBrush :
+                                         TopPanelMode == Mode.Enable ? Theme.EnableBgBrush :
+                                         TopPanelMode == Mode.Uninstall ? Theme.UninstallBgBrush :
+                                         TopPanelMode == Mode.SlowInstall ? Theme.SlowInstallBgBrush :
+                                         Theme.InstallBgBrush);
+        public double ProgressBarRadius => Theme.TopPanelProgressBarRadius;
 
         private Mode topPanelMode;
         public Mode TopPanelMode
@@ -60,8 +58,8 @@ namespace NowPlaying.ViewModels
                 {
                     topPanelMode = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(ProgressBarForeground));
-                    OnPropertyChanged(nameof(ProgressBarBackground));
+                    OnPropertyChanged(nameof(ProgressFgBrush));
+                    OnPropertyChanged(nameof(ProgressBgBrush));
                     OnPropertyChanged(nameof(ProgressIsIndeterminate));
                 }
             }
@@ -82,19 +80,12 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public Style ProgressBarStyle => plugin.panelViewModel.TopPanelProgressBarStyle;
-
         public TopPanelViewModel(NowPlaying plugin, ThemeResources theme)
         {
             this.plugin = plugin;
             this.theme = theme;
             this.processingMessage = new LinkedList<string>();
             Reset();
-        }
-
-        public void UpdateProgressBarStyle()
-        {
-            OnPropertyChanged(nameof(ProgressBarStyle));
         }
 
         private void Reset()

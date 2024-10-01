@@ -15,21 +15,20 @@
         <TextBlock 
             Text="{Binding ProgressPanelTitle}"
             Style="{DynamicResource HeadingText}"
-            Foreground="{utils:DynamicResourceBinding ProgressTitleBrush}"
+            Foreground="{Binding ProgressTitleBrush}"
             TextWrapping="Wrap"
             Margin="0,0,0,5"/>
 
         <Grid Margin="0,0,0,5">
             <ProgressBar 
                 x:Name="InstallProgressBar" 
-                Height="20"
-                Value="{Binding PercentDone,Mode=OneWay}" 
+                Value="{Binding PercentDone,Mode=OneWay}"
                 IsIndeterminate="{Binding PreparingToInstall}"
                 HorizontalAlignment="Stretch"
-                Foreground="{utils:DynamicResourceBinding ProgressBarBrush}"
-                Background="{utils:DynamicResourceBinding ProgressBgBrush}"
-                BorderBrush="{DynamicResource NormalBorderBrush}"
-                Style="{Binding Theme.ProgressBarStyle}"/>
+                Foreground="{Binding ProgressFgBrush}"
+                Background="{Binding ProgressBgBrush}"
+                Height="{Binding Theme.InstallProgressBarHeight}"
+                Style="{Binding Theme.InstallProgressBarStyle}"/>
 
             <!--drop shadow text-->
             <TextBlock 

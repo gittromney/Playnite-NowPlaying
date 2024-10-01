@@ -440,11 +440,12 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private double? savedStatusColumnWidth = null;
         public double StatusColumnMinWidth { get; set; } = 100;
         public void OnInstallUninstallQueuesUpdated()
         {
-            var value = (plugin.cacheInstallQueue.Count > 1 || plugin.cacheUninstallQueue.Count > 1) ? 190 : 100;
+            var doingSpeedLimitedInstall = plugin.cacheInstallQueue.Count > 0 && plugin.cacheInstallQueue.First().speedLimitIpg > 0;
+            var useWiderColumn = doingSpeedLimitedInstall || plugin.cacheInstallQueue.Count > 1 || plugin.cacheUninstallQueue.Count > 1;
+            var value = useWiderColumn ? 190 : 100;
             if (StatusColumnMinWidth != value)
             {
                 StatusColumnMinWidth = value;
@@ -739,21 +740,6 @@ namespace NowPlaying.ViewModels
                         plugin.settingsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(SettingsView));
                         SettingsView = null;
                     }
-                }
-            }
-        }
-
-        private Style topPanelProgressBarStyle;
-        public Style TopPanelProgressBarStyle
-        {
-            get => topPanelProgressBarStyle;
-            set
-            {
-                if (topPanelProgressBarStyle != value)
-                {
-                    topPanelProgressBarStyle = value;
-                    OnPropertyChanged(nameof(TopPanelProgressBarStyle));
-                    plugin.topPanelViewModel?.UpdateProgressBarStyle();
                 }
             }
         }
