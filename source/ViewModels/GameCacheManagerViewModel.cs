@@ -298,8 +298,8 @@ namespace NowPlaying.ViewModels
             // . update or add new binned AvgBps entry
             if (InstallAverageBps.ContainsKey(key = installDevice + densityBin + ipgTag))
             {
-                // take 90/10 average of saved Bps and current value, respectively
-                InstallAverageBps[key] = (9 * InstallAverageBps[key] + averageBps) / 10;
+                // take 3:1 average of saved Bps and current value, respectively
+                InstallAverageBps[key] = (3 * InstallAverageBps[key] + averageBps) / 4;
             }
             else
             {
@@ -309,8 +309,8 @@ namespace NowPlaying.ViewModels
             // . update or add new baseline AvgBps entry
             if (InstallAverageBps.ContainsKey(key = installDevice + ipgTag))
             {
-                // take 90/10 average of saved Bps and current value, respectively
-                InstallAverageBps[key] = (9 * InstallAverageBps[key] + averageBps) / 10;
+                // take 3:1 average of saved Bps and current value, respectively
+                InstallAverageBps[key] = (3 * InstallAverageBps[key] + averageBps) / 4;
             }
             else
             {

@@ -11,7 +11,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Margin="20,0,30,10">
+    <StackPanel Margin="20,0,25,0">
         <TextBlock 
             Text="{Binding ProgressPanelTitle}"
             Style="{DynamicResource HeadingText}"
@@ -46,11 +46,11 @@
                 FontSize="16"/>
         </Grid>
 
-        <TextBlock Text="{Binding CopiedFilesAndBytesProgress}" Margin="0,0,0,3"/>
-        <TextBlock Text="{Binding CurrentFile}" Margin="0,0,0,3"/>
-        <TextBlock Text="{Binding SpeedDurationEta}" Margin="0,0,0,10"/>
+        <TextBlock Text="{Binding CopiedFilesAndBytesProgress}" Margin="3,0,0,3"/>
+        <TextBlock Text="{Binding CurrentFile}" Margin="3,0,0,3"/>
+        <TextBlock Text="{Binding SpeedDurationEta}" Margin="3,0,0,10"/>
 
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
             <Button
                 Content="⏸"
                 ToolTip="{DynamicResource LOCNowPlayingProgressPauseToolTip}"

@@ -15,6 +15,8 @@ namespace NowPlaying.ViewModels
 {
     public class ThemeResources : ViewModelBase
     {
+        public enum TopPanelColumn { FarLeft=0, LGap=1, Left=2, Middle=3, Right=4, RGap=5, FarRight=6 };
+
         private readonly NowPlaying plugin;
         private readonly UserControl resourceView;
 
@@ -267,6 +269,20 @@ namespace NowPlaying.ViewModels
 
         #region theme tweakable resources
 
+        private Brush popupBackgroundBrush;
+        public Brush PopupBackgroundBrush
+        {
+            get => popupBackgroundBrush;
+            set
+            {
+                if (popupBackgroundBrush != value)
+                {
+                    popupBackgroundBrush = value;
+                    OnPropertyChanged(nameof(PopupBackgroundBrush));
+                }
+            }
+        }
+
         private Brush selectedListViewItemBrush;
         public Brush SelectedListViewItemBrush
         {
@@ -393,6 +409,104 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private int topPanelMenuItemsColumnSpan = 1;
+        public int TopPanelMenuItemsColumnSpan
+        {
+            get => topPanelMenuItemsColumnSpan;
+            set
+            {
+                if (topPanelMenuItemsColumnSpan != value)
+                {
+                    topPanelMenuItemsColumnSpan = value;
+                    OnPropertyChanged(nameof(TopPanelMenuItemsColumnSpan));
+                }
+            }
+        }
+
+        private int topPanelSearchBoxColumnSpan = 1;
+        public int TopPanelSearchBoxColumnSpan
+        {
+            get => topPanelSearchBoxColumnSpan;
+            set
+            {
+                if (topPanelSearchBoxColumnSpan != value)
+                {
+                    topPanelSearchBoxColumnSpan = value;
+                    OnPropertyChanged(nameof(TopPanelSearchBoxColumnSpan));
+                }
+            }
+        }
+
+        private int topPanelSearchBoxColumn;
+        public int TopPanelSearchBoxColumn
+        {
+            get => topPanelSearchBoxColumn;
+            set
+            {
+                if (topPanelSearchBoxColumn != value)
+                {
+                    topPanelSearchBoxColumn = value;
+                    OnPropertyChanged(nameof(TopPanelSearchBoxColumn));
+                }
+            }
+        }
+
+        private int topPanelSearchGapColumn;
+        public int TopPanelSearchGapColumn
+        {
+            get => topPanelSearchGapColumn;
+            set
+            {
+                if (topPanelSearchGapColumn != value)
+                {
+                    topPanelSearchGapColumn = value;
+                    OnPropertyChanged(nameof(TopPanelSearchGapColumn));
+                }
+            }
+        }
+
+        private int topPanelMenuItemsColumn;
+        public int TopPanelMenuItemsColumn
+        {
+            get => topPanelMenuItemsColumn;
+            set
+            {
+                if (topPanelMenuItemsColumn != value)
+                {
+                    topPanelMenuItemsColumn = value;
+                    OnPropertyChanged(nameof(TopPanelMenuItemsColumn));
+                }
+            }
+        }
+
+        private int topPanelProgressBarColumn;
+        public int TopPanelProgressBarColumn
+        {
+            get => topPanelProgressBarColumn;
+            set
+            {
+                if (topPanelProgressBarColumn != value)
+                {
+                    topPanelProgressBarColumn = value;
+                    OnPropertyChanged(nameof(TopPanelProgressBarColumn));
+                }
+            }
+        }
+
+        private Thickness topPanelMenuItemsMargin;
+        public Thickness TopPanelMenuItemsMargin
+        {
+            get => topPanelMenuItemsMargin;
+            set
+            {
+                if (topPanelMenuItemsMargin != value)
+                {
+                    topPanelMenuItemsMargin = value;
+                    OnPropertyChanged(nameof(TopPanelMenuItemsMargin));
+                }
+            }
+        }
+
         private double topPanelSearchGap;
         public double TopPanelSearchGap
         {
@@ -419,6 +533,34 @@ namespace NowPlaying.ViewModels
                 {
                     topPanelSearchBoxWidth = value;
                     OnPropertyChanged(nameof(TopPanelSearchBoxWidth));
+                }
+            }
+        }
+
+        private double topPanelSearchBoxHeight;
+        public double TopPanelSearchBoxHeight
+        {
+            get => topPanelSearchBoxHeight;
+            set
+            {
+                if (topPanelSearchBoxHeight != value)
+                {
+                    topPanelSearchBoxHeight = value;
+                    OnPropertyChanged(nameof(TopPanelSearchBoxHeight));
+                }
+            }
+        }
+
+        private Thickness topPanelSearchBoxMargin;
+        public Thickness TopPanelSearchBoxMargin
+        {
+            get => topPanelSearchBoxMargin;
+            set
+            {
+                if (topPanelSearchBoxMargin != value)
+                {
+                    topPanelSearchBoxMargin = value;
+                    OnPropertyChanged(nameof(TopPanelSearchBoxMargin));
                 }
             }
         }
@@ -689,6 +831,76 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private Style listViewItemStyle;
+        public Style ListViewItemStyle
+        {
+            get => listViewItemStyle;
+            set
+            {
+                if (listViewItemStyle != value)
+                {
+                    listViewItemStyle = value;
+                    OnPropertyChanged(nameof(ListViewItemStyle));
+                }
+            }
+        }
+
+        private Style listViewStyle;
+        public Style ListViewStyle
+        {
+            get => listViewStyle;
+            set
+            {
+                if (listViewStyle != value)
+                {
+                    listViewStyle = value;
+                    OnPropertyChanged(nameof(ListViewStyle));
+                }
+            }
+        }
+
+        private Thickness listViewMargin;
+        public Thickness ListViewMargin
+        {
+            get => listViewMargin;
+            set
+            {
+                if (listViewMargin != value)
+                {
+                    listViewMargin = value;
+                    OnPropertyChanged(nameof(ListViewMargin));
+                }
+            }
+        }
+
+        private double rootsIconRectSize;
+        public double RootsIconRectSize
+        {
+            get => rootsIconRectSize;
+            set
+            {
+                if (rootsIconRectSize != value)
+                {
+                    rootsIconRectSize = value;
+                    OnPropertyChanged(nameof(RootsIconRectSize));
+                }
+            }
+        }
+
+        private double settingsIconFontSize = 17;
+        public double SettingsIconFontSize
+        {
+            get => settingsIconFontSize;
+            set
+            {
+                if (settingsIconFontSize != value)
+                {
+                    settingsIconFontSize = value;
+                    OnPropertyChanged(nameof(SettingsIconFontSize));
+                }
+            }
+        }
+
         #endregion
 
         public object GetResource(string resourceKey)
@@ -716,6 +928,7 @@ namespace NowPlaying.ViewModels
             UninstallFgBrush = GetResource("UninstallFgBrush") as Brush;
             UninstallBgBrush = GetResource("UninstallBgBrush") as Brush;
 
+            PopupBackgroundBrush = TransparentBrush;
             MainPanelBackgroundBrush = TransparentBrush;
             MainPanelDarkeningBrush = TransparentBrush;
             MainPanelSeparatorBrush = TransparentBrush;
@@ -735,9 +948,20 @@ namespace NowPlaying.ViewModels
             TopPanelItemStyle = GetResource("ThemeTopPanelItem") as Style;
             TopPanelItemHeight = 31;
 
+            // default panel order: search box, (gap), menu items, (min center gap), progress bar 
+            TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
+            TopPanelSearchGapColumn = (int)TopPanelColumn.LGap;
+            TopPanelMenuItemsColumn = (int)TopPanelColumn.Left;
+            TopPanelProgressBarColumn = (int)TopPanelColumn.FarRight;
+            TopPanelMenuItemsMargin = new Thickness(0, 0, 0, 0);
+            TopPanelMenuItemsColumnSpan = 1;
+            TopPanelSearchBoxColumnSpan = 1;
+            TopPanelSearchGap = 0;
+
             TopPanelSearchBoxStyle = (GetResource("TopPanelSearchBox") ?? GetResource("TopPanelPluginSearchBox")) as Style;
             TopPanelSearchBoxWidth = 300;
-            TopPanelSearchGap = 0;
+            TopPanelSearchBoxHeight = double.NaN; // NaN - use TopPanelItemHeight
+            TopPanelSearchBoxMargin = new Thickness(0, 0, 0, 0);
 
             TopPanelProgressBarHeight = 22;
             TopPanelProgressBarWidth = 202;
@@ -749,6 +973,12 @@ namespace NowPlaying.ViewModels
             InstallProgressBarRadius = 2.5;
             ProgressBarTextBrush = TextBrush;
 
+            RootsIconRectSize = 22;
+            SettingsIconFontSize = 17;
+
+            ListViewItemStyle = GetResource("ThemeListViewItem") as Style;
+            ListViewStyle = GetResource("ThemeListView") as Style;
+            ListViewMargin = new Thickness(0, 0, 0, 0);
             SelectedListViewItemBrush = new BrushConverter().ConvertFrom("Black") as Brush;
         }
 
@@ -771,12 +1001,11 @@ namespace NowPlaying.ViewModels
             else if (currentTheme == "Daze_27790ca9-d3a4-480f-bffe-914ec6768363")
             {
                 TopPanelHeight = 60;
-                var margin = TopPanelMargin; margin.Left = 25; margin.Right = 135;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 25, Right: 135);
                 TopPanelItemHeight = 31;
                 TopPanelSearchGap = 15;
-                var brush = new BrushConverter().ConvertFromString("#FFF2F2F2") as Brush; brush.Opacity = 0.2;
-                TopPanelBorderBrush = brush;
+                TopPanelBorderBrush = BrushFromString("#FFF2F2F2", Opacity: 0.2);
+                ListViewMargin = new Thickness(-2, 0, 0, 0);
 
                 // attempt to override theme's fixed progress bar colors, but otherwise keep styling intact
                 TopPanelProgressBarStyle = GetResource("ThemeProgressBarStyle") as Style;
@@ -798,64 +1027,119 @@ namespace NowPlaying.ViewModels
             // DH_Dawn
             else if (currentTheme == "felixkmh_DesktopTheme_DH_Dawn") 
             {
+                ListViewMargin = new Thickness(0, 0, 0, 0);
                 SelectedListViewItemBrush = TextBrush;
             }
             // DH_Night
             else if (currentTheme == "felixkmh_DuplicateHider_Night_Theme")
             {
                 TopPanelHeight = 48.5;
-                var margin = TopPanelMargin; margin.Bottom = 8.5;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 8.5);
                 var brush = GetResource("BackgroundImage") as Brush;
+                PopupBackgroundBrush = brush;
                 MainPanelSeparatorBrush = brush;
                 MainPanelBorderBrush = brush;
                 MainPanelBackgroundBrush = brush;
-                MainPanelDarkeningBrush = new BrushConverter().ConvertFromString("#B2202020") as Brush; // trial-and-error value
+                MainPanelDarkeningBrush = BrushFromString("#B2202020"); // trial-and-error value
                 TopPanelBorderThickness = new Thickness(0);
                 LowerPanelBorderBrush = brush;
                 LowerPanelBorderThickness = new Thickness(0, 1, 0, 0);
+                ListViewMargin = new Thickness(0, 0, 0, 0);
                 SelectedListViewItemBrush = TextBrush;
             }
             // eMixedNite
             else if (currentTheme == "eMixedNite_d3544fdb-be37-4677-b317-7d747adc6b8e") 
             {
-                SelectedListViewItemBrush = new BrushConverter().ConvertFromString("#FFC0C0C0") as Brush;
+                TopPanelHeight = 45;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 5, Right: 188);
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.Right;
+                TopPanelSearchGapColumn = (int)TopPanelColumn.RGap;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.FarRight;
+                TopPanelSearchGap = 15;
+                ListViewMargin = new Thickness(0, 0, 0, 0);
+                SelectedListViewItemBrush = BrushFromString("#FFC8C8C8"); // more readable than theme's choice
             }
             // eMixedNiteMC
             else if (currentTheme == "eMixedNiteMC_4333b3b2-0374-43a1-a9eb-d27f3ea89ef8")
             {
-                TopPanelHeight = 44;
-                var margin = TopPanelMargin; margin.Bottom = 6;
-                TopPanelMargin = margin;
+                TopPanelHorizontalAlignment = HorizontalAlignment.Left;
+                TopPanelHeight = 43;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 5);
                 TopPanelItemHeight = 32;
-                //TopPanelProgressBarHeight = 32;
-                SelectedListViewItemBrush = TextBrushDarker;
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
+                TopPanelSearchGapColumn = (int)TopPanelColumn.LGap;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.Left;
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.Middle;
+                TopPanelSearchGap = 15;
                 InstallFgBrush = TextBrushDarker;
-                WarningBrush = new BrushConverter().ConvertFromString("#FFFF4500") as Brush;
+                WarningBrush = BrushFromString("#FFFF4500");
+                ListViewMargin = new Thickness(0, 0, 0, 0);
+                SelectedListViewItemBrush = TextBrushDarker;
             }
             // Enhanced Grid View Extend
             else if (currentTheme == "Enhaced_Grid_View_Extend_1") { }
+            // FusionX
+            else if (currentTheme == "FusionX_54244ec8-29ec-418e-bce7-415250c8d67b")
+            {
+                PopupBackgroundBrush = GetResource("MainBackgroundBrush") as Brush;
+                TopPanelItemStyle = GetResource("PluginTopPanelItem_FusionX") as Style;
+                ListViewItemStyle = GetResource("ListViewItem_FusionX") as Style;
+                ListViewStyle = GetResource("ListView_FusionX") as Style;
+                ListViewMargin = new Thickness(-18, -18, 0, 0);
+                SelectedListViewItemBrush = TextBrush;
+
+                TweakFusionXThemeListView(plugin.panelView.GameCaches);
+                TweakFusionXThemeListView(plugin.cacheRootsView.CacheRoots);
+                TweakFusionXThemeTopPanelItem(plugin.topPanelItem.Icon as UserControl);
+
+                TopPanelHeight = 60;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 12, Bottom: 14.5, Right: 128);
+                TopPanelItemHeight = 32;
+                TopPanelProgressBarHeight = 26;
+                TopPanelProgressBarRadius = 10;
+                InstallProgressBarRadius = 4;
+
+                // centered search bar (unaffected by the progress bar)
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.Left;
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.Middle;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.Right;
+                TopPanelSearchBoxColumnSpan = 2; // span Middle/Right
+
+                TopPanelSearchBoxWidth = 200;
+                TopPanelSearchBoxHeight = 36;
+                TopPanelSearchBoxMargin = new Thickness(44, 0, 0, -2);
+
+                RootsIconRectSize = 18;
+                SettingsIconFontSize = 14.5;
+            }
             // GridViewCards
             else if (currentTheme == "GridViewCards_9af15fb8-f51c-45df-93fc-235c50bfcd39")
             {
-                var margin = TopPanelMargin; margin.Left = 30; margin.Bottom = 10.5; margin.Right = 120;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 30, Bottom: 10.5, Right: 120);
                 TopPanelSearchBoxWidth = 350;
                 TopPanelItemHeight = 30;
-                TopPanelSearchGap = 10;
-                TopPanelBackgroundBrush = new BrushConverter().ConvertFromString("#FF2C2C2D") as Brush;
-                MainPanelBackgroundBrush = new BrushConverter().ConvertFromString("#FF191919") as Brush;
-                TopPanelProgressBarRadius = 4;
+
+                // centered menu items (unaffected by search box/progress bar)
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.Left;
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.Left;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.Right;
+                TopPanelMenuItemsColumnSpan = 3; // span Left/Middle/Right
+                TopPanelMenuItemsMargin = new Thickness(40, 0, 0, 0);
+
+                TopPanelBackgroundBrush = BrushFromString("#FF2C2C2D");
+                MainPanelBackgroundBrush = BrushFromString("#FF191919");
+                TopPanelProgressBarHeight = 24;
+                TopPanelProgressBarRadius = 6;
                 InstallProgressBarRadius = 4;
-                InstallFgBrush = new BrushConverter().ConvertFromString("#FF959595") as Brush;
-                WarningBrush = new BrushConverter().ConvertFromString("#FFFF4500") as Brush;
+                InstallFgBrush = BrushFromString("#FF959595");
+                WarningBrush = BrushFromString("#FFFF4500");
             }
             // Harmony
             else if (currentTheme == "Harmony_d49ef7bc-49de-4fd0-9a67-bd1f26b56047")
             {
                 TopPanelHeight = 52;
-                var margin = TopPanelMargin; margin.Left = 20; margin.Bottom = 9; margin.Right = 137;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 20, Bottom: 9, Right: 137);
                 TopPanelSearchBoxWidth = 250;
                 TopPanelItemHeight = 34;
                 TopPanelSearchGap = 30;
@@ -865,8 +1149,7 @@ namespace NowPlaying.ViewModels
             // Helium
             else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb1")
             {
-                var margin = TopPanelMargin; margin.Left = 0; margin.Bottom = 9;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 0, Bottom: 9);
                 TopPanelSearchBoxWidth = 350;
                 TopPanelItemHeight = 32;
                 TopPanelProgressBarRadius = 2.5;
@@ -883,6 +1166,7 @@ namespace NowPlaying.ViewModels
                 TopPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
                 TopPanelDropShadow = GetResource("DefaultDropShadow") as Effect;
                 TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                SelectedListViewItemBrush = GetResource("TextBrushDark") as Brush;
             }
             // Minimal
             else if (currentTheme == "Minimal_01b9013c-0777-46ba-a09e-035bd66a79e2") { }
@@ -890,11 +1174,9 @@ namespace NowPlaying.ViewModels
             else if (currentTheme == "Mythic_e231056c-4fa7-49d8-ad2b-0a6f1c589eb8")
             {
                 TopPanelHeight = 100;
-                var margin = TopPanelMargin; margin.Left = 12; margin.Bottom = 31; margin.Right = 190;
-                TopPanelMargin = margin;
-                TopPanelSearchBoxWidth = 240;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 12, Bottom: 31, Right: 190);
                 TopPanelItemHeight = 40;
-                TopPanelSearchGap = 0;
+                TopPanelSearchBoxWidth = 240;
                 TopPanelProgressBarHeight = 28;
                 TopPanelProgressBarRadius = 10;
                 SelectedListViewItemBrush = TextBrush;
@@ -908,23 +1190,27 @@ namespace NowPlaying.ViewModels
             // Neon
             else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb2")
             {
-                var margin = TopPanelMargin; margin.Bottom = 10;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 10);
                 TopPanelItemHeight = 31;
-                TopPanelSearchGap = 0;
                 TopPanelBackgroundBrush = GetResource("TopPanelBackgroundBrush") as Brush;
                 SelectedListViewItemBrush = null;
             }
             // Nova X
             else if (currentTheme == "Nova_X_0a95b7a3-00e4-412d-b301-f2fa3f98dfad")
             {
-                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                TopPanelMinCenterGap = 22;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 32, Right: 5);
                 TopPanelHeight = 84;
-                var margin = TopPanelMargin; margin.Left = 5; margin.Bottom = 32; margin.Right = 5;
-                TopPanelMargin = margin;
                 TopPanelSearchBoxWidth = 120;
-                TopPanelSearchGap = 0;
+
+                // use center grouping w/ order: menu items, search, progress
+                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.FarLeft;
+                TopPanelSearchGapColumn = (int)TopPanelColumn.LGap;
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.Left;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.Right;
+                TopPanelMinCenterGap = 15;
+                TopPanelSearchGap = 5;
+
                 TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
                 TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
                 SelectedListViewItemBrush = TextBrush;
@@ -939,10 +1225,8 @@ namespace NowPlaying.ViewModels
             // Rwl
             else if (currentTheme == "Raohmaru_Rwl_Desktop_e3065120-6742-4ebd-95de-b9ce142737ac")
             {
-                var margin = TopPanelMargin; margin.Bottom = 10;
-                TopPanelMargin = margin;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 10);
                 TopPanelItemHeight = 31;
-                TopPanelSearchGap = 0;
                 TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
                 MainPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
                 TopPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
@@ -951,20 +1235,23 @@ namespace NowPlaying.ViewModels
             // Seaside
             else if (currentTheme == "Seaside_df4e11f8-2347-4a2d-b835-757aec63e15c")
             {
-                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                TopPanelMinCenterGap = 8;
+                PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
                 TopPanelHeight = 70;
-                var margin = TopPanelMargin; margin.Left = 5; margin.Bottom = 10; margin.Right = 5;
-                TopPanelMargin = margin;
-                TopPanelSearchBoxWidth = 200;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 10, Right: 5);
                 TopPanelItemHeight = 45;
-                TopPanelSearchGap = 2;
+                TopPanelSearchBoxWidth = 200;
                 TopPanelProgressBarHeight = 30;
                 TopPanelProgressBarRadius = 3;
+
+                // use center grouping with default order: search, menu, progress
+                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
+                TopPanelMinCenterGap = 15;
+                TopPanelSearchGap = 2;
+
                 TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
                 TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
                 TopPanelBackgroundBrush = GetResource("TopPanelFadeBackgroundBrush") as Brush;
-                MainPanelDarkeningBrush = new BrushConverter().ConvertFromString("#701f1e20") as Brush; // trial-and-error value
+                MainPanelDarkeningBrush = BrushFromString("#701f1e20"); // trial-and-error value
                 SelectedListViewItemBrush = TextBrush;
 
                 // add background + fontweight setters to theme's SearchBox style
@@ -980,18 +1267,29 @@ namespace NowPlaying.ViewModels
                 InstallFgBrush = TextBrushDarker;
             }
             // Stardust
-            else if (currentTheme == "Stardust 2.0_1fb333b2-255b-43dd-aec1-8e2f2d5ea002")
+            else if 
+            (
+                currentTheme == "Stardust 2.0_1fb333b2-255b-43dd-aec1-8e2f2d5ea002" ||
+                currentTheme == "Stardust_LegacyLayout"
+            )
             {
-                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
-                TopPanelMinCenterGap = 8;
-                var margin = TopPanelMargin; margin.Left = 5; margin.Bottom = 0; margin.Right = 5;
-                TopPanelMargin = margin;
-                TopPanelSearchBoxWidth = 200;
+                PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 0, Right: 5);
                 TopPanelItemHeight = 35;
-                TopPanelSearchGap = 0;
+                TopPanelSearchBoxWidth = 120;
                 TopPanelProgressBarHeight = 25;
                 TopPanelProgressBarRadius = 3;
                 TopPanelProgressBarMargin = new Thickness(3, 0, 3, 0);
+
+                // use center grouping w/order: menu items, search, progress
+                TopPanelHorizontalAlignment = HorizontalAlignment.Center;
+                TopPanelMenuItemsColumn = (int)TopPanelColumn.FarLeft;
+                TopPanelSearchGapColumn = (int)TopPanelColumn.LGap;
+                TopPanelSearchBoxColumn = (int)TopPanelColumn.Left;
+                TopPanelProgressBarColumn = (int)TopPanelColumn.Right;
+                TopPanelMinCenterGap = 15;
+                TopPanelSearchGap = 5;
+                
                 TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
                 TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
                 SelectedListViewItemBrush = TextBrush;
@@ -1002,6 +1300,74 @@ namespace NowPlaying.ViewModels
                 style.Setters.Add(new Setter(PluginSearchBox.BackgroundProperty, brush));
                 style.Setters.Add(new Setter(PluginSearchBox.FontWeightProperty, FontWeights.SemiBold));
                 TopPanelSearchBoxStyle = style;
+            }
+
+            // . resolve optional search box height
+            if (double.IsNaN(TopPanelSearchBoxHeight))
+            {
+                TopPanelSearchBoxHeight = TopPanelItemHeight;
+            }
+        }
+
+        private Brush BrushFromString(string colorString, double Opacity = 1)
+        {
+            var brush = new BrushConverter().ConvertFromString(colorString) as Brush; 
+            brush.Opacity = Opacity;
+            return brush;
+        }
+
+        private Thickness AdjustMargin 
+        (
+            Thickness reference, 
+            double? Left = null, double? Top = null, double? Right = null, double? Bottom = null
+        )
+        {
+            var margin = reference;
+            margin.Left = Left ?? margin.Left;
+            margin.Top = Top ?? margin.Top;
+            margin.Right = Right ?? margin.Right;
+            margin.Bottom = Bottom ?? margin.Bottom;
+            return margin;
+        }
+
+        private void TweakFusionXThemeListView(ListView listView)
+        {
+            if (listView != null && listView.IsLoaded)
+            {
+                try
+                {
+                    // hack removal of header margin.Bottom=8 (gap between list view header and list view items)
+                    var presenter = WpfUtils.GetChildByName(listView, "PART_ScrollContentPresenter") as ScrollContentPresenter;
+                    var margin = presenter.Margin; margin.Bottom = 0;
+                    presenter.Margin = margin;
+                }
+                catch {}
+                listView.Loaded -= (s, e) => TweakFusionXThemeListView(listView);
+            }
+            else if (listView != null)
+            {
+                listView.Loaded += (s, e) => TweakFusionXThemeListView(listView);
+            }
+        }
+
+        private void TweakFusionXThemeTopPanelItem(UserControl view)
+        {
+            if (view != null && view.IsLoaded)
+            {
+                try
+                {
+                    // hack removal of Width=32 limitation
+                    // hack style to replace hover/selected ellispes with radiused rectangles
+                    var topPanelItem = WpfUtils.GetAncestor<TopPanelItem>(view);
+                    topPanelItem.Width = double.NaN;
+                    topPanelItem.Style = GetResource("TopPanelItem_FusionX") as Style;
+                }
+                catch { }
+                view.Loaded -= (s, e) => TweakFusionXThemeTopPanelItem(view);
+            }
+            else if (view != null)
+            {
+                view.Loaded += (s, e) => TweakFusionXThemeTopPanelItem(view);
             }
         }
 

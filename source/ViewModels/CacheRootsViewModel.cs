@@ -16,6 +16,7 @@ namespace NowPlaying.ViewModels
     {
         private readonly NowPlaying plugin;
         public NowPlayingSettings Settings => plugin.Settings;
+        public ThemeResources Theme => plugin.themeResources;
 
         public ICommand RefreshRootsCommand { get; private set; }
         public ICommand AddCacheRootCommand { get; private set; }

@@ -30,8 +30,6 @@
     <SolidColorBrush x:Key="UninstallFgBrush" Color="{DynamicResource UninstallFgColor}"/>
     <SolidColorBrush x:Key="UninstallBgBrush" Color="{DynamicResource UninstallBgColor}"/>
     
-    <SolidColorBrush x:Key="ProgressInstallFgBrush_GridViewCards" Color="#FF959595"/>
-
     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
@@ -82,10 +80,12 @@
 
     <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
         <Setter Property="Padding" Value="5,0.5,5,0.5"/>
+        <Setter Property="Margin" Value="0"/>
     </Style>
     
     <Style x:Key="ThemeListViewItem" TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
         <Setter Property="Padding" Value="5,0.5,5,0.5"/>
+        <Setter Property="Margin" Value="0"/>
     </Style>
 
     <Style x:Key="ThemeListView" TargetType="ListView" BasedOn="{StaticResource {x:Type ListView}}">
@@ -135,6 +135,69 @@
         <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
     </Style>
 
+    <Style x:Key="TopPanelItem_FusionX" TargetType="TopPanelItem">
+        <Setter Property="Margin" Value="4,0,0,0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinWidth" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Foreground" Value="{DynamicResource IdleBrush}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TopPanelItem">
+                    <Grid>
+                        <Rectangle x:Name="HoverBg" Fill="#29FFFFFF" Opacity="0" RadiusX="16" RadiusY="16"/>
+                        <Rectangle x:Name="SelectedBg" Fill="#33FFFFFF" Visibility="Collapsed" RadiusX="16" RadiusY="16"/>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsToggled" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HoverBg"
+                                                        Storyboard.TargetProperty="Opacity" 
+                                                        To="1" Duration="0:0:0.1">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HoverBg"
+                                                        Storyboard.TargetProperty="Opacity" 
+                                                        To="0" Duration="0:0:0.1">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsToggled" Value="True">
+                            <Setter Property="Visibility" Value="Visible" TargetName="SelectedBg"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="PluginTopPanelItem_FusionX" TargetType="ctrls:PluginTopPanelItem" BasedOn="{StaticResource TopPanelItem_FusionX}"/>
+
     <Style x:Key="FixedSizeWindow" TargetType="{x:Type WindowBase}" BasedOn="{StaticResource StandardWindowStyle}">
         <Setter Property="WindowChrome.WindowChrome">
             <Setter.Value>
@@ -144,7 +207,8 @@
         </Setter>
     </Style>
 
-    <ImageBrush x:Key="SeasideMainWindowBackgroundBrush" 
+    <!--Seaside, Stardust themes main window background gradient-->
+    <ImageBrush x:Key="BackgroundGradientBrush" 
             ImageSource="{ThemeFile 'Images/BackgroundGradient.png'}" 
             Stretch="UniformToFill" 
             popt:Freeze="True"/>
@@ -209,4 +273,42 @@
         </Setter>
     </Style>
 
+    <Style x:Key="ListViewItem_FusionX" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <Grid>
+                        <Rectangle x:Name="HoverRectangle" Visibility="Collapsed" Fill="#29FFFFFF" 
+                                   RadiusX="8.5" RadiusY="8.5" Margin="0.5"/>
+                        <Rectangle x:Name="SelectedRectangle" Visibility="Collapsed" Fill="#33FFFFFF" 
+                                   RadiusX="8.5" RadiusY="8.5" Margin="0.5"/>
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <GridViewRowPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Selector.IsSelected" Value="True">
+                            <Setter Property="Visibility" Value="Visible" TargetName="SelectedRectangle" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Visibility" Value="Visible" TargetName="HoverRectangle" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Selector.IsSelected" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource SelectedBrush}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource HoverBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ListView_FusionX" TargetType="ListView" BasedOn="{StaticResource {x:Type ListView}}">
+        <Setter Property="ItemContainerStyle" Value="{DynamicResource ListViewItem_FusionX}"/>
+    </Style>
+    
 </ResourceDictionary>

@@ -1,10 +1,8 @@
 ﻿using NowPlaying.Utils;
 using Playnite.SDK;
 using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
@@ -15,6 +13,7 @@ namespace NowPlaying.ViewModels
         private readonly CacheRootViewModel cacheRoot;
         public Window popup { get; set; }
 
+        public ThemeResources Theme => plugin.themeResources;
         public string RootDirectory => cacheRoot.Directory;
 
         public bool HasSpaceForCaches { get; private set; }

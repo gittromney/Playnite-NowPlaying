@@ -23,15 +23,9 @@ using Color = System.Windows.Media.Color;
 using System.Drawing.Imaging;
 using UserControl = System.Windows.Controls.UserControl;
 using NowPlaying.Controls;
-using Brush = System.Windows.Media.Brush;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Controls;
-using SearchBox = Playnite.DesktopApp.Controls.SearchBox;
 using TopPanelItem = Playnite.SDK.Plugins.TopPanelItem;
 using SidebarItem = Playnite.SDK.Plugins.SidebarItem;
-using System.Windows.Shapes;
 
 namespace NowPlaying
 {
@@ -1690,6 +1684,7 @@ namespace NowPlaying
                 gameCache.UpdateInstallQueueStatus(null);
                 UpdateInstallQueueStatuses();
                 topPanelViewModel.CancelledFromInstallQueue(gameCache.InstallSize, gameCache.InstallEtaTimeSpan);
+                panelViewModel.OnInstallUninstallQueuesUpdated();
                 panelViewModel.RefreshGameCaches();
             }
         }

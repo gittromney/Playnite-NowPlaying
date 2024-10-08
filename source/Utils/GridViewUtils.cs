@@ -19,7 +19,6 @@ using Control = System.Windows.Controls.Control;
 using System;
 using System.Windows.Markup;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 
 namespace NowPlaying.Utils
 {

@@ -18,6 +18,8 @@ namespace NowPlaying.ViewModels
         private List<string> existingRoots;
         public Window popup { get; set; }
 
+        public ThemeResources Theme => plugin.themeResources;
+
         public bool DeviceIsValid { get; private set; }
         public bool RootIsValid { get; private set; }
         public bool HasSpaceForCaches { get; private set; }

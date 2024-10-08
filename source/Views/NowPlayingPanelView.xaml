@@ -48,44 +48,57 @@
         <DockPanel>
             
             <!--TopPanel contents + separator-->
-            <Grid DockPanel.Dock="Top" Height="{Binding Theme.TopPanelHeight}" Margin="0,0,0,10">
+            <Grid DockPanel.Dock="Top" Height="{Binding Theme.TopPanelHeight}" Margin="0,0,0,5">
                 <Grid 
                     HorizontalAlignment="{Binding Theme.TopPanelHorizontalAlignment}" 
                     Margin="{Binding Theme.TopPanelMargin}"
                     VerticalAlignment="Bottom"> 
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition MinWidth="{Binding Theme.TopPanelMinCenterGap}" Width="*"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>  <!--0. FarLeft-->
+                        <ColumnDefinition Width="auto"/>  <!--1. LGap-->
+                        <ColumnDefinition Width="auto"/>  <!--2. Left-->
+                        <ColumnDefinition MinWidth="{Binding Theme.TopPanelMinCenterGap}" Width="*"/>  <!--3. Middle-->
+                        <ColumnDefinition Width="auto"/>  <!--4. Right-->
+                        <ColumnDefinition Width="auto"/>  <!--5. RGap-->
+                        <ColumnDefinition Width="auto"/>  <!--6. FarRight-->
                     </Grid.ColumnDefinitions>
 
-                    <!--search + menu buttons-->
-                    <StackPanel
-                        Grid.Column="0"
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom">
-
-                        <ctrls:PluginSearchBox
-                            Height="{Binding Theme.TopPanelItemHeight}" 
-                            Width="{Binding Theme.TopPanelSearchBoxWidth}"
-                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
-                            ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
-                            Style="{Binding Theme.TopPanelSearchBoxStyle}"
-                            WindowChrome.IsHitTestVisibleInChrome="True"
-                            Margin="0"/>
+                    <!--============= search + menu buttons ============-->
+                    <ctrls:PluginSearchBox
+                        Grid.Column="{Binding Theme.TopPanelSearchBoxColumn}"
+                        Grid.ColumnSpan="{Binding Theme.TopPanelSearchBoxColumnSpan}"
+                        Height="{Binding Theme.TopPanelSearchBoxHeight}" 
+                        Width="{Binding Theme.TopPanelSearchBoxWidth}"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
+                        ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
+                        Style="{Binding Theme.TopPanelSearchBoxStyle}"
+                        Margin="{Binding Theme.TopPanelSearchBoxMargin}"
+                        WindowChrome.IsHitTestVisibleInChrome="True"/>
                         
-                        <!--optional spacing between search box and menu items-->
-                        <Border Margin="0" Width="{Binding Theme.TopPanelSearchGap}" Visibility="{Binding Theme.TopPanelSearchGapEnable, Converter={StaticResource BoolToVisibility}}"/>
+                    <!--Gap column: optional spacing between search box and menu items-->
+                    <Border 
+                        Grid.Column="{Binding Theme.TopPanelSearchGapColumn}"
+                        Margin="0" Width="{Binding Theme.TopPanelSearchGap}" 
+                        Visibility="{Binding Theme.TopPanelSearchGapEnable, Converter={StaticResource BoolToVisibility}}"/>
 
+                    <!--menu items group-->
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Grid.Column="{Binding Theme.TopPanelMenuItemsColumn}"
+                        Grid.ColumnSpan="{Binding Theme.TopPanelMenuItemsColumnSpan}"
+                        Margin="{Binding Theme.TopPanelMenuItemsMargin}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom">
+                            
                         <ctrls:PluginTopPanelItem
                             Command="{Binding ToggleShowCacheRoots}"
                             ToolTip="{Binding ShowCacheRootsToolTip}"
                             Style="{Binding Theme.TopPanelItemStyle}"
                             Height="{Binding Theme.TopPanelItemHeight}">
                             <Rectangle 
-                                Width="22" Height="22">
+                                Width="{Binding Theme.RootsIconRectSize}" 
+                                Height="{Binding Theme.RootsIconRectSize}">
                                 <Rectangle.Style>
                                     <Style TargetType="Rectangle">
                                         <Setter Property="Fill" Value="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=ctrls:PluginTopPanelItem}}"/>
@@ -102,7 +115,8 @@
                             </Rectangle>
                         </ctrls:PluginTopPanelItem>
                         <ctrls:PluginTopPanelItem
-                            Content="🔧" FontSize="17"
+                            Content="🔧" Padding="0,-2,0,0"
+                            FontSize="{Binding Theme.SettingsIconFontSize}" 
                             Command="{Binding ToggleShowSettings}"
                             ToolTip="{Binding ShowSettingsToolTip}"
                             Style="{Binding Theme.TopPanelItemStyle}"
@@ -111,7 +125,7 @@
 
                     <!--progress bar-->
                     <ctrls:PluginTopPanelItem
-                        Grid.Column="2"
+                        Grid.Column="{Binding Theme.TopPanelProgressBarColumn}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
                         Visibility="{Binding IsTopPanelVisible, Converter={StaticResource BoolToVisibility}}"
@@ -121,10 +135,10 @@
                         <UserControl Content="{Binding TopPanelView}"/>
                     </ctrls:PluginTopPanelItem>
                 </Grid>
-                <Separator VerticalAlignment="Bottom" Margin="0" Background="{Binding Theme.TopPanelSeparatorBrush}"/>
             </Grid>
+            <Separator VerticalAlignment="Bottom" Margin="0" Background="{Binding Theme.TopPanelSeparatorBrush}"/>
 
-            <!--settings panel-->
+            <!--================== settings panel ==================-->
             <Border 
                 DockPanel.Dock="Bottom" Margin="0,5,0,0" 
                 Visibility="{Binding SettingsVisibility}"
@@ -179,7 +193,8 @@
             </StackPanel>
            
             <!--game caches list view + controls, using up available dock space-->
-            <Grid 
+            <Grid
+                Margin="10,0,0,0"
                 VerticalAlignment="Top">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -187,8 +202,8 @@
                 </Grid.RowDefinitions>
 
                 <ListView
-                    Grid.Row="0" Margin="10,0,0,0" Padding="0,0,0,0" 
-                    Name="GameCaches" 
+                    Grid.Row="0" Padding="0" 
+                    Name="GameCaches"
                     Visibility="{Binding GameCachesVisibility}"
                     ItemsSource="{Binding GameCaches}"
                     IsSynchronizedWithCurrentItem="True"
@@ -200,7 +215,8 @@
                     utils:GridViewUtils.AutoSort="True"
                     utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
                     utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
-                    Style="{StaticResource ThemeListView}">
+                    Margin="{Binding Theme.ListViewMargin}" 
+                    Style="{Binding Theme.ListViewStyle}">
 
                     <ListView.View>
                         <GridView>
@@ -564,7 +580,7 @@
 
                 <!--game caches control panel, snapped to bottom of listview-->
                 <StackPanel 
-                    Grid.Row="1" Margin="10,5,0,10"
+                    Grid.Row="1" Margin="0,5,0,10"
                     VerticalAlignment="Top"
                     Orientation="Horizontal" 
                     Visibility="{Binding GameCachesVisibility}">
@@ -617,8 +633,6 @@
         
         <!--this darkens our panel whenever a modal dialog is displayed (e.g. add cache root, add game caches)-->
         <Rectangle
-            Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-            Height="{Binding Path=ActualHeight, RelativeSource={RelativeSource AncestorType=UserControl}}" 
             Visibility="{Binding ModalDimmingVisibility}"
             Fill="Black"
             Opacity="0.5"/>
