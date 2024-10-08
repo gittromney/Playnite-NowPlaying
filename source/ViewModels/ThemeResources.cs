@@ -283,6 +283,20 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private Brush popupDarkeningBrush;
+        public Brush PopupDarkeningBrush
+        {
+            get => popupDarkeningBrush;
+            set
+            {
+                if (popupDarkeningBrush != value)
+                {
+                    popupDarkeningBrush = value;
+                    OnPropertyChanged(nameof(PopupDarkeningBrush));
+                }
+            }
+        }
+
         private Brush selectedListViewItemBrush;
         public Brush SelectedListViewItemBrush
         {
@@ -929,6 +943,7 @@ namespace NowPlaying.ViewModels
             UninstallBgBrush = GetResource("UninstallBgBrush") as Brush;
 
             PopupBackgroundBrush = TransparentBrush;
+            PopupDarkeningBrush = TransparentBrush;
             MainPanelBackgroundBrush = TransparentBrush;
             MainPanelDarkeningBrush = TransparentBrush;
             MainPanelSeparatorBrush = TransparentBrush;
@@ -1000,6 +1015,7 @@ namespace NowPlaying.ViewModels
             // Daze
             else if (currentTheme == "Daze_27790ca9-d3a4-480f-bffe-914ec6768363")
             {
+                PopupDarkeningBrush = BrushFromString("#FFF2F2F2", Opacity: 0.07);
                 TopPanelHeight = 60;
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 25, Right: 135);
                 TopPanelItemHeight = 31;
@@ -1027,12 +1043,14 @@ namespace NowPlaying.ViewModels
             // DH_Dawn
             else if (currentTheme == "felixkmh_DesktopTheme_DH_Dawn") 
             {
+                PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.5);
                 ListViewMargin = new Thickness(0, 0, 0, 0);
                 SelectedListViewItemBrush = TextBrush;
             }
             // DH_Night
             else if (currentTheme == "felixkmh_DuplicateHider_Night_Theme")
             {
+                PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.8);
                 TopPanelHeight = 48.5;
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 8.5);
                 var brush = GetResource("BackgroundImage") as Brush;
@@ -1050,6 +1068,8 @@ namespace NowPlaying.ViewModels
             // eMixedNite
             else if (currentTheme == "eMixedNite_d3544fdb-be37-4677-b317-7d747adc6b8e") 
             {
+                MainPanelDarkeningBrush = BrushFromString("#70202020"); // trial-and-error value
+                PopupDarkeningBrush = BrushFromString("#B2202020"); // trial-and-error value
                 TopPanelHeight = 45;
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 5, Right: 188);
                 TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
@@ -1083,6 +1103,7 @@ namespace NowPlaying.ViewModels
             else if (currentTheme == "FusionX_54244ec8-29ec-418e-bce7-415250c8d67b")
             {
                 PopupBackgroundBrush = GetResource("MainBackgroundBrush") as Brush;
+                PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.7);
                 TopPanelItemStyle = GetResource("PluginTopPanelItem_FusionX") as Style;
                 ListViewItemStyle = GetResource("ListViewItem_FusionX") as Style;
                 ListViewStyle = GetResource("ListView_FusionX") as Style;
@@ -1236,6 +1257,7 @@ namespace NowPlaying.ViewModels
             else if (currentTheme == "Seaside_df4e11f8-2347-4a2d-b835-757aec63e15c")
             {
                 PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
+                PopupDarkeningBrush = BrushFromString("#a02f2e30"); // trial-and-error value
                 TopPanelHeight = 70;
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 10, Right: 5);
                 TopPanelItemHeight = 45;
@@ -1274,6 +1296,7 @@ namespace NowPlaying.ViewModels
             )
             {
                 PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
+                PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.4);
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 0, Right: 5);
                 TopPanelItemHeight = 35;
                 TopPanelSearchBoxWidth = 120;
@@ -1307,6 +1330,13 @@ namespace NowPlaying.ViewModels
             {
                 TopPanelSearchBoxHeight = TopPanelItemHeight;
             }
+        }
+
+        private Brush BrushCloneFromResource(string resourceName, double Opacity = 1)
+        {
+            var brush = (GetResource(resourceName) as Brush)?.Clone();
+            brush.Opacity = Opacity;
+            return brush;
         }
 
         private Brush BrushFromString(string colorString, double Opacity = 1)

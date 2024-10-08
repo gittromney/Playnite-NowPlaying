@@ -13,7 +13,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <FadeImage ImageDarkeningBrush="{Binding Theme.MainPanelDarkeningBrush}"/>
+        <FadeImage ImageDarkeningBrush="{Binding Theme.PopupDarkeningBrush}"/>
         <StackPanel 
             Margin="35,25,35,15" 
             VerticalAlignment="Center"

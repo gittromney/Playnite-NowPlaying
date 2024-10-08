@@ -1,5 +1,13 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.1
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-10-08
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.1/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_1.pext
+    Changelog:
+    - Adds stylings for FusionX and Stardust (Legacy Layout) themes and applies general tweaks for other themes, too.
+    - NowPlaying icon slightly recolored to look better (imo) when scaled down in size. 
+    - Adjusts the way average transfer speed (AverageBps) is averaged across cache installs - increases the weight placed on the current install. 
   - Version: 1.4
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-10-01

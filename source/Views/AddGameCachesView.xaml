@@ -16,7 +16,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <FadeImage ImageDarkeningBrush="{Binding Theme.MainPanelDarkeningBrush}"/>
+        <FadeImage ImageDarkeningBrush="{Binding Theme.PopupDarkeningBrush}"/>
         <Grid 
             Visibility="{Binding EligibleGamesVisibility}"
             Margin="20,20,15,25">
