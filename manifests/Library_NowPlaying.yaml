@@ -6,8 +6,9 @@ Packages:
     PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.2/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_2.pext
     Changelog:
     - Reworks UI for improved support of larger font sizes. 
-      Note, this plugin uses Playnite's 'FontSize' for most text, 'FontSizeLarge' for subheadings, and 'FontSizeLarge * 1.2' for heading text (by default, these are 14/15/18-pt, resp.)
-    - Adds saving/restoring of Search Text and sorting state of cache roots/game caches lists when Playnite is exited/restarted.
+      Note, this plugin uses Playnite's 'Normal' font size for most text, 'Large' for subheadings, and 'Large * 1.2' for heading text (by default, these are 14/15/18-pt, resp.)
+    - Adds saving/restoring of search text and (cache roots/game caches) list sorting state, and cache roots shown/hidden state when Playnite is exited/restarted.
+    - Adds option to hide 'NowPlaying Game Caches' heading when cache roots are hidden, for a more streamlined look (see Settings, by default this is disabled/unchecked). 
     - Fixes sort glyph bug when a sorted list view column is Hidden. 
   - Version: 1.4.1
     RequiredApiVersion: 6.9.0
