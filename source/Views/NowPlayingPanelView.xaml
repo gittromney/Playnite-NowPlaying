@@ -267,8 +267,9 @@
                                 utils:GridViewUtils.MinWidth="220"
                                 utils:GridViewUtils.HideColumn="{Binding ShowTitleColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
-                                    Content="{DynamicResource LOCNowPlayingTermsTitle}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsTitle}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}"/>
@@ -288,11 +289,13 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="Platform"
                                 utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="80"
                                 utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
-                                    Content="{DynamicResource LOCNowPlayingTermsPlatform}"
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsPlatform}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}"/>
@@ -315,8 +318,9 @@
                                 utils:GridViewUtils.MinWidth="130"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSourceDirColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
-                                    Content="{DynamicResource LOCNowPlayingTermsSourceDirectory}"
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSourceDirectory}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}"/>
@@ -333,14 +337,15 @@
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
 
-                                <!--utils:GridViewUtils.MinWidth="190"-->
-                            <GridViewColumn 
+                            <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Status"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="{Binding StatusColumnMinWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsStatus}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsStatus}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}"/>
@@ -359,11 +364,13 @@
 
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="CanInstallCache"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="97"
                                 utils:GridViewUtils.HideColumn="{Binding ShowCanInstallColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsCanInstall}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsCanInstall}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}"/>
@@ -383,11 +390,13 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="InstallEta"
                                 utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="92"
                                 utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsInstallEta}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsInstallEta}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding InstallEta}"/>
@@ -407,11 +416,13 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="CacheInstalledSize" 
                                 utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="125"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSizeColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsSize}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSize}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}"/>
@@ -430,11 +441,13 @@
 
                             <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Device"
-                                utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}"
+                                utils:GridViewUtils.AutoWidth="True"
+                                utils:GridViewUtils.MinWidth="{Binding GameCachesRootColumnWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsRoot}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsRoot}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding Device}"/>
@@ -457,8 +470,9 @@
                                 utils:GridViewUtils.MinWidth="125"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
-                                    Content="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}"/>
+                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}">
+                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" Margin="0,0,12,0"/>
+                                </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}"/>
