@@ -159,6 +159,7 @@ namespace NowPlaying
             }
 
             // . initialize column sorting state (see Settings)
+            InitListViewSortingState(cacheRootsView.CacheRoots, Settings.CacheRootsSortedColumn, Settings.CacheRootsSortDirection);
             InitListViewSortingState(panelView.GameCaches, Settings.GameCachesSortedColumn, Settings.GameCachesSortDirection);
         }
 
@@ -357,24 +358,15 @@ namespace NowPlaying
             Settings.SearchText = panelViewModel.SearchText;
             if (panelView != null)
             {
-                var gcSortedColumn = GridViewUtils.GetSortedColumnName(panelView.GameCaches);
-                if (!string.IsNullOrEmpty(gcSortedColumn))
-                {
-                    var sortedHeader = GridViewUtils.GetSortedColumnHeader(panelView.GameCaches);
-                    var sortedByDefault = GridViewUtils.GetSortedByDefault(sortedHeader.Column);
-                    var sortAscending = GridViewUtils.GetSortDirection(panelView.GameCaches) == ListSortDirection.Ascending;
-                    bool nonDefaultSorting = sortAscending ? sortedByDefault != "Ascending" : sortedByDefault != "Descending";
-                    if (nonDefaultSorting)
-                    {
-                        Settings.GameCachesSortedColumn = gcSortedColumn;
-                        Settings.GameCachesSortDirection = sortAscending ? "Ascending" : "Descending";
-                    }
-                    else
-                    {
-                        Settings.GameCachesSortedColumn = string.Empty;
-                        Settings.GameCachesSortDirection = string.Empty;
-                    }
-                }
+                // . CacheRoots sorting state
+                var cacheRootsSortState = GetListViewSortState(cacheRootsView.CacheRoots);
+                Settings.CacheRootsSortedColumn = cacheRootsSortState.Item1;
+                Settings.CacheRootsSortDirection = cacheRootsSortState.Item2;
+
+                // . GameCaches sorting state
+                var gameCachesSortState = GetListViewSortState(panelView.GameCaches);
+                Settings.GameCachesSortedColumn = gameCachesSortState.Item1;
+                Settings.GameCachesSortDirection = gameCachesSortState.Item2;
             }
             SavePluginSettings(Settings);
 
@@ -390,6 +382,23 @@ namespace NowPlaying
                 cacheInstallQueue.First().PauseInstallOnPlayniteExit();
             }
             cacheManager.Shutdown();
+        }
+
+        private Tuple<string, string> GetListViewSortState(ListView listView)
+        {
+            var sortedColumn = GridViewUtils.GetSortedColumnName(listView);
+            if (!string.IsNullOrEmpty(sortedColumn))
+            {
+                var sortedHeader = GridViewUtils.GetSortedColumnHeader(listView);
+                var sortedByDefault = GridViewUtils.GetSortedByDefault(sortedHeader.Column);
+                var sortAscending = GridViewUtils.GetSortDirection(listView) == ListSortDirection.Ascending;
+                bool nonDefaultSorting = sortAscending ? sortedByDefault != "Ascending" : sortedByDefault != "Descending";
+                if (nonDefaultSorting)
+                {
+                    return new Tuple<string, string>(sortedColumn, sortAscending ? "Ascending" : "Descending");
+                }
+            }
+            return new Tuple<string, string>(string.Empty, string.Empty);
         }
 
         public override void OnGameStarted(OnGameStartedEventArgs args)

@@ -38,6 +38,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootDevice = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "Device", value);
                 }
             }
         }
@@ -51,6 +52,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootDirectory = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "Directory", value);
                 }
             }
         }
@@ -64,6 +66,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootSpaceAvail = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "SpaceAvailableForCaches", value);
                 }
             }
         }
@@ -77,6 +80,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootGames = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "GamesEnabled", value);
                 }
             }
         }
@@ -90,6 +94,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootInstalled = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "CachesInstalledAndSize", value);
                 }
             }
         }
@@ -103,6 +108,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowRootMaxFill = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.cacheRootsView.CacheRoots, "MaxFillAndReserved", value);
                 }
             }
         }

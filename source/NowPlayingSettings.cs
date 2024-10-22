@@ -12,6 +12,8 @@ namespace NowPlaying
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
 
         public string SearchText { get; set; }
+        public string CacheRootsSortedColumn { get; set; }
+        public string CacheRootsSortDirection { get; set; }
         public string GameCachesSortedColumn { get; set; }
         public string GameCachesSortDirection { get; set; }
 
@@ -208,6 +210,8 @@ namespace NowPlaying
             this.NotifyOnInstallWhilePlayingActivity = false;
 
             this.SearchText = string.Empty;
+            this.CacheRootsSortedColumn = string.Empty;
+            this.CacheRootsSortDirection = string.Empty;
             this.GameCachesSortedColumn = string.Empty;
             this.GameCachesSortDirection = string.Empty;
 

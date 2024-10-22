@@ -1,5 +1,14 @@
 AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.2
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-10-22
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.2/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_2.pext
+    Changelog:
+    - Reworks UI for improved support of larger font sizes. 
+      Note, this plugin uses Playnite's 'FontSize' for most text, 'FontSizeLarge' for subheadings, and 'FontSizeLarge * 1.2' for heading text (by default, these are 14/15/18-pt, resp.)
+    - Adds saving/restoring of Search Text and sorting state of cache roots/game caches lists when Playnite is exited/restarted.
+    - Fixes sort glyph bug when a sorted list view column is Hidden. 
   - Version: 1.4.1
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-10-08
