@@ -26,6 +26,7 @@ using NowPlaying.Controls;
 using System.Windows.Controls;
 using TopPanelItem = Playnite.SDK.Plugins.TopPanelItem;
 using SidebarItem = Playnite.SDK.Plugins.SidebarItem;
+using System.ComponentModel;
 
 namespace NowPlaying
 {
@@ -34,6 +35,7 @@ namespace NowPlaying
         public override Guid Id { get; } = Guid.Parse("0dbead64-b7ed-47e5-904c-0ccdb5d5ff59");
         public override string LibraryIcon { get; }
         public string StatusIconPath { get; }
+        public bool statusIconBrushDarker;
 
         public override string Name => "NowPlaying Game Cacher";
         public static readonly ILogger logger = LogManager.GetLogger();
@@ -133,10 +135,60 @@ namespace NowPlaying
                 },
             };
 
-            if (ColorizeStatusIcon() == false)
+            if (ColorizeStatusIcon())
+            {
+                statusIconBrushDarker = Settings.StatusIconBrushDarker;
+                SettingsUpdated += (s, e) => MonitorIconBrushChanged();
+            }
+            else
             {
                 NotifyWarning("Failed to color status info/menu tip icon (status-icon.png); using standard icon instead.");
                 StatusIconPath = LibraryIcon;
+                statusIconBrushDarker = false;
+            }
+
+            // . initialize search text from saved state (see Settings)
+            //    note: must be set after panelView is loaded; otherwise, it's overwritten w/ ""
+            if (panelView.IsLoaded)
+            {
+                panelViewModel.SearchText = Settings.SearchText;
+            }
+            else
+            {
+                panelView.Loaded += (s, e) => panelViewModel.SearchText = Settings.SearchText;
+            }
+
+            // . initialize column sorting state (see Settings)
+            InitListViewSortingState(panelView.GameCaches, Settings.GameCachesSortedColumn, Settings.GameCachesSortDirection);
+        }
+
+        private void InitListViewSortingState(ListView listView, string sortedColumn, string sortDirection)
+        {
+            if (!string.IsNullOrEmpty(sortedColumn) && !string.IsNullOrEmpty(sortDirection))
+            {
+                if (listView.IsLoaded == true)
+                {
+                    var sortedColumnHeader = GridViewUtils.GetColumnHeaderByName(listView, sortedColumn);
+                    if (sortedColumnHeader != null)
+                    {
+                        var direction = sortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
+                        GridViewUtils.SetupAndApplyColumnSort(listView, sortedColumnHeader, sortedColumn, direction);
+                    }
+                    listView.Loaded -= (s, e) => InitListViewSortingState(listView, sortedColumn, sortDirection);
+                }
+                else
+                {
+                    listView.Loaded += (s, e) => InitListViewSortingState(listView, sortedColumn, sortDirection);
+                }
+            }
+        }
+
+        private void MonitorIconBrushChanged()
+        {
+            if (Settings.StatusIconBrushDarker != statusIconBrushDarker)
+            {
+                statusIconBrushDarker = Settings.StatusIconBrushDarker;
+                ColorizeStatusIcon();
             }
         }
 
@@ -301,6 +353,31 @@ namespace NowPlaying
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
+            // Save Settings (including current SearchText and ListView sorting state)
+            Settings.SearchText = panelViewModel.SearchText;
+            if (panelView != null)
+            {
+                var gcSortedColumn = GridViewUtils.GetSortedColumnName(panelView.GameCaches);
+                if (!string.IsNullOrEmpty(gcSortedColumn))
+                {
+                    var sortedHeader = GridViewUtils.GetSortedColumnHeader(panelView.GameCaches);
+                    var sortedByDefault = GridViewUtils.GetSortedByDefault(sortedHeader.Column);
+                    var sortAscending = GridViewUtils.GetSortDirection(panelView.GameCaches) == ListSortDirection.Ascending;
+                    bool nonDefaultSorting = sortAscending ? sortedByDefault != "Ascending" : sortedByDefault != "Descending";
+                    if (nonDefaultSorting)
+                    {
+                        Settings.GameCachesSortedColumn = gcSortedColumn;
+                        Settings.GameCachesSortDirection = sortAscending ? "Ascending" : "Descending";
+                    }
+                    else
+                    {
+                        Settings.GameCachesSortedColumn = string.Empty;
+                        Settings.GameCachesSortDirection = string.Empty;
+                    }
+                }
+            }
+            SavePluginSettings(Settings);
+
             // Add code to be executed when Playnite is shutting down.
             if (cacheInstallQueue.Count > 0)
             {

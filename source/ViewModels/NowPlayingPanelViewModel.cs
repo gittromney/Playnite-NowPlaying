@@ -64,7 +64,6 @@ namespace NowPlaying.ViewModels
             this.CustomSpaceAvailableSort = new CustomSpaceAvailableSorter();
             this.isTopPanelVisible = false;
             this.showSettings = false;
-            this.showCacheRoots = false;
             this.SelectedGameCaches = new List<GameCacheViewModel>();
             this.selectionContext = new SelectedCachesContext();
             this.RerootCachesSubMenuItems = new List<MenuItem>();
@@ -137,6 +136,9 @@ namespace NowPlaying.ViewModels
                 }
             });
 
+            // . lazily refresh heading visibility on *any* settings update
+            plugin.SettingsUpdated += (s, e) => OnPropertyChanged(nameof(GameCachesHeadingVisibility));
+
             this.CancelSettingsCommand = new RelayCommand(() =>
             {
                 plugin.settingsViewModel.CancelEdit();
@@ -153,51 +155,57 @@ namespace NowPlaying.ViewModels
                     ShowMinimizeButton = false
                 });
                 var viewModel = new AddGameCachesViewModel(plugin, popup);
-                var view = new AddGameCachesView(viewModel);
-                popup.Content = view;
-
-                // tweak window to make it captionless (no area reserved for title, min/max/close buttons)
-                view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
-                var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
 
                 // setup popup and center within the current application window
                 if (viewModel.EligibleGamesExist)
                 {
-                    // popup content: list view + controls to enable eligible games
+                    var view = new AddGameCachesView(viewModel);
+
+                    // tweak window to make it captionless (no area reserved for title, min/max/close buttons)
+                    view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+
+                    // Note 1: height may be adjusted if window cannot be made 'captionless'
                     popup.Width = view.MinWidth;
                     popup.MinWidth = view.MinWidth;
-                    popup.Height = view.MinHeight + captionHeight;
-                    popup.MinHeight = view.MinHeight + captionHeight;
+                    popup.Height = view.MinHeight;    // 1.
+                    popup.MinHeight = view.MinHeight; // 1.
+                    popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
+                    popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
+                    popup.Content = view;
+
+                    popup.ContentRendered += (s, e) =>
+                    {
+                        // . clear auto-selection of 1st item
+                        viewModel.SelectNoGames();
+                        GridViewUtils.ColumnResize(view.EligibleGames);
+                    };
                 }
+
+                // No eligible games popup (warning/info text, fixed size)
                 else
                 {
-                    // popup content: no further eligible games warning/info 
-                    // -> make window smaller to fit content and fixed size
+                    var view = new NoEligibleGamesView(viewModel);
+                    
+                    // tweak window to make it captionless (no area reserved for title, min/max/close buttons)
+                    view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+
+                    // fixed size window 
                     var style = (Style)view.TryFindResource("FixedSizeWindow");
                     if (style != null)
                     {
                         popup.Style = style;
                     }
-                    view.MinWidth = 800;
-                    view.MinHeight = 500;
-                    popup.Width = view.MinWidth;
-                    popup.MinWidth = view.MinWidth;
-                    popup.MaxWidth = view.MinWidth;
-                    popup.Height = view.MinHeight + captionHeight;
-                    popup.MinHeight = view.MinHeight + captionHeight;
-                    popup.MaxHeight = view.MinHeight + captionHeight;
+                    popup.SizeToContent = SizeToContent.WidthAndHeight;
+                    popup.SizeChanged += (s, e) => plugin.panelViewModel.CenterSizeManagedPopupWindow(appWindow, popup);
+                    popup.Content = view;
                 }
-                popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
-                popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
-                popup.ContentRendered += (s, e) =>
-                {
-                    // . clear auto-selection of 1st item
-                    viewModel.SelectNoGames();
-                    GridViewUtils.ColumnResize(view.EligibleGames);
-                };
+
                 ModalDimming = true;
                 popup.ShowDialog();
             });
+
+            // . initialize cache roots based on saved ShowCacheRoots state
+            UpdateCacheRootsView(ShowCacheRoots);
 
             // . forward settings property changes
             plugin.SettingsUpdated += (s, e) => OnPropertyChanged(nameof(Settings));
@@ -262,6 +270,12 @@ namespace NowPlaying.ViewModels
                 window.MinHeight += 2 * SystemParameters.WindowCaptionHeight;
                 window.MaxHeight += 2 * SystemParameters.WindowCaptionHeight;
             }
+        }
+
+        public void CenterSizeManagedPopupWindow(Window appWindow, Window popup)
+        {
+            popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.ActualWidth) / 2;
+            popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.ActualHeight) / 2;
         }
 
         private void GameCaches_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -366,6 +380,7 @@ namespace NowPlaying.ViewModels
 
         public bool AreCacheRootsNonEmpty => plugin.cacheManager.CacheRoots.Count > 0;
         public bool MultipleCacheRoots => plugin.cacheManager.CacheRoots.Count > 1;
+        public string GameCachesHeadingVisibility => (ShowCacheRoots || !Settings.HideGameCachesHeadingWithRoots) && AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string GameCachesVisibility => AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
         public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
@@ -410,9 +425,11 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheTitle = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "Title", value);
                 }
             }
         }
+
         public bool ShowPlatformColumn
         {
             get => plugin.Settings.ShowGameCachePlatform;
@@ -423,6 +440,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCachePlatform = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "Platform", value);
                 }
             }
         }
@@ -436,6 +454,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheSourceDir = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "InstallDir", value);
                 }
             }
         }
@@ -463,6 +482,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheStatus = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "Status", value);
                 }
             }
         }
@@ -476,6 +496,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheCanInstall = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "CanInstallCache", value);
                 }
             }
         }
@@ -489,6 +510,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheInstallEta = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "InstallEta", value);
                 }
             }
         }
@@ -502,6 +524,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheSize = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "CacheInstalledSize", value);
                 }
             }
         }
@@ -515,6 +538,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheRoot = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "Device", value);
                 }
             }
         }
@@ -528,6 +552,7 @@ namespace NowPlaying.ViewModels
                     plugin.settingsViewModel.Settings.ShowGameCacheSpaceAvail = value;
                     plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "CacheRootSpaceAvailable", value);
                 }
             }
         }
@@ -661,35 +686,40 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        public string ShowCacheRootsToolTip => plugin.GetResourceString(showCacheRoots ? "LOCNowPlayingHideCacheRoots" : "LOCNowPlayingShowCacheRoots");
+        public string ShowCacheRootsToolTip => plugin.GetResourceString(ShowCacheRoots ? "LOCNowPlayingHideCacheRoots" : "LOCNowPlayingShowCacheRoots");
 
-        private bool showCacheRoots;
         public bool ShowCacheRoots
         {
-            get => showCacheRoots;
+            get => plugin.Settings.ShowCacheRoots;
             set
             {
-                if (showCacheRoots != value)
+                if (plugin.Settings.ShowCacheRoots != value)
                 {
-                    showCacheRoots = value;
+                    plugin.settingsViewModel.Settings.ShowCacheRoots = value;
+                    plugin.settingsViewModel.EndEdit();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(ShowCacheRootsToolTip));
-
-                    if (showCacheRoots)
-                    {
-                        CacheRootsView = plugin.cacheRootsView;
-                        plugin.cacheRootsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(CacheRootsView));
-                        plugin.cacheRootsViewModel.RefreshCacheRoots();
-                    }
-                    else
-                    {
-                        plugin.cacheRootsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(CacheRootsView));
-                        CacheRootsView = null;
-                    }
+                    OnPropertyChanged(nameof(GameCachesHeadingVisibility));
+                    UpdateCacheRootsView(plugin.settingsViewModel.Settings.ShowCacheRoots);
                 }
             }
         }
-        
+
+        private void UpdateCacheRootsView(bool showCacheRoots)
+        {
+            if (showCacheRoots)
+            {
+                CacheRootsView = plugin.cacheRootsView;
+                plugin.cacheRootsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(CacheRootsView));
+                plugin.cacheRootsViewModel.RefreshCacheRoots();
+            }
+            else
+            {
+                plugin.cacheRootsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(CacheRootsView));
+                CacheRootsView = null;
+            }
+        }
+
         private UserControl installProgressView;
         public UserControl InstallProgressView
         {
@@ -748,7 +778,6 @@ namespace NowPlaying.ViewModels
         public void ResetShowState()
         {
             ShowSettings = false;
-            ShowCacheRoots = true;
         }
 
         public void RefreshGameCaches()
@@ -762,6 +791,7 @@ namespace NowPlaying.ViewModels
         { 
             OnPropertyChanged(nameof(AreCacheRootsNonEmpty));
             OnPropertyChanged(nameof(MultipleCacheRoots));
+            OnPropertyChanged(nameof(GameCachesHeadingVisibility));
             OnPropertyChanged(nameof(GameCachesVisibility));
             OnPropertyChanged(nameof(MultipleRootsVisibility));
             OnPropertyChanged(nameof(GameCachesRootColumnWidth));
@@ -1135,5 +1165,9 @@ namespace NowPlaying.ViewModels
             plugin.NotifyInfo(plugin.FormatResourceString("LOCNowPlayingMsgGameCachingDisabledFmt", gameCache.Title));
         }
 
+        public bool IsColumnVisible(string sortedColumn)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

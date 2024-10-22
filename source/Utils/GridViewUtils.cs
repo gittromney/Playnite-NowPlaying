@@ -19,6 +19,7 @@ using Control = System.Windows.Controls.Control;
 using System;
 using System.Windows.Markup;
 using System.Globalization;
+using System.Windows.Forms;
 
 namespace NowPlaying.Utils
 {
@@ -773,17 +774,17 @@ namespace NowPlaying.Utils
             new UIPropertyMetadata(null)
         );
 
-        private static GridViewColumnHeader GetSortedColumnHeader(DependencyObject obj)
+        public static GridViewColumnHeader GetSortedColumnHeader(DependencyObject obj)
         {
             return (GridViewColumnHeader)obj.GetValue(SortedColumnHeaderProperty);
         }
 
-        private static void SetSortedColumnHeader(DependencyObject obj, GridViewColumnHeader value)
+        public static void SetSortedColumnHeader(DependencyObject obj, GridViewColumnHeader value)
         {
             obj.SetValue(SortedColumnHeaderProperty, value);
         }
 
-        private static readonly DependencyProperty SortedColumnHeaderProperty = DependencyProperty.RegisterAttached
+        public static readonly DependencyProperty SortedColumnHeaderProperty = DependencyProperty.RegisterAttached
         (
             "SortedColumnHeader",
             typeof(GridViewColumnHeader),
@@ -878,23 +879,59 @@ namespace NowPlaying.Utils
 
             if (!string.IsNullOrEmpty(columnName))
             {
-                SortListViewByColumn(listView, columnName, direction, GetCustomSort(headerClicked.Column));
+                SetupAndApplyColumnSort(listView, headerClicked, columnName, direction);
+            }
+        }
 
-                if (GetShowSortGlyph(listView))
+        public static void SetShowColumnSortGlyph(ListView listView, string columnName, bool showGlyph)
+        {
+            var currentSortedColumnHeader = GridViewUtils.GetSortedColumnHeader(listView);
+            if (GetShowSortGlyph(listView) && currentSortedColumnHeader != null)
+            {
+                if (GetColumnHeaderName(currentSortedColumnHeader) == columnName)
+                {
+                    if (showGlyph)
+                    {
+                        var direction = GetSortDirection(listView);
+                        AddSortGlyph
+                        (
+                            currentSortedColumnHeader,
+                            direction,
+                            direction == ListSortDirection.Ascending
+                                ? GetSortGlyphAscending(listView)
+                                : GetSortGlyphDescending(listView)
+                        );
+                    }
+                    else
+                    {
+                        RemoveSortGlyph(currentSortedColumnHeader);
+                    }
+                }
+            }
+        }
+
+        public static void SetupAndApplyColumnSort(ListView listView, GridViewColumnHeader columnHeader, string columnName, ListSortDirection direction)
+        {
+            SortListViewByColumn(listView, columnName, direction, GetCustomSort(columnHeader.Column));
+
+            if (GetShowSortGlyph(listView))
+            {
+                var columnHidden = GetHideColumn(columnHeader.Column);
+                if (columnHidden == false)
                 {
                     AddSortGlyph
                     (
-                        headerClicked,
+                        columnHeader,
                         direction,
                         direction == ListSortDirection.Ascending
                             ? GetSortGlyphAscending(listView)
                             : GetSortGlyphDescending(listView)
                     );
                 }
-                SetSortedColumnName(listView, columnName);
-                SetSortedColumnHeader(listView, headerClicked);
-                SetSortDirection(listView, direction);
             }
+            SetSortedColumnName(listView, columnName);
+            SetSortedColumnHeader(listView, columnHeader);
+            SetSortDirection(listView, direction);
         }
 
         public static void RefreshSort(ListView listView)
@@ -907,11 +944,28 @@ namespace NowPlaying.Utils
             }
         }
 
-        private static string GetColumnHeaderName(GridViewColumnHeader columnHeader)
+        public static string GetColumnHeaderName(GridViewColumnHeader columnHeader)
         {
             if (columnHeader != null)
             {
                 return GetPropertyName(columnHeader.Column) ?? GetDisplayMemberBindingPath(columnHeader);
+            }
+            return null;
+        }
+
+        public static GridViewColumnHeader GetColumnHeaderByName(ListView listView, string columnName)
+        {
+            var gridView = listView?.View as GridView;
+            if (gridView != null && !string.IsNullOrEmpty(columnName))
+            {
+                for (int i = 0; i < gridView.Columns.Count; i++)
+                {
+                    var columnHeader = gridView.Columns[i].Header as GridViewColumnHeader;
+                    if (GetColumnHeaderName(columnHeader) == columnName)
+                    {
+                        return columnHeader;
+                    }
+                }
             }
             return null;
         }
@@ -921,7 +975,6 @@ namespace NowPlaying.Utils
             if (customSort != null)
             {
                 var source = listView.ItemsSource;
-
 
                 // . apply property-specified custom sorter to selected column
                 var lcView = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);

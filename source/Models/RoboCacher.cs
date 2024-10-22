@@ -279,7 +279,7 @@ namespace NowPlaying.Models
             List<string> stdout = new List<string> { $"robocopy.exe {rcPsi.Arguments}" };
             Process foregroundProcess = Process.Start(rcPsi);
 
-            // Initiallize counts assuming all files have been copied to the Game Cache,
+            // initialize counts assuming all files have been copied to the Game Cache,
             //  then subtract away what hasn't been.
             //
             stats.BytesCopied = stats.BytesToCopy;

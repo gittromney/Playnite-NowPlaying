@@ -36,6 +36,11 @@
                         IsChecked="{Binding Settings.NotifyOnInstallWhilePlayingActivity}"
                         Margin="0,0,0,10"/>
                     <CheckBox
+                        Content="Hide 'NowPlaying Game Caches' heading when cache roots are hidden"
+                        Foreground="{DynamicResource TextBrush}"
+                        IsChecked="{Binding Settings.HideGameCachesHeadingWithRoots}"
+                        Margin="0,0,0,10"/>
+                    <CheckBox
                         Content="Flip direction of horizontal list scrolling (hold Shift + mouse scroll)"
                         Foreground="{DynamicResource TextBrush}"
                         IsChecked="{Binding Settings.HorizontalScrollFlipped}"

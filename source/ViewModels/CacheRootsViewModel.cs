@@ -5,10 +5,8 @@ using Playnite.SDK;
 using System;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
@@ -136,17 +134,10 @@ namespace NowPlaying.ViewModels
                 {
                     popup.Style = style;
                 }
-                var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
 
                 // setup up popup and center within the current application window
-                popup.Width = view.MinWidth;
-                popup.MinWidth = view.MinWidth;
-                popup.MaxWidth = view.MaxWidth;
-                popup.Height = view.MinHeight + captionHeight;
-                popup.MinHeight = view.MinHeight + captionHeight;
-                popup.MaxHeight = view.MaxHeight + captionHeight;
-                popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
-                popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
+                popup.SizeToContent = SizeToContent.WidthAndHeight;
+                popup.SizeChanged += (s, e) => plugin.panelViewModel.CenterSizeManagedPopupWindow(appWindow, popup);
                 plugin.panelViewModel.ModalDimming = true;
                 popup.ShowDialog();
             });
@@ -171,17 +162,10 @@ namespace NowPlaying.ViewModels
                     {
                         popup.Style = style;
                     }
-                    var captionHeight = 0; // window.Heights may be adjusted if window can't be made 'captionless'
 
                     // setup up popup and center within the current application window
-                    popup.Width = view.MinWidth;
-                    popup.MinWidth = view.MinWidth;
-                    popup.MaxWidth = view.MaxWidth;
-                    popup.Height = view.MinHeight + captionHeight;
-                    popup.MinHeight = view.MinHeight + captionHeight;
-                    popup.MaxHeight = view.MaxHeight + captionHeight;
-                    popup.Left = WpfUtils.GetWindowLeft(appWindow) + (WpfUtils.GetWindowWidth(appWindow) - popup.Width) / 2;
-                    popup.Top = WpfUtils.GetWindowTop(appWindow) + (WpfUtils.GetWindowHeight(appWindow) - popup.Height) / 2;
+                    popup.SizeToContent = SizeToContent.WidthAndHeight;
+                    popup.SizeChanged += (s, e) => plugin.panelViewModel.CenterSizeManagedPopupWindow(appWindow, popup);
                     plugin.panelViewModel.ModalDimming = true;
                     popup.ShowDialog();
                 },
@@ -242,10 +226,6 @@ namespace NowPlaying.ViewModels
         {
             plugin.cacheRootsView.UnselectCacheRoots();
             GridViewUtils.ColumnResize(plugin.cacheRootsView.CacheRoots);
-
-            //GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
-        
-        
         }
 
         public void RefreshCacheRoots()
@@ -257,11 +237,8 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(CacheRoots));
             OnPropertyChanged(nameof(EmptyRootsVisible));
             OnPropertyChanged(nameof(NonEmptyRootsVisible));
-            plugin.cacheRootsView.UnselectCacheRoots();
-            plugin.panelViewModel.UpdateCacheRoots();
-
-
-            //GridViewUtils.RefreshSort(plugin.cacheRootsView.CacheRoots);
+            plugin.cacheRootsView?.UnselectCacheRoots();
+            plugin.panelViewModel?.UpdateCacheRoots();
         }
 
         public class CustomSpaceAvailableSorter : IReversableComparer

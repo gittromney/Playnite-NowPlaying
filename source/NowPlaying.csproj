@@ -119,6 +119,9 @@
     <Compile Include="Views\CacheRootsView.xaml.cs">
       <DependentUpon>CacheRootsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\NoEligibleGamesView.xaml.cs">
+      <DependentUpon>NoEligibleGamesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\NowPlayingPanelView.xaml.cs">
       <DependentUpon>NowPlayingPanelView.xaml</DependentUpon>
     </Compile>
@@ -174,6 +177,9 @@
     </Page>
     <Page Include="Views\CacheRootsView.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NoEligibleGamesView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NowPlayingPanelView.xaml">

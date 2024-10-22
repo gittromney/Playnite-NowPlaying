@@ -269,6 +269,20 @@ namespace NowPlaying.ViewModels
 
         #region theme tweakable resources
 
+        private double headingTextFontSize;
+        public double HeadingTextFontSize
+        {
+            get => headingTextFontSize;
+            set
+            {
+                if (headingTextFontSize != value)
+                {
+                    headingTextFontSize = value;
+                    OnPropertyChanged(nameof(HeadingTextFontSize));
+                }
+            }
+        }
+
         private Brush popupBackgroundBrush;
         public Brush PopupBackgroundBrush
         {
@@ -988,6 +1002,7 @@ namespace NowPlaying.ViewModels
             InstallProgressBarRadius = 2.5;
             ProgressBarTextBrush = TextBrush;
 
+            HeadingTextFontSize = (double)GetResource("FontSizeLarge") * 1.2;
             RootsIconRectSize = 22;
             SettingsIconFontSize = 17;
 

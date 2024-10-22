@@ -29,9 +29,10 @@ namespace NowPlaying.Controls
                     {
                         Source = this,
                         Path = new PropertyPath(nameof(Text)),
-                        Mode = BindingMode.OneWayToSource,
+                        Mode = BindingMode.TwoWay,
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-                        NotifyOnTargetUpdated = true
+                        NotifyOnTargetUpdated = true,
+                        NotifyOnSourceUpdated = true
                     }
                 );
             }

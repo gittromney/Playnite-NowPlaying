@@ -154,7 +154,7 @@ namespace NowPlaying
             }
             gameCache.PartialFileResume = newPfrValue;
 
-            // . initiallize rolling average for PFR mode change
+            // . initialize rolling average for PFR mode change
             var initAvgBps = cacheManager.GetInstallAverageBps(gameCache.InstallDir, avgBytesPerFile, speedLimitIpg);
             progressViewModel.averageSpeedRollAvgBps.Init(initAvgBps);
         }

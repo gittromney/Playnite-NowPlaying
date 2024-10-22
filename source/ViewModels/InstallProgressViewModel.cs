@@ -243,7 +243,7 @@ namespace NowPlaying.ViewModels
                     bytesScale = SmartUnits.GetBytesAutoScale(jobStats.BytesToCopy);
                     bytesToCopy = SmartUnits.Bytes(jobStats.BytesToCopy, userScale: bytesScale);
 
-                    // . Initiallize 'current speed' copied bytes trackers
+                    // . initialize 'current speed' copied bytes trackers
                     totalBytesCopied = jobStats.GetTotalBytesCopied();
                     prevTotalBytesCopied = totalBytesCopied;
 

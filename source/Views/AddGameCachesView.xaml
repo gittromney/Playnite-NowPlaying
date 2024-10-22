@@ -4,7 +4,7 @@
              xmlns:utils="clr-namespace:NowPlaying.Utils"
              xmlns:ctrls="clr-namespace:NowPlaying.Controls"
              Background="{Binding Theme.PopupBackgroundBrush}"
-             MinWidth="1080" MinHeight="500">
+             MinWidth="1080" MinHeight="600">
     
     <UserControl.Resources>
         <ResourceDictionary>
@@ -17,9 +17,7 @@
 
     <Grid>
         <FadeImage ImageDarkeningBrush="{Binding Theme.PopupDarkeningBrush}"/>
-        <Grid 
-            Visibility="{Binding EligibleGamesVisibility}"
-            Margin="20,20,15,25">
+        <Grid Margin="20,20,20,20">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
@@ -48,13 +46,15 @@
                         Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
                         Command="{Binding SelectAllCommand}"
                         Height="{Binding Theme.TopPanelItemHeight}"
-                        Width="90" FontSize="14" FontWeight="SemiBold"
+                        MinWidth="90" FontSize="{DynamicResource FontSize}" FontWeight="SemiBold"
+                        VerticalContentAlignment="Center" Padding="4,-2,4,0"
                         Style="{Binding Theme.TopPanelItemStyle}"/>
-                    <ctrls:PluginTopPanelItem 
+                    <ctrls:PluginTopPanelItem
                         Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
                         Command="{Binding SelectNoneCommand}"
                         Height="{Binding Theme.TopPanelItemHeight}"
-                        Width="90" FontSize="14" FontWeight="SemiBold"
+                        MinWidth="90" FontSize="{DynamicResource FontSize}" FontWeight="SemiBold"
+                        VerticalContentAlignment="Center" Padding="4,-2,4,0"
                         Style="{Binding Theme.TopPanelItemStyle}"/>
                 </StackPanel>
             </Grid>
@@ -184,7 +184,7 @@
 
             <StackPanel 
                 Grid.Row="3" 
-                Margin="0,0,15,0"
+                Margin="0,5,0,0"
                 Orientation="Horizontal"
                 HorizontalAlignment="Right">
                 <Label 
@@ -196,68 +196,16 @@
                     ItemsSource="{Binding CacheRoots}"
                     SelectedItem="{Binding SelectedCacheRoot}"
                     VerticalAlignment="Center"
-                    Width="300" Height="35" Margin="0,0,15,0"/>
+                    Width="300" Height="35" Margin="0,0,5,0"/>
                 <Button 
                     Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
                     Command="{Binding EnableSelectedGamesCommand}"
-                    Style="{DynamicResource BottomButton}" Height="35"
-                    Margin="0,0,10,0"/>
-                <Button 
+                    Style="{DynamicResource BottomButton}" MinHeight="35"/>
+                <Button
                     Content="{DynamicResource LOCNowPlayingTermsClose}" 
                     Command="{Binding CloseCommand}"
-                    Style="{DynamicResource BottomButton}" Height="35"/>
+                    Style="{DynamicResource BottomButton}" MinHeight="35"/>
             </StackPanel>
         </Grid>
-
-        <!--No eligible games warning and info-->
-        <StackPanel
-            Margin="20,20,20,20"
-            Visibility="{Binding NoEligibleGamesVisibility}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-            <TextBlock 
-                Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
-                Foreground="{DynamicResource WarningBrush}" 
-                FontSize="{DynamicResource FontSizeLarge}"
-                TextWrapping="Wrap"
-                Margin="0,0,0,25"/>
-            <StackPanel
-                Margin="0,0,0,10"
-                HorizontalAlignment="Center">
-                <StackPanel.Resources>
-                    <Style TargetType="Label" BasedOn="{StaticResource BulletedLabel}">
-                        <Setter Property="Margin" Value="0,0,0,3"/>
-                    </Style>
-                </StackPanel.Resources>
-                <TextBlock Text="{DynamicResource LOCNowPlayingRequirementsHeading}"/>
-                <StackPanel Margin="10,10,0,20">
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement1}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement2}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement3}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement4}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingRequirement5}"/>
-                </StackPanel>
-                <TextBlock Text="{DynamicResource LOCNowPlayingEmuPlatformHeading}"/>
-                <StackPanel Margin="10,10,0,0">
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform1}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform2}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform3}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform4}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform5}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform6}"/>
-                    <Label Content="{DynamicResource LOCNowPlayingEmuPlatform7}"/>
-                </StackPanel>
-            </StackPanel>
-            <StackPanel 
-                Orientation="Horizontal"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top">
-                <Button 
-                    Content="{DynamicResource LOCNowPlayingTermsClose}" 
-                    Command="{Binding CloseCommand}"
-                    Style="{DynamicResource BottomButton}" Height="35"
-                    Margin="0,0,0,0"/>
-            </StackPanel>
-        </StackPanel>
     </Grid>
 </UserControl>

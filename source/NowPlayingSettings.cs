@@ -11,6 +11,12 @@ namespace NowPlaying
         public bool ConfirmUninstall { get; set; }
         public bool NotifyOnInstallWhilePlayingActivity { get; set; }
 
+        public string SearchText { get; set; }
+        public string GameCachesSortedColumn { get; set; }
+        public string GameCachesSortDirection { get; set; }
+
+        public bool ShowCacheRoots { get; set; }
+
         public bool ShowRootDevice { get; set; }
         public bool ShowRootDirectory { get; set; }
         public bool ShowRootSpaceAvail { get; set; }
@@ -27,6 +33,21 @@ namespace NowPlaying
         public bool ShowGameCacheSize { get; set; }
         public bool ShowGameCacheRoot { get; set; }
         public bool ShowGameCacheSpaceAvail { get; set; }
+
+
+        private bool hideGameCachesHeadingWithRoots;
+        public bool HideGameCachesHeadingWithRoots
+        {
+            get => hideGameCachesHeadingWithRoots;
+            set
+            {
+                if (hideGameCachesHeadingWithRoots != value)
+                {
+                    hideGameCachesHeadingWithRoots = value;
+                    OnPropertyChanged(nameof(HideGameCachesHeadingWithRoots));
+                }
+            }
+        }
 
         public bool ShowUninstallAndDisableMenu { get; set; }
         public bool ShowStatusAndMenuTips { get; set; }
@@ -178,7 +199,6 @@ namespace NowPlaying
             }
         }
 
-
         public string[] ProblematicInstallDirKeywords = { "bin", "binaries", "bin32", "bin64", "x64", "x86", "win64", "win32", "sources", "nodvd", "retail" };
         public string[] ProblematicPS3InstDirKeywords = { "ps3_game", "usrdir" };
 
@@ -186,6 +206,12 @@ namespace NowPlaying
         {
             this.ConfirmUninstall = true;
             this.NotifyOnInstallWhilePlayingActivity = false;
+
+            this.SearchText = string.Empty;
+            this.GameCachesSortedColumn = string.Empty;
+            this.GameCachesSortDirection = string.Empty;
+
+            this.ShowCacheRoots = true;
 
             this.ShowRootDevice = true;
             this.ShowRootDirectory = true;
@@ -217,6 +243,7 @@ namespace NowPlaying
             this.DefaultAvgMegaBpsNormal = 50.0;
             this.DefaultAvgMegaBpsSpeedLimited = 5.0;
 
+            this.HideGameCachesHeadingWithRoots = false;
             this.ShowUninstallAndDisableMenu = false;
             this.ShowStatusAndMenuTips = false;
             this.StatusIconBrushDarker = false;

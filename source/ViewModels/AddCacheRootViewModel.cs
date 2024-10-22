@@ -3,10 +3,8 @@ using Playnite.SDK;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace NowPlaying.ViewModels
 {
@@ -193,7 +191,7 @@ namespace NowPlaying.ViewModels
 
                     if (rootDevices.ContainsKey(rootDevice))
                     {
-                        RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevIsRootFmt", rootDevices[rootDevice]);
+                        RootStatus = plugin.FormatResourceString("LOCNowPlayingAddCacheRootStatusDevIsRootFmt", '('+ rootDevice +')');
                     }
                     else if (!Directory.Exists(rootDevice))
                     {

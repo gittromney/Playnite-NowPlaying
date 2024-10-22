@@ -1,0 +1,69 @@
+<UserControl x:Class="NowPlaying.Views.NoEligibleGamesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utils="clr-namespace:NowPlaying.Utils"
+             xmlns:ctrls="clr-namespace:NowPlaying.Controls"
+             Background="{Binding Theme.PopupBackgroundBrush}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../NowPlayingStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <FadeImage ImageDarkeningBrush="{Binding Theme.PopupDarkeningBrush}"/>
+        <Grid>
+            <!--No eligible games warning and info-->
+            <StackPanel
+                Margin="35,35,35,35"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <TextBlock 
+                    Text="{DynamicResource LOCNowPlayingNoEligibleGamesWarning}"
+                    Foreground="{DynamicResource WarningBrush}" 
+                    FontSize="{DynamicResource FontSizeLarge}"
+                    TextWrapping="Wrap"
+                    Margin="0,0,0,25"/>
+                <StackPanel
+                    Margin="0,0,0,10"
+                    HorizontalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label" BasedOn="{StaticResource BulletedLabel}">
+                            <Setter Property="Margin" Value="0,0,0,3"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Text="{DynamicResource LOCNowPlayingRequirementsHeading}"/>
+                    <StackPanel Margin="10,10,0,20">
+                        <Label Content="{DynamicResource LOCNowPlayingRequirement1}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingRequirement2}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingRequirement3}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingRequirement4}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingRequirement5}"/>
+                    </StackPanel>
+                    <TextBlock Text="{DynamicResource LOCNowPlayingEmuPlatformHeading}"/>
+                    <StackPanel Margin="10,10,0,0">
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform1}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform2}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform3}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform4}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform5}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform6}"/>
+                        <Label Content="{DynamicResource LOCNowPlayingEmuPlatform7}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top">
+                    <Button 
+                        Content="{DynamicResource LOCNowPlayingTermsClose}" 
+                        Command="{Binding CloseCommand}"
+                        Style="{DynamicResource BottomButton}" MinHeight="35" MinWidth="75" Margin="0"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

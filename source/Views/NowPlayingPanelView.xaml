@@ -70,7 +70,7 @@
                         Grid.ColumnSpan="{Binding Theme.TopPanelSearchBoxColumnSpan}"
                         Height="{Binding Theme.TopPanelSearchBoxHeight}" 
                         Width="{Binding Theme.TopPanelSearchBoxWidth}"
-                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource, Delay=100}"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, Delay=100}"
                         ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
                         Style="{Binding Theme.TopPanelSearchBoxStyle}"
                         Margin="{Binding Theme.TopPanelSearchBoxMargin}"
@@ -158,11 +158,14 @@
                         <Button 
                             Content="{DynamicResource LOCNowPlayingTermsSave}" 
                             Command="{Binding SaveSettingsCommand}" 
-                            Style="{DynamicResource BottomButton}" Width="70" Height="35" 
+                            Style="{DynamicResource BottomButton}"
+                            Width="{Binding Path=ActualWidth, ElementName=RefButton}"
+                            Height="{Binding Path=ActualHeight, ElementName=RefButton}"
                             Margin="0,0,10,0"/>
-                        <Button 
+                        <Button
+                            Name="RefButton"
                             Content="{DynamicResource LOCNowPlayingTermsCancel}" 
-                            Style="{DynamicResource BottomButton}" Width="70" Height="35" 
+                            Style="{DynamicResource BottomButton}" MinWidth="70" MinHeight="35" 
                             Command="{Binding CancelSettingsCommand}"/>
                     </StackPanel>
                 </StackPanel>
@@ -184,13 +187,11 @@
             <UserControl DockPanel.Dock="Top" Margin="10,0,0,0" Content="{Binding CacheRootsView}"/>
 
             <!--game caches heading-->
-            <StackPanel 
+            <TextBlock 
                 DockPanel.Dock="Top" Margin="10,0,0,0"
-                Visibility="{Binding GameCachesVisibility}">
-                <TextBlock 
-                    Text="{DynamicResource LOCNowPlayingGameCachesHeading}"
-                    Style="{DynamicResource HeadingText}"/>
-            </StackPanel>
+                Visibility="{Binding GameCachesHeadingVisibility}"
+                Text="{DynamicResource LOCNowPlayingGameCachesHeading}"
+                Style="{DynamicResource HeadingText}"/>
            
             <!--game caches list view + controls, using up available dock space-->
             <Grid
