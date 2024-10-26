@@ -20,19 +20,19 @@
             Foreground="{Binding ProgressFgBrush}"
             Background="{Binding ProgressBgBrush}"
             BorderBrush="Transparent"
-            Width="{Binding Theme.TopPanelProgressBarWidth}"
+            MinWidth="{Binding Theme.TopPanelProgressBarWidth}"
             Height="{Binding Theme.TopPanelProgressBarHeight}"
             Margin="{Binding Theme.TopPanelProgressBarMargin}"
             Style="{Binding Theme.TopPanelProgressBarStyle}"/>
 
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,0,10,0">
             <!--drop shadow text-->
             <TextBlock 
                 Text="{Binding Status}"
                 Foreground="Black"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Left"
-                FontSize="13" FontWeight="Bold"
+                FontSize="{Binding Theme.TopPanelProgressBarFontSize}" FontWeight="Bold"
                 Padding="2,2,0,0"/>
 
             <!--foreground text-->
@@ -41,7 +41,7 @@
                 Foreground="{Binding Theme.ProgressBarTextBrush}"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Left"
-                FontSize="13" FontWeight="Bold"
+                FontSize="{Binding Theme.TopPanelProgressBarFontSize}" FontWeight="Bold"
                 Padding="0,0,0,0"/>
         </Grid>
     </Grid>

@@ -81,8 +81,7 @@
 
                     <GridViewColumn 
                         utils:GridViewUtils.PropertyName="Device"
-                        utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="70"
+                        utils:GridViewUtils.MinWidth="Auto"
                         utils:GridViewUtils.HideColumn="{Binding ShowDeviceColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsDeviceToolTip}">
@@ -133,8 +132,7 @@
                     <GridViewColumn 
                         utils:GridViewUtils.PropertyName="SpaceAvailableForCaches" 
                         utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
-                        utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="125"
+                        utils:GridViewUtils.MinWidth="Auto"
                         utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsSpaceToolTip}">
@@ -158,8 +156,7 @@
                     
                     <GridViewColumn
                         utils:GridViewUtils.PropertyName="GamesEnabled"
-                        utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="70"
+                        utils:GridViewUtils.MinWidth="Auto"
                         utils:GridViewUtils.HideColumn="{Binding ShowGamesColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsGamesToolTip}">
@@ -184,8 +181,7 @@
                     <GridViewColumn
                         utils:GridViewUtils.PropertyName="CachesInstalledAndSize" 
                         utils:GridViewUtils.CustomSort="{Binding CustomCachesInstalledSort}"
-                        utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="120"
+                        utils:GridViewUtils.MinWidth="Auto"
                         utils:GridViewUtils.HideColumn="{Binding ShowInstalledColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsInstalledToolTip}">
@@ -214,8 +210,7 @@
                     <GridViewColumn 
                         utils:GridViewUtils.PropertyName="MaxFillAndReserved"
                         utils:GridViewUtils.CustomSort="{Binding CustomMaxFillReservedSort}"
-                        utils:GridViewUtils.AutoWidth="True"
-                        utils:GridViewUtils.MinWidth="250"
+                        utils:GridViewUtils.MinWidth="Auto"
                         utils:GridViewUtils.HideColumn="{Binding ShowMaxFillColumn, Converter={StaticResource BoolInvert}}">
                         <GridViewColumnHeader 
                             ToolTip="{DynamicResource LOCNowPlayingCacheRootsMaxFillToolTip}">

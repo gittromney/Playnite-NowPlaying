@@ -27,23 +27,25 @@
                 HorizontalAlignment="Stretch"
                 Foreground="{Binding ProgressFgBrush}"
                 Background="{Binding ProgressBgBrush}"
-                Height="{Binding Theme.InstallProgressBarHeight}"
+                MinHeight="{Binding Theme.InstallProgressBarHeight}"
                 Style="{Binding Theme.InstallProgressBarStyle}"/>
 
-            <!--drop shadow text-->
-            <TextBlock 
-                Text="{Binding ProgressValue}"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                Foreground="Black"
-                FontSize="16" Padding="2,2,0,0"/>
+            <Grid Margin="1">
+                <!--drop shadow text-->
+                <TextBlock 
+                    Text="{Binding ProgressValue}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Foreground="Black"
+                    FontSize="{Binding Theme.InstallProgressBarFontSize}" Padding="2,2,0,0"/>
 
-            <!--foreground text-->
-            <TextBlock 
-                Text="{Binding ProgressValue}"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                FontSize="16"/>
+                <!--foreground text-->
+                <TextBlock 
+                    Text="{Binding ProgressValue}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    FontSize="{Binding Theme.InstallProgressBarFontSize}"/>
+            </Grid>
         </Grid>
 
         <TextBlock Text="{Binding CopiedFilesAndBytesProgress}" Margin="3,0,0,3"/>

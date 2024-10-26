@@ -27,6 +27,7 @@ using System.Windows.Controls;
 using TopPanelItem = Playnite.SDK.Plugins.TopPanelItem;
 using SidebarItem = Playnite.SDK.Plugins.SidebarItem;
 using System.ComponentModel;
+using System.Security.Permissions;
 
 namespace NowPlaying
 {
@@ -64,6 +65,7 @@ namespace NowPlaying
 
         public readonly GameCacheManagerViewModel cacheManager;
 
+        public bool IsShutdownInProgress = false;
         public bool IsGamePlaying = false;
         public WhilePlaying WhilePlayingMode { get; private set; }
         public int SpeedLimitIpg { get; private set; } = 0;
@@ -147,15 +149,20 @@ namespace NowPlaying
                 statusIconBrushDarker = false;
             }
 
-            // . initialize search text from saved state (see Settings)
+            // . initialize search text from saved state (see Settings) and status column's MinWidth
             //    note: must be set after panelView is loaded; otherwise, it's overwritten w/ ""
             if (panelView.IsLoaded)
             {
                 panelViewModel.SearchText = Settings.SearchText;
+                panelViewModel.InitStatusColumnMinWidth();
             }
             else
             {
-                panelView.Loaded += (s, e) => panelViewModel.SearchText = Settings.SearchText;
+                panelView.Loaded += (s, e) =>
+                {
+                    panelViewModel.SearchText = Settings.SearchText;
+                    panelViewModel.InitStatusColumnMinWidth();
+                };
             }
 
             // . initialize column sorting state (see Settings)
@@ -354,6 +361,8 @@ namespace NowPlaying
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
+            IsShutdownInProgress = true;
+
             // Save Settings (including current SearchText and ListView sorting state)
             Settings.SearchText = panelViewModel.SearchText;
             if (panelView != null)
@@ -407,11 +416,8 @@ namespace NowPlaying
             if (args.Game.PluginId == Id)
             {
                 Game nowPlayingGame = args.Game;
-                string cacheId = nowPlayingGame.SourceId.ToString();
-                if (cacheManager.GameCacheExists(cacheId))
-                {
-                    cacheManager.SetGameCacheAndDirStateAsPlayed(cacheId);
-                }
+                string cacheId = nowPlayingGame.Id.ToString();
+                cacheManager.SetGameCacheAndDirStateAsPlayed(cacheId);
             }
 
             IsGamePlaying = true;

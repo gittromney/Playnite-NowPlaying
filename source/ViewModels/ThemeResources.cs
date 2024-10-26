@@ -269,7 +269,7 @@ namespace NowPlaying.ViewModels
 
         #region theme tweakable resources
 
-        private double headingTextFontSize;
+        private double headingTextFontSize = 18;
         public double HeadingTextFontSize
         {
             get => headingTextFontSize;
@@ -761,6 +761,20 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private double topPanelProgressBarFontSize;
+        public double TopPanelProgressBarFontSize
+        {
+            get => topPanelProgressBarFontSize;
+            set
+            {
+                if (topPanelProgressBarFontSize != value)
+                {
+                    topPanelProgressBarFontSize = value;
+                    OnPropertyChanged(nameof(TopPanelProgressBarFontSize));
+                }
+            }
+        }
+
         private Thickness topPanelProgressBarMargin;
         public Thickness TopPanelProgressBarMargin
         {
@@ -813,6 +827,20 @@ namespace NowPlaying.ViewModels
                 {
                     installProgressBarRadius = value;
                     OnPropertyChanged(nameof(InstallProgressBarRadius));
+                }
+            }
+        }
+
+        private double installProgressBarFontSize;
+        public double InstallProgressBarFontSize
+        {
+            get => installProgressBarFontSize;
+            set
+            {
+                if (installProgressBarFontSize != value)
+                {
+                    installProgressBarFontSize = value;
+                    OnPropertyChanged(nameof(InstallProgressBarFontSize));
                 }
             }
         }
@@ -997,9 +1025,12 @@ namespace NowPlaying.ViewModels
             TopPanelProgressBarMargin = new Thickness(5, 0, 5, 0);
             TopPanelProgressBarStyle = GetResource("ProgressBarStyle") as Style;
             TopPanelProgressBarRadius = 1.5;
+            TopPanelProgressBarFontSize = (double)GetResource("FontSize") * (13.0 / 14.0);
+           
             InstallProgressBarHeight = 22;
             InstallProgressBarStyle = GetResource("ProgressBarStyle") as Style;
             InstallProgressBarRadius = 2.5;
+            InstallProgressBarFontSize = (double)GetResource("FontSize") * (16.0 / 14.0);
             ProgressBarTextBrush = TextBrush;
 
             HeadingTextFontSize = (double)GetResource("FontSizeLarge") * 1.2;
@@ -1273,8 +1304,8 @@ namespace NowPlaying.ViewModels
             {
                 PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
                 PopupDarkeningBrush = BrushFromString("#a02f2e30"); // trial-and-error value
-                TopPanelHeight = 70;
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 10, Right: 5);
+                TopPanelHeight = 74;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 14, Right: 5);
                 TopPanelItemHeight = 45;
                 TopPanelSearchBoxWidth = 200;
                 TopPanelProgressBarHeight = 30;

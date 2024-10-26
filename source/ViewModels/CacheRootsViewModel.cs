@@ -200,7 +200,7 @@ namespace NowPlaying.ViewModels
 
         private void CacheRoots_SortableColumnsChanged(object sender, SortableColumnsChangedArgs e)
         {
-            if (!string.IsNullOrEmpty(SortedColumnName))
+            if (!plugin.IsShutdownInProgress && !string.IsNullOrEmpty(SortedColumnName))
             {
                 if (e.changedColumns.Contains(SortedColumnName))
                 {

@@ -19,7 +19,6 @@ using Control = System.Windows.Controls.Control;
 using System;
 using System.Windows.Markup;
 using System.Globalization;
-using System.Windows.Forms;
 
 namespace NowPlaying.Utils
 {
@@ -946,7 +945,7 @@ namespace NowPlaying.Utils
 
         public static string GetColumnHeaderName(GridViewColumnHeader columnHeader)
         {
-            if (columnHeader != null)
+            if (columnHeader != null && columnHeader.Column != null)
             {
                 return GetPropertyName(columnHeader.Column) ?? GetDisplayMemberBindingPath(columnHeader);
             }
@@ -1055,7 +1054,9 @@ namespace NowPlaying.Utils
 
             private Geometry GetDefaultGlyph()
             {
-                double x1 = columnHeader.ActualWidth - 15;
+                var minWidth = GetMinWidth(columnHeader?.Column);
+                var width = double.IsNaN(minWidth) ? columnHeader.ActualWidth : Math.Max(columnHeader.ActualWidth, minWidth);
+                double x1 = width - 15;
                 double x2 = x1 + 10;
                 double x3 = x1 + 5;
                 double y1 = columnHeader.ActualHeight / 2 - 3;
@@ -1092,7 +1093,9 @@ namespace NowPlaying.Utils
 
                 if (sortGlyph != null)
                 {
-                    double x = columnHeader.ActualWidth - 13;
+                    var minWidth = GetMinWidth(columnHeader?.Column);
+                    var width = double.IsNaN(minWidth) ? columnHeader.ActualWidth : Math.Max(columnHeader.ActualWidth, minWidth);
+                    double x = width - 13;
                     double y = columnHeader.ActualHeight / 2 - 5;
                     Rect rect = new Rect(x, y, 10, 10);
                     drawingContext.DrawImage(sortGlyph, rect);
@@ -1112,7 +1115,9 @@ namespace NowPlaying.Utils
         // Attatched properties:
         //  AutoWidth   - Fit column width to contents; applied during explicit ColumnResize() method call.
         //  MinWidth    - Enforce minimum column width; applied during any resize activity (including ColumnResize()).
-        //  FixedWidth  - Maintain a constant column width; applied during any resize activity
+        //                A value of "Auto" will automatically set MinWidth=ActualWidth after an autowidth resize.
+        //  FixedWidth  - Maintain a constant column width; applied during any resize activity.
+        //                A value of "Auto" will automatically set FixedWidth=ActualWidth after an autowidth resize.
         //  HideColumn  - If "True", hides a column with AutoWidth/MinWidth or FixedWidth by forcing its width to 0.
         //
         // Notes:
@@ -1199,7 +1204,7 @@ namespace NowPlaying.Utils
                         else if (!newVal && oldVal)
                         {
                             // . apply FixedWidth, if applicable
-                            var fixedWidth = (double)column.GetValue(FixedWidthProperty);
+                            var fixedWidth = GetFixedWidth(column);
                             if (!double.IsNaN(fixedWidth) && column.ActualWidth != fixedWidth)
                             {
                                 column.Width = fixedWidth;
@@ -1207,14 +1212,14 @@ namespace NowPlaying.Utils
                             else
                             {
                                 // . apply MinWidth, if applicable
-                                var minWidth = (double)column.GetValue(MinWidthProperty);
+                                var minWidth = GetMinWidth(column);
                                 if (!double.IsNaN(minWidth) && column.ActualWidth < minWidth)
                                 {
                                     column.Width = minWidth;
                                 }
 
                                 // . apply AutoWidth, if applicable
-                                if ((bool)column.GetValue(AutoWidthProperty))
+                                if (GetAutoWidth(column))
                                 {
                                     if (double.IsNaN(column.Width))
                                     {
@@ -1262,12 +1267,12 @@ namespace NowPlaying.Utils
         {
             if (column != null)
             {
-                var hideColumn = (bool)column.GetValue(HideColumnProperty);
-                if (hideColumn)
+                if (GetHideColumn(column))
                 {
                     column.Width = 0;
                 }
-                else if ((bool)column.GetValue(AutoWidthProperty))
+                // . Note: MinWidth/FixedWidth="Auto" - sets MinWidth/FixedWidth=ActualWidth after an auto size
+                else if (GetAutoWidth(column) || GetMinWidthString(column) == "Auto" || GetFixedWidthString(column) == "Auto")
                 {
                     if (double.IsNaN(column.Width))
                     {
@@ -1293,31 +1298,62 @@ namespace NowPlaying.Utils
             "WidthToRestore", typeof(double), typeof(GridViewUtils), new PropertyMetadata(double.NaN)
         );
 
-        public static double GetMinWidth(DependencyObject obj)
+        public static string GetMinWidthString(DependencyObject obj)
         {
-            return (double)obj.GetValue(MinWidthProperty);
+            return (string)obj.GetValue(MinWidthProperty);
         }
 
-        public static void SetMinWidth(DependencyObject obj, double value)
+        public static double GetMinWidth(DependencyObject obj)
+        {
+            var value = GetMinWidthString(obj);
+            return value == "Auto" ? double.NaN : double.Parse(value);
+        }
+
+        public static void SetMinWidth(DependencyObject obj, string value)
         {
             obj.SetValue(MinWidthProperty, value);
+        }
+
+        public static void SetMinWidthOfNamedColumn(ListView listView, string columnName, string minWidth)
+        {
+            var column = FindColumn(listView, columnName);
+            if (column != null)
+            {
+                SetMinWidth(column, minWidth);
+            }
         }
 
         public static readonly DependencyProperty MinWidthProperty = DependencyProperty.RegisterAttached
         (
             "MinWidth",
-            typeof(double),
+            typeof(string),
             typeof(GridViewUtils),
             new UIPropertyMetadata
             (
-                double.NaN,
+                "NaN",
                 (o, e) =>
                 {
                     var column = o as GridViewColumn;
                     if (column != null)
                     {
-                        double newVal = (double)e.NewValue;
-                        double oldVal = (double)e.OldValue;
+                        string newStr = (string)e.NewValue;
+                        string oldStr = (string)e.OldValue;
+                        double newVal = double.Parse(newStr == "Auto" ? "NaN" : newStr);
+                        double oldVal = double.Parse(oldStr == "Auto" ? "NaN" : oldStr);
+
+                        if (newStr == "Auto" && oldStr != "Auto")
+                        {
+                            ((INotifyPropertyChanged)column).PropertyChanged += SetAutomaticMinWidth;
+                            AutoWidthResizeColumn(column);
+                        }
+                        else if (newStr != "Auto" && oldStr == "Auto")
+                        {
+                            ((INotifyPropertyChanged)column).PropertyChanged -= SetAutomaticMinWidth;
+                        }
+                        else if (newStr == "Auto" && oldStr == "Auto")
+                        {
+                            throw new NotImplementedException();
+                        }
 
                         if (!double.IsNaN(newVal) && double.IsNaN(oldVal))
                         {
@@ -1329,36 +1365,54 @@ namespace NowPlaying.Utils
                         }
                         else if (!double.IsNaN(newVal))
                         {
+                            var widthToRestore = GetWidthToRestore(column);
                             if (column.ActualWidth < newVal)
                             {
-                                if (column.ActualWidth >= oldVal)
+                                if (double.IsNaN(widthToRestore) && column.ActualWidth >= oldVal && oldVal > 0)
                                 {
-                                    // condition: old MinWidth <= ActualWidth < new MinWidth 
+                                    // condition: 0 < old MinWidth <= ActualWidth < new MinWidth 
                                     // . save user's actual width as "WidthToRestore", which can be restored
                                     //    later, should MinWidth be changed to a value < WidthToRestore.
                                     SetWidthToRestore(column, column.ActualWidth);
                                 }
                                 column.Width = newVal;
                             }
-                            else 
+                            else if (!double.IsNaN(widthToRestore) && newVal < widthToRestore)
                             {
-                                var widthToRestore = GetWidthToRestore(column);
-                                if (!double.IsNaN(widthToRestore) && newVal < oldVal)
+                                if (newVal <= widthToRestore && widthToRestore < column.ActualWidth && column.ActualWidth == oldVal)
                                 {
-                                    if (newVal <= widthToRestore && widthToRestore < column.ActualWidth && column.ActualWidth == oldVal)
-                                    {
-                                        // condition: new MinWidth <= WidthToRestore < ActualWidth == old MinWidth
-                                        column.Width = widthToRestore;
-                                    }
-                                    // condition to (possibly use and) delete saved width: new MinWidth < old MinWidth
-                                    SetWidthToRestore(column, double.NaN);
+                                    // condition: new MinWidth <= WidthToRestore < ActualWidth/old MinWidth
+                                    column.Width = widthToRestore;
                                 }
+                                // condition to (possibly use and) delete saved width: new MinWidth < old MinWidth
+                                SetWidthToRestore(column, double.NaN);
+                            }
+                            else if (newVal < column.ActualWidth && column.ActualWidth == oldVal)
+                            {
+                                // condition: new MinWidth < ActualWidth/old MinWidth
+                                column.Width = newVal;
                             }
                         }
                     }
                 }
             )
         );
+
+        private static void SetAutomaticMinWidth(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ActualWidth")
+            {
+                var column = sender as GridViewColumn;
+                if (column != null && !GetHideColumn(column))
+                {
+                    var columnName = GetColumnHeaderName(column.Header as GridViewColumnHeader);
+
+                    // . set new auto-sized MinWidth value
+                    var newMinWidth = column.ActualWidth;
+                    SetMinWidth(column, newMinWidth.ToString());
+                }
+            }
+        }
 
         private static void ApplyColumnMinWidth(object sender, PropertyChangedEventArgs e)
         {
@@ -1367,13 +1421,13 @@ namespace NowPlaying.Utils
                 var column = sender as GridViewColumn;
                 if (column != null)
                 {
-                    if ((bool)column.GetValue(HideColumnProperty))
+                    if (GetHideColumn(column))
                     {
                         column.Width = 0;
                     }
                     else
                     {
-                        var minWidth = (double)column.GetValue(MinWidthProperty);
+                        var minWidth = GetMinWidth(column);
                         if (!double.IsNaN(minWidth) && column.ActualWidth < minWidth)
                         {
                             column.Width = minWidth;
@@ -1383,12 +1437,18 @@ namespace NowPlaying.Utils
             }
         }
 
-        public static double GetFixedWidth(DependencyObject obj)
+        public static string GetFixedWidthString(DependencyObject obj)
         {
-            return (double)obj.GetValue(FixedWidthProperty);
+            return (string)obj.GetValue(FixedWidthProperty);
         }
 
-        public static void SetFixedWidth(DependencyObject obj, double value)
+        public static double GetFixedWidth(DependencyObject obj)
+        {
+            var value = GetFixedWidthString(obj);
+            return value == "Auto" ? double.NaN : double.Parse(value);
+        }
+
+        public static void SetFixedWidth(DependencyObject obj, string value)
         {
             obj.SetValue(FixedWidthProperty, value);
         }
@@ -1396,18 +1456,30 @@ namespace NowPlaying.Utils
         public static readonly DependencyProperty FixedWidthProperty = DependencyProperty.RegisterAttached
         (
             "FixedWidth",
-            typeof(double),
+            typeof(string),
             typeof(GridViewUtils),
             new UIPropertyMetadata
             (
-                double.NaN,
+                "NaN",
                 (o, e) =>
                 {
                     var column = o as GridViewColumn;
                     if (column != null)
                     {
-                        double newVal = (double)e.NewValue;
-                        double oldVal = (double)e.OldValue;
+                        string newStr = (string)e.NewValue;
+                        string oldStr = (string)e.OldValue;
+                        double newVal = double.Parse(newStr == "Auto" ? "NaN" : newStr);
+                        double oldVal = double.Parse(oldStr == "Auto" ? "NaN" : oldStr);
+
+                        if (newStr == "Auto" && oldStr != "Auto")
+                        {
+                            ((INotifyPropertyChanged)column).PropertyChanged += SetAutomaticFixedWidth;
+                            AutoWidthResizeColumn(column);
+                        }
+                        else if (newStr != "Auto" && oldStr == "Auto")
+                        {
+                            ((INotifyPropertyChanged)column).PropertyChanged -= SetAutomaticFixedWidth;
+                        }
 
                         if (!double.IsNaN(newVal) && double.IsNaN(oldVal))
                         {
@@ -1426,6 +1498,19 @@ namespace NowPlaying.Utils
             )
         );
 
+        private static void SetAutomaticFixedWidth(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ActualWidth")
+            {
+                var column = sender as GridViewColumn;
+                if (column != null && GetHideColumn(column) == false)
+                {
+                    var width = column.ActualWidth;
+                    SetFixedWidth(column, width.ToString());
+                }
+            }
+        }
+
         private static void ApplyColumnFixedWidth(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ActualWidth")
@@ -1433,13 +1518,13 @@ namespace NowPlaying.Utils
                 var column = sender as GridViewColumn;
                 if (column != null)
                 {
-                    if ((bool)column.GetValue(HideColumnProperty))
+                    if (GetHideColumn(column))
                     {
                         column.Width = 0;
                     }
                     else
                     {
-                        var fixedWidth = (double)column.GetValue(FixedWidthProperty);
+                        var fixedWidth = GetFixedWidth(column);
                         if (!double.IsNaN(fixedWidth) && column.ActualWidth != fixedWidth)
                         {
                             column.Width = fixedWidth;

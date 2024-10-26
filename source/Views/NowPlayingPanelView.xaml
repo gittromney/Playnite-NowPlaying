@@ -202,6 +202,32 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <!--Hidden text boxes used for determining status column MinWidths, a priori-->
+                <TextBox 
+                    Name="HiddenStatusQueuedUninstall" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusQueuedUninstallText, Mode=OneWay}"/>
+                <TextBox 
+                    Name="HiddenStatusQueuedInstall" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusQueuedInstallText, Mode=OneWay}"/>
+                <TextBox 
+                    Name="HiddenStatusSlowInstall" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusSlowInstallText, Mode=OneWay}"/>                
+                <TextBox 
+                    Name="HiddenStatusUninstall" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusUninstallText, Mode=OneWay}"/>
+                <TextBox 
+                    Name="HiddenStatusDefault" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusDefaultText, Mode=OneWay}"/>
+                <TextBox 
+                    Name="HiddenStatusDefault2" 
+                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                    Text="{Binding StatusDefault2Text, Mode=OneWay}"/>
+                
                 <ListView
                     Grid.Row="0" Padding="0" 
                     Name="GameCaches"
@@ -272,7 +298,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -289,8 +315,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="Platform"
                                 utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="80"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
                                     ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}">
@@ -298,7 +323,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -315,7 +340,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="InstallDir"
                                 utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="130"
+                                utils:GridViewUtils.MinWidth="220"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSourceDirColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}">
@@ -323,7 +348,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -339,7 +364,6 @@
 
                             <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Status"
-                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="{Binding StatusColumnMinWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
@@ -348,7 +372,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -364,8 +388,7 @@
 
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="CanInstallCache"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="97"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowCanInstallColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}">
@@ -373,7 +396,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -390,8 +413,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="InstallEta"
                                 utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="92"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}">
@@ -399,7 +421,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding InstallEta}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding InstallEta}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -416,8 +438,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="CacheInstalledSize" 
                                 utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="125"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSizeColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}">
@@ -425,7 +446,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -441,8 +462,7 @@
 
                             <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Device"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="{Binding GameCachesRootColumnWidth}"
+                                utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}"
                                 utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}">
@@ -450,7 +470,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Device}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding Device}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
@@ -467,7 +487,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="CacheRootSpaceAvailable" 
                                 utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
-                                utils:GridViewUtils.MinWidth="125"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}">
@@ -475,7 +495,7 @@
                                 </GridViewColumnHeader>
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}"/>
+                                        <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}" Padding="0,0,10,0"/>
                                         <DataTemplate.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>

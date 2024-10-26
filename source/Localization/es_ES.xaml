@@ -22,9 +22,9 @@
     <sys:String x:Key="LOCNowPlayingTermsAvgSpeed">Average speed</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsDuration">Duration</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsEta">ETA</sys:String>
-    <sys:String x:Key="LOCNowPlayingTermsInstallEta">Install ETA</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsInstallEta">⭳ ETA</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsInstallSize">Install size</sys:String>
-    <sys:String x:Key="LOCNowPlayingTermsCanInstall">Can install?</sys:String>
+    <sys:String x:Key="LOCNowPlayingTermsCanInstall">⭳ OK?</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsGenres">Genre(s)</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsSave">Save</sys:String>
     <sys:String x:Key="LOCNowPlayingTermsCancel">Cancel</sys:String>

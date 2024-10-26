@@ -1,5 +1,4 @@
-﻿using NowPlaying.Utils;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 
 namespace NowPlaying.Models

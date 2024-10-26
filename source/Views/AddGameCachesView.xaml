@@ -41,20 +41,23 @@
                         ToolTip="{DynamicResource LOCNowPlayingAddGamesSearchToolTip}"
                         Height="{Binding Theme.TopPanelSearchBoxHeight}" 
                         Width="{Binding Theme.TopPanelSearchBoxWidth}"
-                        Style="{Binding Theme.TopPanelSearchBoxStyle}"/>
+                        Style="{Binding Theme.TopPanelSearchBoxStyle}"
+                        FontWeight="{DynamicResource FontWeight}"/>
                     <ctrls:PluginTopPanelItem
                         Content="{DynamicResource LOCNowPlayingTermsSelectAll}" 
                         Command="{Binding SelectAllCommand}"
                         Height="{Binding Theme.TopPanelItemHeight}"
-                        MinWidth="90" FontSize="{DynamicResource FontSize}" FontWeight="SemiBold"
-                        VerticalContentAlignment="Center" Padding="4,-2,4,0"
+                        FontFamily="{DynamicResource FontFamily}"
+                        FontSize="{DynamicResource FontSize}"
+                        MinWidth="90" VerticalContentAlignment="Center" Padding="10,0,10,0"
                         Style="{Binding Theme.TopPanelItemStyle}"/>
                     <ctrls:PluginTopPanelItem
                         Content="{DynamicResource LOCNowPlayingTermsSelectNone}"
                         Command="{Binding SelectNoneCommand}"
                         Height="{Binding Theme.TopPanelItemHeight}"
-                        MinWidth="90" FontSize="{DynamicResource FontSize}" FontWeight="SemiBold"
-                        VerticalContentAlignment="Center" Padding="4,-2,4,0"
+                        FontFamily="{DynamicResource FontFamily}"
+                        FontSize="{DynamicResource FontSize}"
+                        MinWidth="90" VerticalContentAlignment="Center" Padding="10,0,10,0"
                         Style="{Binding Theme.TopPanelItemStyle}"/>
                 </StackPanel>
             </Grid>
@@ -200,11 +203,11 @@
                 <Button 
                     Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
                     Command="{Binding EnableSelectedGamesCommand}"
-                    Style="{DynamicResource BottomButton}" MinHeight="35"/>
+                    Style="{DynamicResource BottomButton}" MinHeight="35" Padding="10,2,10,2"/>
                 <Button
                     Content="{DynamicResource LOCNowPlayingTermsClose}" 
                     Command="{Binding CloseCommand}"
-                    Style="{DynamicResource BottomButton}" MinHeight="35"/>
+                    Style="{DynamicResource BottomButton}" MinHeight="35" Padding="10,2,10,2"/>
             </StackPanel>
         </Grid>
     </Grid>

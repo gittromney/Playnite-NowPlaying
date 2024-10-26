@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Windows.Controls;
 using NowPlaying.Extensions;
+using System.ComponentModel;
 
 namespace NowPlaying.ViewModels
 {
@@ -217,7 +218,7 @@ namespace NowPlaying.ViewModels
 
         private void GameCaches_SortableColumnsChanged(object sender, SortableColumnsChangedArgs e)
         {
-            if (!string.IsNullOrEmpty(SortedColumnName))
+            if (!plugin.IsShutdownInProgress && !string.IsNullOrEmpty(SortedColumnName))
             {
                 if (e.changedColumns.Contains(SortedColumnName))
                 {
@@ -383,7 +384,7 @@ namespace NowPlaying.ViewModels
         public string GameCachesHeadingVisibility => (ShowCacheRoots || !Settings.HideGameCachesHeadingWithRoots) && AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string GameCachesVisibility => AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
-        public string GameCachesRootColumnWidth => MultipleCacheRoots ? "55" : "0";
+        public string GameCachesRootColumnWidth => MultipleCacheRoots ? "Auto" : "0";
 
 
         private string searchText;
@@ -458,17 +459,74 @@ namespace NowPlaying.ViewModels
                 }
             }
         }
+      
+        public enum StatusWidthState { Default, Uninstall, SlowInstall, QueuedInstall, QueuedUninstall }
 
-        public double StatusColumnMinWidth { get; set; } = 100;
+        public string StatusQueuedUninstallText => plugin.GetResourceString("LOCNowPlayingTermsQueuedForUninstall") + " (99 of 99)";
+        public string StatusQueuedInstallText => plugin.GetResourceString("LOCNowPlayingTermsQueuedForInstall") + " (99 of 99)";
+        public string StatusSlowInstallText => plugin.GetResourceString("LOCNowPlayingTermsInstallSpeedLimit") + "...";
+        public string StatusUninstallText => plugin.GetResourceString("LOCNowPlayingTermsUninstalling") + "...";
+        public string StatusDefault2Text => "** " + plugin.GetResourceString("LOCNowPlayingTermsInvalid") + " **";
+        public string StatusDefaultText => plugin.GetResourceString("LOCNowPlayingTermsUninstalled");
+        public string StatusColumnMinWidth => GetStatusColumnMinWidth();
+        private string GetStatusColumnMinWidth()
+        {
+            switch (StatusColumnState)
+            {
+                case StatusWidthState.QueuedUninstall: return plugin.panelView.HiddenStatusQueuedUninstall.ActualWidth.ToString();
+                case StatusWidthState.QueuedInstall: return plugin.panelView.HiddenStatusQueuedInstall.ActualWidth.ToString();
+                case StatusWidthState.SlowInstall: return plugin.panelView.HiddenStatusSlowInstall.ActualWidth.ToString();
+                case StatusWidthState.Uninstall: return plugin.panelView.HiddenStatusUninstall.ActualWidth.ToString();
+                default: return Math.Max(
+                    plugin.panelView.HiddenStatusDefault2.ActualWidth,
+                    plugin.panelView.HiddenStatusDefault.ActualWidth
+                ).ToString();
+            }
+        }
+
+        private StatusWidthState statusColumnState = StatusWidthState.Default;
+        public StatusWidthState StatusColumnState
+        {
+            get => statusColumnState;
+            set
+            {
+                if (statusColumnState != value)
+                {
+                    statusColumnState = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(StatusColumnMinWidth));
+                }
+            }
+        }
+
+        public void InitStatusColumnMinWidth()
+        {
+            OnInstallUninstallQueuesUpdated();
+            OnPropertyChanged(nameof(StatusColumnMinWidth));
+        }
+
         public void OnInstallUninstallQueuesUpdated()
         {
-            var doingSpeedLimitedInstall = plugin.cacheInstallQueue.Count > 0 && plugin.cacheInstallQueue.First().speedLimitIpg > 0;
-            var useWiderColumn = doingSpeedLimitedInstall || plugin.cacheInstallQueue.Count > 1 || plugin.cacheUninstallQueue.Count > 1;
-            var value = useWiderColumn ? 190 : 100;
-            if (StatusColumnMinWidth != value)
+            var slowInstall = plugin.cacheInstallQueue.Count > 0 && plugin.cacheInstallQueue.First().speedLimitIpg > 0;
+            if (plugin.cacheUninstallQueue.Count > 1)
             {
-                StatusColumnMinWidth = value;
-                OnPropertyChanged(nameof(StatusColumnMinWidth));
+                StatusColumnState = StatusWidthState.QueuedUninstall;
+            }
+            else if (plugin.cacheInstallQueue.Count > 1)
+            {
+                StatusColumnState = StatusWidthState.QueuedInstall;
+            }
+            else if (slowInstall)
+            {
+                StatusColumnState = StatusWidthState.SlowInstall;
+            }
+            else if (plugin.cacheUninstallQueue.Count > 0)
+            {
+                StatusColumnState = StatusWidthState.Uninstall;
+            }
+            else
+            {
+                StatusColumnState = StatusWidthState.Default;
             }
         }
 
@@ -662,13 +720,14 @@ namespace NowPlaying.ViewModels
                 {
                     isTopPanelVisible = value;
 
+                    PropertyChangedEventHandler propertyChangedHandler = (s, e) => OnPropertyChanged(nameof(TopPanelView));
                     if (isTopPanelVisible)
                     {
-                        plugin.topPanelViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(TopPanelView));
+                        plugin.topPanelViewModel.PropertyChanged += propertyChangedHandler;
                     }
                     else
                     {
-                        plugin.topPanelViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(TopPanelView));
+                        plugin.topPanelViewModel.PropertyChanged -= propertyChangedHandler;
                     }
                     OnPropertyChanged();
                 }
