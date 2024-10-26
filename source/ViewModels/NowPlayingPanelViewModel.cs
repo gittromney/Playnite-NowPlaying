@@ -19,6 +19,7 @@ using System.Linq;
 using System.Windows.Controls;
 using NowPlaying.Extensions;
 using System.ComponentModel;
+using Newtonsoft.Json.Linq;
 
 namespace NowPlaying.ViewModels
 {
@@ -384,7 +385,6 @@ namespace NowPlaying.ViewModels
         public string GameCachesHeadingVisibility => (ShowCacheRoots || !Settings.HideGameCachesHeadingWithRoots) && AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string GameCachesVisibility => AreCacheRootsNonEmpty ? "Visible" : "Collapsed";
         public string MultipleRootsVisibility => MultipleCacheRoots ? "Visible" : "Collapsed";
-        public string GameCachesRootColumnWidth => MultipleCacheRoots ? "Auto" : "0";
 
 
         private string searchText;
@@ -588,7 +588,14 @@ namespace NowPlaying.ViewModels
         }
         public bool ShowRootColumn
         {
-            get => plugin.Settings.ShowGameCacheRoot;
+            get
+            {
+                if (MultipleCacheRoots == false)
+                {
+                    GridViewUtils.SetShowColumnSortGlyph(plugin.panelView.GameCaches, "Device", false);
+                }
+                return plugin.Settings.ShowGameCacheRoot && MultipleCacheRoots;
+            }
             set
             {
                 if (plugin.Settings.ShowGameCacheRoot != value)
@@ -853,7 +860,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(GameCachesHeadingVisibility));
             OnPropertyChanged(nameof(GameCachesVisibility));
             OnPropertyChanged(nameof(MultipleRootsVisibility));
-            OnPropertyChanged(nameof(GameCachesRootColumnWidth));
+            OnPropertyChanged(nameof(ShowRootColumn));
 
             // . update game cache menu/can execute/visibility...
             SelectedGameCaches = selectedGameCaches;

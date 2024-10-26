@@ -315,6 +315,7 @@
                             <GridViewColumn 
                                 utils:GridViewUtils.PropertyName="Platform"
                                 utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}"
+                                utils:GridViewUtils.AutoWidth="True"
                                 utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader
@@ -462,7 +463,7 @@
 
                             <GridViewColumn
                                 utils:GridViewUtils.PropertyName="Device"
-                                utils:GridViewUtils.FixedWidth="{Binding GameCachesRootColumnWidth}"
+                                utils:GridViewUtils.MinWidth="Auto"
                                 utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
                                 <GridViewColumnHeader 
                                     ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}">

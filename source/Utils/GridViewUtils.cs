@@ -1218,8 +1218,8 @@ namespace NowPlaying.Utils
                                     column.Width = minWidth;
                                 }
 
-                                // . apply AutoWidth, if applicable
-                                if (GetAutoWidth(column))
+                                // . apply AutoWidth or MinWidth/FixedWidth="Auto" - sets MinWidth/FixedWidth=ActualWidth after an auto size
+                                if (GetAutoWidth(column) || GetMinWidthString(column) == "Auto" || GetFixedWidthString(column) == "Auto")
                                 {
                                     if (double.IsNaN(column.Width))
                                     {

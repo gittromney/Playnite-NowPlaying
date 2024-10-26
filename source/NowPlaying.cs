@@ -27,7 +27,6 @@ using System.Windows.Controls;
 using TopPanelItem = Playnite.SDK.Plugins.TopPanelItem;
 using SidebarItem = Playnite.SDK.Plugins.SidebarItem;
 using System.ComponentModel;
-using System.Security.Permissions;
 
 namespace NowPlaying
 {
@@ -368,14 +367,10 @@ namespace NowPlaying
             if (panelView != null)
             {
                 // . CacheRoots sorting state
-                var cacheRootsSortState = GetListViewSortState(cacheRootsView.CacheRoots);
-                Settings.CacheRootsSortedColumn = cacheRootsSortState.Item1;
-                Settings.CacheRootsSortDirection = cacheRootsSortState.Item2;
+                (Settings.CacheRootsSortedColumn, Settings.CacheRootsSortDirection) = GetListViewSortState(cacheRootsView.CacheRoots);
 
                 // . GameCaches sorting state
-                var gameCachesSortState = GetListViewSortState(panelView.GameCaches);
-                Settings.GameCachesSortedColumn = gameCachesSortState.Item1;
-                Settings.GameCachesSortDirection = gameCachesSortState.Item2;
+                (Settings.GameCachesSortedColumn, Settings.GameCachesSortDirection) = GetListViewSortState(panelView.GameCaches);
             }
             SavePluginSettings(Settings);
 

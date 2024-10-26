@@ -761,7 +761,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private double topPanelProgressBarFontSize;
+        private double topPanelProgressBarFontSize = 13;
         public double TopPanelProgressBarFontSize
         {
             get => topPanelProgressBarFontSize;
@@ -831,7 +831,7 @@ namespace NowPlaying.ViewModels
             }
         }
 
-        private double installProgressBarFontSize;
+        private double installProgressBarFontSize = 16;
         public double InstallProgressBarFontSize
         {
             get => installProgressBarFontSize;

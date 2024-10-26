@@ -270,7 +270,7 @@ namespace NowPlaying
                     gameCache.UpdateStatus();
 
                     // . if install was paused before completing, revert Game state to uninstalled
-                    if (gameCache.entry.State != GameCacheState.Populated)
+                    if (gameCache.entry.State != GameCacheState.Populated && gameCache.entry.State != GameCacheState.Played)
                     {
                         nowPlayingGame.IsInstalled = false;
                         PlayniteApi.Database.Games.Update(nowPlayingGame);
