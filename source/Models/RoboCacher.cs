@@ -653,11 +653,13 @@ namespace NowPlaying.Models
                     // update cache entry/directory state + cache directory stats
                     entry.State = GameCacheState.Populated;
                     MarkCacheDirectoryState(cacheDir, entry.State);
-                    Debug.Assert
-                    (
-                        entry.CacheSize == stats.BytesToCopy,
-                        $"Mismatch between copied bytes ({entry.CacheSize}) vs install directory bytes ({stats.BytesToCopy})"
-                    );
+                    
+                    if (entry.CacheSize != stats.BytesToCopy) 
+                    {
+                        logger.Warn($"Mismatch between copied bytes ({entry.CacheSize}) vs install directory bytes ({stats.BytesToCopy})");
+                        entry.UpdateInstallDirStats();
+                    }
+                    
                     entry.CacheSize = stats.BytesToCopy;
                     entry.UpdateCacheDirStats();
 
