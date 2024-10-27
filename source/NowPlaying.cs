@@ -915,7 +915,11 @@ namespace NowPlaying
                         {
                             Icon = LibraryIcon,
                             MenuSection = description,
-                            Description = GetResourceString("LOCNowPlayingTermsTo") + " " + cacheRoot.Directory,
+                            Description = 
+                            ( 
+                                GetResourceString("LOCNowPlayingTermsTo") + " " + cacheRoot.Directory +
+                                " (" + cacheRoot.SpaceAvailableForCaches.ToString() + " available)"
+                            ),
                             Action = async (a) => { foreach (var game in args.Games) { await EnableNowPlayingWithRootAsync(game, cacheRoot); } }
                         });
                     }
