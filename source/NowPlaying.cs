@@ -27,6 +27,7 @@ using System.Windows.Controls;
 using TopPanelItem = Playnite.SDK.Plugins.TopPanelItem;
 using SidebarItem = Playnite.SDK.Plugins.SidebarItem;
 using System.ComponentModel;
+using System.Threading;
 
 namespace NowPlaying
 {
@@ -1407,15 +1408,21 @@ namespace NowPlaying
             }
         }
 
-        public bool EnqueueGameEnablerIfUnique(NowPlayingGameEnabler enabler)
+        public Semaphore gameEnablerQueueLock = new Semaphore(initialCount: 1, maximumCount: 1);
+
+        public bool EnqueueGameEnablerIfUnique(NowPlayingGameEnabler enabler, out bool firstEnqueued)
         {
             // . enqueue our NowPlaying enabler (but don't add more than once)
             if (!GameHasEnablerQueued(enabler.Id))
             {
+                gameEnablerQueueLock.WaitOne();
                 gameEnablerQueue.Enqueue(enabler);
+                firstEnqueued = gameEnablerQueue.First() == enabler;
+                gameEnablerQueueLock.Release();
                 topPanelViewModel.QueuedEnabler();
                 return true;
             }
+            firstEnqueued = false;
             return false;
         }
 
@@ -1427,7 +1434,9 @@ namespace NowPlaying
         public async void DequeueEnablerAndInvokeNextAsync(string id)
         {
             // Dequeue the enabler (and sanity check it was ours)
+            gameEnablerQueueLock.WaitOne();
             var activeId = gameEnablerQueue.Dequeue().Id;
+            gameEnablerQueueLock.Release();
             Debug.Assert(activeId == id, $"Unexpected game enabler Id at head of the Queue ({activeId})");
 
             // . update status of queued enablers
@@ -1732,29 +1741,40 @@ namespace NowPlaying
             return cacheUninstallQueue.Where(c => c.gameCache.Id == cacheId).Count() > 0;
         }
 
-        public bool EnqueueCacheInstallerIfUnique(NowPlayingInstallController controller)
+        public Semaphore cacheInstallQueueLock = new Semaphore(initialCount: 1, maximumCount: 1);
+        public Semaphore cacheUninstallQueueLock = new Semaphore(initialCount: 1, maximumCount: 1);
+
+        public bool EnqueueCacheInstallerIfUnique(NowPlayingInstallController controller, out bool firstEnqueued)
         {
             // . enqueue our controller (but don't add more than once)
             if (!CacheHasInstallerQueued(controller.gameCache.Id))
             {
+                cacheInstallQueueLock.WaitOne();
                 cacheInstallQueue.Enqueue(controller);
+                firstEnqueued = cacheInstallQueue.First() == controller;
+                cacheInstallQueueLock.Release();
                 topPanelViewModel.QueuedInstall(controller.gameCache.InstallSize, controller.gameCache.InstallEtaTimeSpan);
                 panelViewModel.OnInstallUninstallQueuesUpdated();
                 return true;
             }
+            firstEnqueued = false;
             return false;
         }
 
-        public bool EnqueueCacheUninstallerIfUnique(NowPlayingUninstallController controller)
+        public bool EnqueueCacheUninstallerIfUnique(NowPlayingUninstallController controller, out bool firstEnqueued)
         {
             // . enqueue our controller (but don't add more than once)
             if (!CacheHasUninstallerQueued(controller.gameCache.Id))
             {
+                cacheUninstallQueueLock.WaitOne();
                 cacheUninstallQueue.Enqueue(controller);
+                firstEnqueued = cacheUninstallQueue.First() == controller;
+                cacheUninstallQueueLock.Release();
                 topPanelViewModel.QueuedUninstall();
                 panelViewModel.OnInstallUninstallQueuesUpdated();
                 return true;
             }
+            firstEnqueued = false;
             return false;
         }
 
@@ -1763,8 +1783,10 @@ namespace NowPlaying
             if (CacheHasInstallerQueued(cacheId))
             {
                 // . remove entry from installer queue
+                cacheInstallQueueLock.WaitOne();
                 var controller = cacheInstallQueue.Where(c => c.gameCache.Id == cacheId).First();
                 cacheInstallQueue = new Queue<NowPlayingInstallController>(cacheInstallQueue.Where(c => c != controller));
+                cacheInstallQueueLock.Release();
                 
                 // . exit installing state
                 controller.Game.IsInstalling = false;
@@ -1783,7 +1805,9 @@ namespace NowPlaying
         public async void DequeueInstallerAndInvokeNextAsync(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
+            cacheInstallQueueLock.WaitOne();
             var activeId = cacheInstallQueue.Dequeue().gameCache.Id;
+            cacheInstallQueueLock.Release();
             Debug.Assert(activeId == cacheId, $"Unexpected install controller cacheId at head of the Queue ({activeId})");
 
             // . update install queue status of queued installers & top panel status
@@ -1805,8 +1829,9 @@ namespace NowPlaying
         public async void DequeueUninstallerAndInvokeNextAsync(string cacheId)
         {
             // Dequeue the controller (and sanity check it was ours)
-            var controller = cacheUninstallQueue.Dequeue();
-            var activeId = controller.gameCache.Id;
+            cacheUninstallQueueLock.WaitOne();
+            var activeId = cacheUninstallQueue.Dequeue().gameCache.Id;
+            cacheUninstallQueueLock.Release();
             Debug.Assert(activeId == cacheId, $"Unexpected uninstall controller cacheId at head of the Queue ({activeId})");
 
             // . update status of queued uninstallers

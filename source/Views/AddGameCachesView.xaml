@@ -73,6 +73,8 @@
                 utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
                 utils:GridViewUtils.AutoSort="True"
                 utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
+                BorderThickness="{Binding Theme.ListViewBorderThickness}"
+                BorderBrush="{Binding Theme.ListViewBorderBrush}"
                 Style="{Binding Theme.ListViewStyle}">
                 <ListView.View>
                     <GridView>

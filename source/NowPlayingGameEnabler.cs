@@ -32,12 +32,12 @@ namespace NowPlaying
 
         public void Activate()
         {
-            if (plugin.EnqueueGameEnablerIfUnique(this))
+            if (plugin.EnqueueGameEnablerIfUnique(this, out bool firstEnqueued))
             {
                 // . Proceed only if enabler is first -- in the "active enabler" spot...
                 // . Otherwise, it will automatically be invoked by the previous enabler in the queue.
                 //   
-                if (plugin.gameEnablerQueue.First() == this)
+                if (firstEnqueued)
                 {
                     // . modify a game to play from the game cache dir, or preview from original install dir
                     Task.Run(() => EnableGameForNowPlayingAsync());

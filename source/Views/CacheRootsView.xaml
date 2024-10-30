@@ -18,7 +18,7 @@
             <TextBlock 
                 Text="{DynamicResource LOCNowPlayingCacheRootsHeading}" 
                 Style="{DynamicResource HeadingText}" 
-                Margin="0,0,0,5"/>
+                Margin="0,0,0,4"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
@@ -44,6 +44,8 @@
             utils:GridViewUtils.AutoSort="True"
             utils:GridViewUtils.SecondaryAutoSortBy="Directory,Ascending"
             utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
+            BorderThickness="{Binding Theme.ListViewBorderThickness}"
+            BorderBrush="{Binding Theme.ListViewBorderBrush}"
             Margin="{Binding Theme.ListViewMargin}"
             Style="{Binding Theme.ListViewStyle}">
 

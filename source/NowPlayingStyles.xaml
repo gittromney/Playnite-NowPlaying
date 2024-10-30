@@ -78,11 +78,6 @@
         <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
     </Style>
 
-    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
-        <Setter Property="Padding" Value="5,0.5,5,0.5"/>
-        <Setter Property="Margin" Value="0"/>
-    </Style>
-    
     <Style x:Key="ThemeListViewItem" TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
         <Setter Property="Padding" Value="5,0.5,5,0.5"/>
         <Setter Property="Margin" Value="0"/>
@@ -124,7 +119,7 @@
     <Style TargetType="{x:Type ctrls:PluginSearchBox}" BasedOn="{StaticResource {x:Type SearchBox}}"/>
     <Style x:Key="TopPanelPluginSearchBox" TargetType="ctrls:PluginSearchBox" BasedOn="{StaticResource {x:Type ctrls:PluginSearchBox}}">
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource TopPanelSearchBoxBackgroundBrush}"/>
+        <Setter Property="Background" Value="{Binding Theme.TopPanelSearchBoxBgBrush}"/>
         <Setter Property="ToolTipService.InitialShowDelay" Value="{DynamicResource ToolTipInitialShowDelay}"/>
         <Setter Property="ToolTipService.BetweenShowDelay" Value="{DynamicResource ToolTipBetweenShowDelay}"/>
     </Style>

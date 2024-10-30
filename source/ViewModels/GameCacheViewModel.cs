@@ -56,9 +56,10 @@ namespace NowPlaying.ViewModels
             nowUninstalling
         );
 
-        public Brush InstalledBrush =>
+        public Brush InstallingBrush =>
         (
-            Status == plugin.GetResourceString("LOCNowPlayingTermsInstalled") ? theme.TextBrush : theme.TextBrushDarker
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? theme.SlowInstallBrush : theme.InstallBrush) :
+            theme.TextBrush
         );
 
         public Brush StatusBrush =>
@@ -76,7 +77,11 @@ namespace NowPlaying.ViewModels
             ? plugin.GetResourceString(CacheWillFit ? "LOCNowPlayingTermsYes" : "LOCNowPlayingTermsNo") 
             : "-"
         );
-        public Brush CanInstallCacheBrush => CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? theme.WarningBrush : theme.TextBrush;
+        public Brush CanInstallCacheBrush => 
+        (
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? theme.SlowInstallBrush : theme.InstallBrush) :
+            CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? theme.WarningBrush : theme.TextBrush
+        );
 
         public TimeSpan InstallEtaTimeSpan { get; private set; }
         public string InstallEta { get; private set; }
@@ -84,13 +89,18 @@ namespace NowPlaying.ViewModels
         public string CacheInstalledSize => cacheInstalledSize;
         public Brush CacheInstalledSizeBrush => 
         (
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? theme.SlowInstallBrush : theme.InstallBrush) :
             CanInstallCache == plugin.GetResourceString("LOCNowPlayingTermsNo") ? theme.WarningBrush : 
             State == GameCacheState.Empty ? theme.TextBrushDarker : 
             theme.TextBrush
         );
 
         public string CacheRootSpaceAvailable { get; private set; }
-        public Brush CacheRootSpaceAvailableBrush => cacheRoot.BytesAvailableForCaches > 0 ? theme.TextBrush : theme.WarningBrush;
+        public Brush CacheRootSpaceAvailableBrush => 
+        (
+            NowInstalling ? (plugin.SpeedLimitIpg > 0 ? theme.SlowInstallBrush : theme.InstallBrush) :
+            cacheRoot.BytesAvailableForCaches > 0 ? theme.TextBrush : theme.WarningBrush
+        );
 
         public bool PartialFileResume { get; set; }
 
@@ -133,7 +143,7 @@ namespace NowPlaying.ViewModels
         {
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(StatusBrush));
-            OnPropertyChanged(nameof(InstalledBrush));
+            OnPropertyChanged(nameof(InstallingBrush));
             OnPropertyChanged(nameof(CanInstallCache));
             OnPropertyChanged(nameof(CanInstallCacheBrush));
             OnPropertyChanged(nameof(CacheInstalledSizeBrush));
@@ -149,7 +159,7 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(InstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusBrush));
-                OnPropertyChanged(nameof(InstalledBrush));
+                OnPropertyChanged(nameof(InstallingBrush));
                 OnSortableColumnChanged(Id, "Status");
             }
         }
@@ -162,7 +172,7 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(UninstallQueueStatus));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusBrush));
-                OnPropertyChanged(nameof(InstalledBrush));
+                OnPropertyChanged(nameof(InstallingBrush));
                 OnSortableColumnChanged(Id, "Status");
             }
         }
@@ -184,11 +194,12 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(NowUninstalling));
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(StatusBrush));
-            OnPropertyChanged(nameof(InstalledBrush));
+            OnPropertyChanged(nameof(InstallingBrush));
             OnPropertyChanged(nameof(CanInstallCache));
             OnPropertyChanged(nameof(CanInstallCacheBrush));
             OnPropertyChanged(nameof(CacheInstalledSizeBrush));
-            OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache", "CacheInstalledSize" });
+                            OnPropertyChanged(nameof(CacheRootSpaceAvailableBrush));
+            OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache" });
         }
 
         public void UpdateNowUninstalling(bool value)
@@ -202,11 +213,12 @@ namespace NowPlaying.ViewModels
                 OnPropertyChanged(nameof(NowUninstalling));
                 OnPropertyChanged(nameof(Status));
                 OnPropertyChanged(nameof(StatusBrush));
-                OnPropertyChanged(nameof(InstalledBrush));
+                OnPropertyChanged(nameof(InstallingBrush));
                 OnPropertyChanged(nameof(CanInstallCache));
                 OnPropertyChanged(nameof(CanInstallCacheBrush));
                 OnPropertyChanged(nameof(CacheInstalledSizeBrush));
-                OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache", "CacheInstalledSize" });
+                OnPropertyChanged(nameof(CacheRootSpaceAvailableBrush));
+                OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache"});
             }
         }
 

@@ -41,13 +41,13 @@ namespace NowPlaying
         public override void Uninstall(UninstallActionArgs args)
         {
             // . enqueue our controller (but don't add more than once)
-            if (plugin.EnqueueCacheUninstallerIfUnique(this))
+            if (plugin.EnqueueCacheUninstallerIfUnique(this, out bool firstEnqueued))
             {
                 // . Proceed only if uninstaller is first -- in the "active install" spot...
                 // . Otherwise, when the active install controller finishes it will
                 //   automatically invoke NowPlayingUninstall on the next controller in the queue.
                 //   
-                if (plugin.cacheUninstallQueue.First() == this)
+                if (firstEnqueued)
                 {
                     Task.Run(() => NowPlayingUninstallAsync());
                 }

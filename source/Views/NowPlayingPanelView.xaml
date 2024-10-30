@@ -48,7 +48,10 @@
         <DockPanel>
             
             <!--TopPanel contents + separator-->
-            <Grid DockPanel.Dock="Top" Height="{Binding Theme.TopPanelHeight}" Margin="0,0,0,5">
+            <Grid 
+                DockPanel.Dock="Top" 
+                Height="{Binding Theme.TopPanelHeight}" 
+                Margin="{Binding Theme.TopPanelDockMargin}">
                 <Grid 
                     HorizontalAlignment="{Binding Theme.TopPanelHorizontalAlignment}" 
                     Margin="{Binding Theme.TopPanelMargin}"
@@ -183,488 +186,492 @@
                 </StackPanel>
             </Border>
             
-            <!--cache roots view panel-->
-            <UserControl DockPanel.Dock="Top" Margin="10,0,0,0" Content="{Binding CacheRootsView}"/>
-
-            <!--game caches heading-->
-            <TextBlock 
-                DockPanel.Dock="Top" Margin="10,0,0,0"
-                Visibility="{Binding GameCachesHeadingVisibility}"
-                Text="{DynamicResource LOCNowPlayingGameCachesHeading}"
-                Style="{DynamicResource HeadingText}"/>
-           
-            <!--game caches list view + controls, using up available dock space-->
-            <Grid
-                Margin="10,0,0,0"
-                VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <!--Hidden text boxes used for determining status column MinWidths, a priori-->
-                <TextBox 
-                    Name="HiddenStatusQueuedUninstall" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusQueuedUninstallText, Mode=OneWay}"/>
-                <TextBox 
-                    Name="HiddenStatusQueuedInstall" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusQueuedInstallText, Mode=OneWay}"/>
-                <TextBox 
-                    Name="HiddenStatusSlowInstall" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusSlowInstallText, Mode=OneWay}"/>                
-                <TextBox 
-                    Name="HiddenStatusUninstall" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusUninstallText, Mode=OneWay}"/>
-                <TextBox 
-                    Name="HiddenStatusDefault" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusDefaultText, Mode=OneWay}"/>
-                <TextBox 
-                    Name="HiddenStatusDefault2" 
-                    Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
-                    Text="{Binding StatusDefault2Text, Mode=OneWay}"/>
+            <DockPanel Margin="{Binding Theme.LowerPanelDockMargin}">
                 
-                <ListView
-                    Grid.Row="0" Padding="0" 
-                    Name="GameCaches"
-                    Visibility="{Binding GameCachesVisibility}"
-                    ItemsSource="{Binding GameCaches}"
-                    IsSynchronizedWithCurrentItem="True"
-                    SelectionMode="Extended"
-                    MouseUp="GameCaches_OnMouseUp"
-                    Loaded="GameCaches_ResizeColumns"
-                    utils:GridViewUtils.HorizontalShiftWheelScroll="True"
-                    utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
-                    utils:GridViewUtils.AutoSort="True"
-                    utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
-                    utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
-                    Margin="{Binding Theme.ListViewMargin}" 
-                    Style="{Binding Theme.ListViewStyle}">
+                <!--cache roots view panel-->
+                <UserControl DockPanel.Dock="Top" Margin="0" Content="{Binding CacheRootsView}"/>
 
-                    <ListView.View>
-                        <GridView>
-                            <GridView.ColumnHeaderContainerStyle>
-                                <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
-                                    <Setter Property="ContextMenu">
-                                        <Setter.Value>
-                                            <ContextMenu Name="ColumnShowHideMenu">
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsTitle}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowTitleColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsPlatform}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowPlatformColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsSourceDirectory}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSourceDirColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsStatus}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowStatusColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsCanInstall}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowCanInstallColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsInstallEta}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowInstallEtaColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsSize}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSizeColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsRoot}"
-                                                    Visibility="{Binding MultipleRootsVisibility}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowRootColumn}"/>
-                                                <MenuItem 
-                                                    Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}"
-                                                    StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSpaceAvailColumn}"/>
-                                            </ContextMenu>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </GridView.ColumnHeaderContainerStyle>
+                <!--game caches heading-->
+                <TextBlock 
+                    DockPanel.Dock="Top" Margin="0,0,0,4"
+                    Visibility="{Binding GameCachesHeadingVisibility}"
+                    Text="{DynamicResource LOCNowPlayingGameCachesHeading}"
+                    Style="{DynamicResource HeadingText}"/>
 
-                            <GridViewColumn
-                                utils:GridViewUtils.PropertyName="Title"
-                                utils:GridViewUtils.SortedByDefault="Ascending"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="220"
-                                utils:GridViewUtils.HideColumn="{Binding ShowTitleColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsTitle}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                <!--game caches list view + controls, using up available dock space-->
+                <Grid
+                    Margin="0"
+                    VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="Platform"
-                                utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsPlatform}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                    <!--Hidden text boxes used for determining status column MinWidths, a priori-->
+                    <TextBox 
+                        Name="HiddenStatusQueuedUninstall" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusQueuedUninstallText, Mode=OneWay}"/>
+                    <TextBox 
+                        Name="HiddenStatusQueuedInstall" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusQueuedInstallText, Mode=OneWay}"/>
+                    <TextBox 
+                        Name="HiddenStatusSlowInstall" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusSlowInstallText, Mode=OneWay}"/>
+                    <TextBox 
+                        Name="HiddenStatusUninstall" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusUninstallText, Mode=OneWay}"/>
+                    <TextBox 
+                        Name="HiddenStatusDefault" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusDefaultText, Mode=OneWay}"/>
+                    <TextBox 
+                        Name="HiddenStatusDefault2" 
+                        Grid.Row="0" Visibility="Hidden" HorizontalAlignment="Left" Padding="5,0,15,0"
+                        Text="{Binding StatusDefault2Text, Mode=OneWay}"/>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="InstallDir"
-                                utils:GridViewUtils.AutoWidth="True"
-                                utils:GridViewUtils.MinWidth="220"
-                                utils:GridViewUtils.HideColumn="{Binding ShowSourceDirColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSourceDirectory}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding InstalledBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                    <ListView
+                        Grid.Row="0" Padding="0" 
+                        Name="GameCaches"
+                        Visibility="{Binding GameCachesVisibility}"
+                        ItemsSource="{Binding GameCaches}"
+                        IsSynchronizedWithCurrentItem="True"
+                        SelectionMode="Extended"
+                        MouseUp="GameCaches_OnMouseUp"
+                        Loaded="GameCaches_ResizeColumns"
+                        utils:GridViewUtils.HorizontalShiftWheelScroll="True"
+                        utils:GridViewUtils.HorizontalShiftWheelScrollFlipped="{Binding Settings.HorizontalScrollFlipped}"
+                        utils:GridViewUtils.AutoSort="True"
+                        utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
+                        utils:GridViewUtils.SortedColumnName="{Binding SortedColumnName, Mode=OneWayToSource}"
+                        BorderThickness="{Binding Theme.ListViewBorderThickness}"
+                        BorderBrush="{Binding Theme.ListViewBorderBrush}"
+                        Margin="{Binding Theme.ListViewMargin}"
+                        Style="{Binding Theme.ListViewStyle}">
 
-                            <GridViewColumn
-                                utils:GridViewUtils.PropertyName="Status"
-                                utils:GridViewUtils.MinWidth="{Binding StatusColumnMinWidth}"
-                                utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsStatus}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu Name="ColumnShowHideMenu">
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsTitle}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowTitleColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsPlatform}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowPlatformColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsSourceDirectory}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSourceDirColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsStatus}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowStatusColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsCanInstall}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowCanInstallColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsInstallEta}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowInstallEtaColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsSize}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSizeColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsRoot}"
+                                                        Visibility="{Binding MultipleRootsVisibility}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowRootColumn}"/>
+                                                    <MenuItem 
+                                                        Header="{DynamicResource LOCNowPlayingTermsSpaceAvailable}"
+                                                        StaysOpenOnClick="True" IsCheckable="True" IsChecked="{Binding ShowSpaceAvailColumn}"/>
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="CanInstallCache"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowCanInstallColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsCanInstall}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                                <GridViewColumn
+                                    utils:GridViewUtils.PropertyName="Title"
+                                    utils:GridViewUtils.SortedByDefault="Ascending"
+                                    utils:GridViewUtils.AutoWidth="True"
+                                    utils:GridViewUtils.MinWidth="220"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowTitleColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheTitleToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsTitle}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding Title}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="InstallEta"
-                                utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsInstallEta}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding InstallEta}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                                    <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="Platform"
+                                    utils:GridViewUtils.CustomSort="{Binding CustomPlatformSort}"
+                                    utils:GridViewUtils.AutoWidth="True"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowPlatformColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCachePlatformToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsPlatform}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding Platform}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="CacheInstalledSize" 
-                                utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowSizeColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSize}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                                <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="InstallDir"
+                                    utils:GridViewUtils.AutoWidth="True"
+                                    utils:GridViewUtils.MinWidth="220"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowSourceDirColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheSourceDirToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsSourceDirectory}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding InstallDir}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                            <GridViewColumn
-                                utils:GridViewUtils.PropertyName="Device"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsRoot}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding Device}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                                <GridViewColumn
+                                    utils:GridViewUtils.PropertyName="Status"
+                                    utils:GridViewUtils.MinWidth="{Binding StatusColumnMinWidth}"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowStatusColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheStatusToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsStatus}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding Status}" Foreground="{Binding StatusBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                            <GridViewColumn 
-                                utils:GridViewUtils.PropertyName="CacheRootSpaceAvailable" 
-                                utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
-                                utils:GridViewUtils.MinWidth="Auto"
-                                utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
-                                <GridViewColumnHeader 
-                                    ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}">
-                                    <TextBlock Text="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" Margin="0,0,12,0"/>
-                                </GridViewColumnHeader>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}" Padding="0,0,10,0"/>
-                                        <DataTemplate.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
-                                                    <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
-                                            </MultiDataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                                <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="CanInstallCache"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowCanInstallColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsCanInstall}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding CanInstallCache}" Foreground="{Binding CanInstallCacheBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                        </GridView>
-                    </ListView.View>
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem 
-                                Header="{DynamicResource LOCNowPlayingTermsRefresh}"
-                                Command="{Binding RefreshCachesCommand}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="⟳" FontSize="17" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem 
-                                Header="{Binding InstallCachesMenu}" 
-                                Command="{Binding InstallCachesCommand}" 
-                                Visibility="{Binding InstallCachesVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="⭳" FontSize="18" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem
-                                Header="{Binding UninstallCachesMenu}" 
-                                Command="{Binding UninstallCachesCommand}" 
-                                Visibility="{Binding UninstallCachesVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="⏏" FontSize="12" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <!--NOTE: ItemsSource must use OneWay binding b/c the items are shared-->
-                            <MenuItem 
-                                Header="{Binding RerootCachesMenu}"
-                                ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
-                                Visibility="{Binding RerootCachesVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="🖉" FontSize="13" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem
-                                Header="{Binding DisableCachesMenu}"
-                                Command="{Binding DisableCachesCommand}"
-                                Visibility="{Binding DisableCachesVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="➖" FontSize="11" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem 
-                                Header="{Binding CancelQueuedInstallsMenu}"
-                                Command="{Binding CancelQueuedInstallsCommand}"
-                                Visibility="{Binding CancelQueuedInstallsVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="❌" FontSize="11" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem 
-                                Header="{Binding PauseInstallMenu}"
-                                Command="{Binding PauseInstallCommand}"
-                                Visibility="{Binding PauseInstallVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="⏸" FontSize="12" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem 
-                                Header="{Binding CancelInstallMenu}"
-                                Command="{Binding CancelInstallCommand}"
-                                Visibility="{Binding CancelInstallVisibility}">
-                                <MenuItem.Icon>
-                                    <TextBlock 
-                                        Text="❌" FontSize="11" 
-                                        VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center" 
-                                        Foreground="{DynamicResource GlyphBrush}"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-                </ListView>
+                                <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="InstallEta"
+                                    utils:GridViewUtils.CustomSort="{Binding CustomEtaSort}"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowInstallEtaColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheCanInstallEtaToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsInstallEta}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding InstallEta}" Foreground="{Binding InstallingBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                <!--game caches control panel, snapped to bottom of listview-->
-                <StackPanel 
-                    Grid.Row="1" Margin="0,5,0,10"
-                    VerticalAlignment="Top"
-                    Orientation="Horizontal" 
-                    Visibility="{Binding GameCachesVisibility}">
-                    <Button
-                        Content="⟳" Padding="0,0,0,3" FontSize="20"
-                        ToolTip="{DynamicResource LOCNowPlayingRefreshGameCaches}"  
-                        Command="{Binding RefreshCachesCommand}"
-                        Style="{DynamicResource SmallButton}"/>
-                    <Button 
-                        Content="➕" FontSize="12"
-                        ToolTip="{DynamicResource LOCNowPlayingAddGameCaches}"
-                        Command="{Binding AddGameCachesCommand}"
-                        Style="{DynamicResource SmallButton}"/>
-                    <Button 
-                        Content="➖" FontSize="12"
-                        ToolTip="{Binding DisableCachesMenu}"
-                        Command="{Binding DisableCachesCommand}"
-                        Style="{DynamicResource SmallButton}"/>
-                    <Button 
-                        Content="🖉" FontSize="18"
-                        ToolTip="{Binding RerootCachesMenu}"
-                        Command="{Binding RerootClickCanExecute}"
-                        Visibility="{Binding MultipleRootsVisibility}"
-                        Style="{DynamicResource SmallButton}"
-                        Click="Reroot_ButtonClick">
-                        <Button.ContextMenu>
+                                <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="CacheInstalledSize" 
+                                    utils:GridViewUtils.CustomSort="{Binding CustomSizeSort}"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowSizeColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheSizeToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsSize}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding CacheInstalledSize}" Foreground="{Binding CacheInstalledSizeBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <GridViewColumn
+                                    utils:GridViewUtils.PropertyName="Device"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowRootColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheRootToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsRoot}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding Device}" Foreground="{Binding InstallingBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <GridViewColumn 
+                                    utils:GridViewUtils.PropertyName="CacheRootSpaceAvailable" 
+                                    utils:GridViewUtils.CustomSort="{Binding CustomSpaceAvailableSort}"
+                                    utils:GridViewUtils.MinWidth="Auto"
+                                    utils:GridViewUtils.HideColumn="{Binding ShowSpaceAvailColumn, Converter={StaticResource BoolInvert}}">
+                                    <GridViewColumnHeader 
+                                        ToolTip="{DynamicResource LOCNowPlayingGameCacheSpaceToolTip}">
+                                        <TextBlock Text="{DynamicResource LOCNowPlayingTermsSpaceAvailable}" Margin="0,0,12,0"/>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="Text1" Text="{Binding CacheRootSpaceAvailable}" Foreground="{Binding CacheRootSpaceAvailableBrush}" Padding="0,0,10,0"/>
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Theme.SelectedListViewItemBrush, Converter={StaticResource IsNull}}" Value="False"/>
+                                                        <Condition Binding="{Binding Path=IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="Text1" Property="Foreground" Value="{Binding Theme.SelectedListViewItemBrush}"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ContextMenu>
                             <ContextMenu>
-                                <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
                                 <MenuItem 
-                                    Header="{Binding RerootCachesMenu, Mode=OneWay}"
-                                    ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"/>
+                                    Header="{DynamicResource LOCNowPlayingTermsRefresh}"
+                                    Command="{Binding RefreshCachesCommand}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="⟳" FontSize="17" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem 
+                                    Header="{Binding InstallCachesMenu}" 
+                                    Command="{Binding InstallCachesCommand}" 
+                                    Visibility="{Binding InstallCachesVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="⭳" FontSize="18" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    Header="{Binding UninstallCachesMenu}" 
+                                    Command="{Binding UninstallCachesCommand}" 
+                                    Visibility="{Binding UninstallCachesVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="⏏" FontSize="12" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <!--NOTE: ItemsSource must use OneWay binding b/c the items are shared-->
+                                <MenuItem 
+                                    Header="{Binding RerootCachesMenu}"
+                                    ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"
+                                    Visibility="{Binding RerootCachesVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="🖉" FontSize="13" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    Header="{Binding DisableCachesMenu}"
+                                    Command="{Binding DisableCachesCommand}"
+                                    Visibility="{Binding DisableCachesVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="➖" FontSize="11" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem 
+                                    Header="{Binding CancelQueuedInstallsMenu}"
+                                    Command="{Binding CancelQueuedInstallsCommand}"
+                                    Visibility="{Binding CancelQueuedInstallsVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="❌" FontSize="11" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem 
+                                    Header="{Binding PauseInstallMenu}"
+                                    Command="{Binding PauseInstallCommand}"
+                                    Visibility="{Binding PauseInstallVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="⏸" FontSize="12" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem 
+                                    Header="{Binding CancelInstallMenu}"
+                                    Command="{Binding CancelInstallCommand}"
+                                    Visibility="{Binding CancelInstallVisibility}">
+                                    <MenuItem.Icon>
+                                        <TextBlock 
+                                            Text="❌" FontSize="11" 
+                                            VerticalAlignment="Center" 
+                                            HorizontalAlignment="Center" 
+                                            Foreground="{DynamicResource GlyphBrush}"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
                             </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                    <Button
-                        Margin="15,0,0,0"
-                        Content="⭳" FontSize="20"
-                        ToolTip="{Binding InstallCachesMenu}"
-                        Command="{Binding InstallCachesCommand}"
-                        Style="{DynamicResource SmallButton}"/>
-                    <Button 
-                        Content="⏏" FontSize="16"
-                        ToolTip="{Binding UninstallCachesMenu}"
-                        Command="{Binding UninstallCachesCommand}"
-                        Style="{DynamicResource SmallButton}"/>
-                </StackPanel>
-            </Grid>
+                        </ListView.ContextMenu>
+                    </ListView>
 
+                    <!--game caches control panel, snapped to bottom of listview-->
+                    <StackPanel 
+                        Grid.Row="1" Margin="0,5,0,10"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal" 
+                        Visibility="{Binding GameCachesVisibility}">
+                        <Button
+                            Content="⟳" Padding="0,0,0,3" FontSize="20"
+                            ToolTip="{DynamicResource LOCNowPlayingRefreshGameCaches}"  
+                            Command="{Binding RefreshCachesCommand}"
+                            Style="{DynamicResource SmallButton}"/>
+                        <Button 
+                            Content="➕" FontSize="12"
+                            ToolTip="{DynamicResource LOCNowPlayingAddGameCaches}"
+                            Command="{Binding AddGameCachesCommand}"
+                            Style="{DynamicResource SmallButton}"/>
+                        <Button 
+                            Content="➖" FontSize="12"
+                            ToolTip="{Binding DisableCachesMenu}"
+                            Command="{Binding DisableCachesCommand}"
+                            Style="{DynamicResource SmallButton}"/>
+                        <Button 
+                            Content="🖉" FontSize="18"
+                            ToolTip="{Binding RerootCachesMenu}"
+                            Command="{Binding RerootClickCanExecute}"
+                            Visibility="{Binding MultipleRootsVisibility}"
+                            Style="{DynamicResource SmallButton}"
+                            Click="Reroot_ButtonClick">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <!--NOTE: The ItemsSource must use OneWay binding b/c the items are shared-->
+                                    <MenuItem 
+                                        Header="{Binding RerootCachesMenu, Mode=OneWay}"
+                                        ItemsSource="{Binding RerootCachesSubMenuItems, Mode=OneWay}"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        <Button
+                            Margin="15,0,0,0"
+                            Content="⭳" FontSize="20"
+                            ToolTip="{Binding InstallCachesMenu}"
+                            Command="{Binding InstallCachesCommand}"
+                            Style="{DynamicResource SmallButton}"/>
+                        <Button 
+                            Content="⏏" FontSize="16"
+                            ToolTip="{Binding UninstallCachesMenu}"
+                            Command="{Binding UninstallCachesCommand}"
+                            Style="{DynamicResource SmallButton}"/>
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
         </DockPanel>
         
         <!--this darkens our panel whenever a modal dialog is displayed (e.g. add cache root, add game caches)-->

@@ -59,13 +59,13 @@ namespace NowPlaying
             //
             if (!plugin.CacheHasUninstallerQueued(gameCache.Id))
             {
-                if (plugin.EnqueueCacheInstallerIfUnique(this))
+                if (plugin.EnqueueCacheInstallerIfUnique(this, out bool firstEnqueued))
                 {
                     // . Proceed only if installer is first -- in the "active install" spot...
                     // . Otherwise, when the active install controller finishes (UninstallDone | InstallPausedCancelled),
                     //   it will automatically invoke NowPlayingInstall on the next controller in the queue.
                     //   
-                    if (plugin.cacheInstallQueue.First() == this)
+                    if (firstEnqueued)
                     {
                         Task.Run(() => NowPlayingInstallAsync());
                     }
