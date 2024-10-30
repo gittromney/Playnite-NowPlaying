@@ -198,7 +198,7 @@ namespace NowPlaying.ViewModels
             OnPropertyChanged(nameof(CanInstallCache));
             OnPropertyChanged(nameof(CanInstallCacheBrush));
             OnPropertyChanged(nameof(CacheInstalledSizeBrush));
-                            OnPropertyChanged(nameof(CacheRootSpaceAvailableBrush));
+            OnPropertyChanged(nameof(CacheRootSpaceAvailableBrush));
             OnSortableColumnsChanged(Id, new string[] { "Status", "CanInstallCache" });
         }
 

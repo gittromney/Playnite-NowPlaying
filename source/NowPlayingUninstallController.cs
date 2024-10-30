@@ -3,7 +3,7 @@ using NowPlaying.ViewModels;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
-using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using static NowPlaying.Models.GameCacheManager;
@@ -99,17 +99,24 @@ namespace NowPlaying
 
             if (!cancelUninstall && settings.SyncDirtyCache_DoWhen == DoWhen.Ask)
             {
-                DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
-                if (result.isDirty)
+                if (Directory.Exists(gameCache.CacheDir))
                 {
-                    string nl = System.Environment.NewLine;
-                    string caption = plugin.GetResourceString("LOCNowPlayingSyncOnUninstallCaption");
-                    string message = plugin.FormatResourceString("LOCNowPlayingSyncOnUninstallDiffHeadingFmt3", gameTitle, cacheDir, installDir) + nl + nl;
-                    message += result.summary;
-                    message += plugin.GetResourceString("LOCNowPlayingSyncOnUninstallPrompt");
-                    MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNoCancel);
-                    cacheWriteBackOption = userChoice == MessageBoxResult.Yes;
-                    cancelUninstall = userChoice == MessageBoxResult.Cancel;
+                    DirtyCheckResult result = cacheManager.CheckCacheDirty(gameCache.Id);
+                    if (result.isDirty)
+                    {
+                        string nl = System.Environment.NewLine;
+                        string caption = plugin.GetResourceString("LOCNowPlayingSyncOnUninstallCaption");
+                        string message = plugin.FormatResourceString("LOCNowPlayingSyncOnUninstallDiffHeadingFmt3", gameTitle, cacheDir, installDir) + nl + nl;
+                        message += result.summary;
+                        message += plugin.GetResourceString("LOCNowPlayingSyncOnUninstallPrompt");
+                        MessageBoxResult userChoice = PlayniteApi.Dialogs.ShowMessage(message, caption, MessageBoxButton.YesNoCancel);
+                        cacheWriteBackOption = userChoice == MessageBoxResult.Yes;
+                        cancelUninstall = userChoice == MessageBoxResult.Cancel;
+                    }
+                }
+                else
+                {
+                    logger.Error($"Game cache directory missing for '{gameCache.Title}': '{gameCache.CacheDir}'");
                 }
             }
 
