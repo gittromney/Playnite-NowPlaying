@@ -149,26 +149,30 @@ namespace NowPlaying
                 statusIconBrushDarker = false;
             }
 
-            // . initialize search text from saved state (see Settings) and status column's MinWidth
-            //    note: must be set after panelView is loaded; otherwise, it's overwritten w/ ""
             if (panelView.IsLoaded)
             {
-                panelViewModel.SearchText = Settings.SearchText;
-                panelViewModel.InitStatusColumnMinWidth();
+                InitPanelViewModelState(null, null);
             }
             else
             {
-                panelView.Loaded += (s, e) =>
-                {
-                    panelViewModel.SearchText = Settings.SearchText;
-                    panelViewModel.InitStatusColumnMinWidth();
-                };
+                panelView.Loaded += InitPanelViewModelState;
             }
 
             // . initialize column sorting state (see Settings)
             InitListViewSortingState(cacheRootsView.CacheRoots, Settings.CacheRootsSortedColumn, Settings.CacheRootsSortDirection);
             InitListViewSortingState(panelView.GameCaches, Settings.GameCachesSortedColumn, Settings.GameCachesSortDirection);
         }
+
+        // . initialize search text from saved state (see Settings) and status column's MinWidth
+        //    note: must be set after panelView is loaded; otherwise, it's overwritten w/ ""
+        private void InitPanelViewModelState(object sender, RoutedEventArgs e)
+        {
+            panelViewModel.SearchText = Settings.SearchText;
+            panelViewModel.InitStatusColumnMinWidth();
+            panelView.Loaded -= InitPanelViewModelState;
+        }
+
+        private RoutedEventHandler initListViewSortingStateHandler = null;
 
         private void InitListViewSortingState(ListView listView, string sortedColumn, string sortDirection)
         {
@@ -182,11 +186,15 @@ namespace NowPlaying
                         var direction = sortDirection == "Ascending" ? ListSortDirection.Ascending : ListSortDirection.Descending;
                         GridViewUtils.SetupAndApplyColumnSort(listView, sortedColumnHeader, sortedColumn, direction);
                     }
-                    listView.Loaded -= (s, e) => InitListViewSortingState(listView, sortedColumn, sortDirection);
+                    if (initListViewSortingStateHandler != null)
+                    {
+                        listView.Loaded -= initListViewSortingStateHandler;
+                    }
                 }
                 else
                 {
-                    listView.Loaded += (s, e) => InitListViewSortingState(listView, sortedColumn, sortDirection);
+                    initListViewSortingStateHandler = (s, e) => InitListViewSortingState(listView, sortedColumn, sortDirection);
+                    listView.Loaded += initListViewSortingStateHandler;
                 }
             }
         }

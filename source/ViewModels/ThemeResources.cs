@@ -10,6 +10,7 @@ using NowPlaying.Utils;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Shapes;
+using System.Collections.Generic;
 
 namespace NowPlaying.ViewModels
 {
@@ -958,6 +959,20 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private Thickness listViewPadding;
+        public Thickness ListViewPadding
+        {
+            get => listViewPadding;
+            set
+            {
+                if (listViewPadding != value)
+                {
+                    listViewPadding = value;
+                    OnPropertyChanged(nameof(ListViewPadding));
+                }
+            }
+        }
+
         private Thickness listViewMargin;
         public Thickness ListViewMargin
         {
@@ -1000,6 +1015,20 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private Thickness listViewControlsMargin;
+        public Thickness ListViewControlsMargin
+        {
+            get => listViewControlsMargin;
+            set
+            {
+                if (listViewControlsMargin != value)
+                {
+                    listViewControlsMargin = value;
+                    OnPropertyChanged(nameof(ListViewControlsMargin));
+                }
+            }
+        }
+
         private double rootsIconRectSize;
         public double RootsIconRectSize
         {
@@ -1024,6 +1053,20 @@ namespace NowPlaying.ViewModels
                 {
                     settingsIconFontSize = value;
                     OnPropertyChanged(nameof(SettingsIconFontSize));
+                }
+            }
+        }
+
+        private Style bottomButtonStyle;
+        public Style BottomButtonStyle
+        {
+            get => bottomButtonStyle;
+            set
+            {
+                if (bottomButtonStyle != value)
+                {
+                    bottomButtonStyle = value;
+                    OnPropertyChanged(nameof(BottomButtonStyle));
                 }
             }
         }
@@ -1054,7 +1097,7 @@ namespace NowPlaying.ViewModels
             EnableBgBrush = GetResource("EnableBgBrush") as Brush;
             UninstallFgBrush = GetResource("UninstallFgBrush") as Brush;
             UninstallBgBrush = GetResource("UninstallBgBrush") as Brush;
-
+            
             PopupBackgroundBrush = TransparentBrush;
             PopupDarkeningBrush = TransparentBrush;
             MainPanelBackgroundBrush = TransparentBrush;
@@ -1114,11 +1157,20 @@ namespace NowPlaying.ViewModels
 
             ListViewItemStyle = GetResource("ThemeListViewItem") as Style;
             ListViewStyle = GetResource("ThemeListView") as Style;
+            ListViewPadding = new Thickness(2, 0.5, 5, 0.5);
             ListViewMargin = new Thickness(0);
             ListViewBorderBrush = TransparentBrush;
             ListViewBorderThickness = new Thickness(0);
+            ListViewControlsMargin = new Thickness(1, 5, 0, 10);
             SelectedListViewItemBrush = new BrushConverter().ConvertFrom("Black") as Brush;
+
+            var basedOnStyle = GetResource("BottomButton") as Style;
+            var style = new Style(typeof(Button), basedOn: basedOnStyle);
+            style.Setters.Add(new Setter(Button.VerticalContentAlignmentProperty, VerticalAlignment.Center));
+            BottomButtonStyle = style;
         }
+
+        private bool currentThemeIsFusionX = false;
 
         public void ApplyThemeStylingTweaks()
         {
@@ -1144,7 +1196,8 @@ namespace NowPlaying.ViewModels
                 TopPanelItemHeight = 31;
                 TopPanelSearchGap = 15;
                 TopPanelBorderBrush = BrushFromString("#FFF2F2F2", Opacity: 0.2);
-                LowerPanelDockMargin = new Thickness(30, 60, 30, 10);
+                LowerPanelDockMargin = new Thickness(30, 60, 30, 8);
+                ListViewPadding = AdjustMargin(ListViewPadding, Left: 5);
 
                 // attempt to override theme's fixed progress bar colors, but otherwise keep styling intact
                 TopPanelProgressBarStyle = GetResource("ThemeProgressBarStyle") as Style;
@@ -1191,21 +1244,20 @@ namespace NowPlaying.ViewModels
             {
                 MainPanelDarkeningBrush = BrushFromString("#70202020"); // trial-and-error value
                 PopupDarkeningBrush = BrushFromString("#B2202020"); // trial-and-error value
-                TopPanelHeight = 45;
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 5, Right: 188);
+                TopPanelHeight = 50;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 10, Right: 188);
                 TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
                 TopPanelMenuItemsColumn = (int)TopPanelColumn.Right;
                 TopPanelSearchGapColumn = (int)TopPanelColumn.RGap;
                 TopPanelProgressBarColumn = (int)TopPanelColumn.FarRight;
                 TopPanelSearchGap = 15;
-                ListViewMargin = new Thickness(0, 0, 0, 0);
                 SelectedListViewItemBrush = BrushFromString("#FFC8C8C8"); // more readable than theme's choice
             }
             // eMixedNiteMC
             else if (currentTheme == "eMixedNiteMC_4333b3b2-0374-43a1-a9eb-d27f3ea89ef8")
             {
-                TopPanelHeight = 41;
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 3, Right: 168);
+                TopPanelHeight = 45;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 7, Right: 168);
                 TopPanelItemHeight = 32;
                 TopPanelSearchBoxColumn = (int)TopPanelColumn.FarLeft;
                 TopPanelSearchGapColumn = (int)TopPanelColumn.LGap;
@@ -1214,7 +1266,6 @@ namespace NowPlaying.ViewModels
                 TopPanelSearchGap = 15;
                 InstallFgBrush = TextBrushDarker;
                 WarningBrush = BrushFromString("#FFFF4500");
-                ListViewMargin = new Thickness(0, 0, 0, 0);
                 SelectedListViewItemBrush = TextBrushDarker;
             }
             // Enhanced Grid View Extend
@@ -1224,19 +1275,19 @@ namespace NowPlaying.ViewModels
             {
                 PopupBackgroundBrush = GetResource("MainBackgroundBrush") as Brush;
                 PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.7);
-                TopPanelItemStyle = GetResource("PluginTopPanelItem_FusionX") as Style;
                 ListViewItemStyle = GetResource("ListViewItem_FusionX") as Style;
                 ListViewStyle = GetResource("ListView_FusionX") as Style;
                 ListViewMargin = new Thickness(-18, -18, 0, 0);
                 SelectedListViewItemBrush = TextBrush;
 
+                currentThemeIsFusionX = true;
                 TweakFusionXThemeListView(plugin.panelView.GameCaches);
                 TweakFusionXThemeListView(plugin.cacheRootsView.CacheRoots);
-                TweakFusionXThemeTopPanelItem(plugin.topPanelItem.Icon as UserControl);
 
                 TopPanelHeight = 60;
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 12, Bottom: 14.5, Right: 128);
                 TopPanelItemHeight = 32;
+                TopPanelProgressBarMargin = new Thickness(-3, 0, -3, 0);
                 TopPanelProgressBarHeight = 26;
                 TopPanelProgressBarRadius = 10;
                 InstallProgressBarRadius = 4;
@@ -1249,8 +1300,8 @@ namespace NowPlaying.ViewModels
 
                 TopPanelSearchBoxWidth = 200;
                 TopPanelSearchBoxHeight = 36;
-                TopPanelSearchBoxMargin = new Thickness(44, 0, 0, -2);
-
+                TopPanelSearchBoxMargin = new Thickness(42, 0, 0, -2);
+                LowerPanelDockMargin = new Thickness(18, 18, 0, 0);
                 RootsIconRectSize = 18;
                 SettingsIconFontSize = 14.5;
             }
@@ -1286,6 +1337,7 @@ namespace NowPlaying.ViewModels
                 TopPanelSearchGap = 30;
                 TopPanelProgressBarHeight = 24;
                 TopPanelProgressBarRadius = 4;
+                LowerPanelDockMargin = new Thickness(15, 20, 0, 0);
             }
             // Helium
             else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb1")
@@ -1295,8 +1347,8 @@ namespace NowPlaying.ViewModels
                 TopPanelItemHeight = 32;
                 TopPanelProgressBarRadius = 2.5;
                 TopPanelBackgroundBrush = GetResource("TopPanelBackgroundBrush") as Brush;
-                TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelBorderBrush = TransparentBrush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 LowerPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
                 SelectedListViewItemBrush = null; // keep Foreground color as is when selected
             }
@@ -1306,21 +1358,25 @@ namespace NowPlaying.ViewModels
                 TopPanelBackgroundBrush = GetResource("WindowBackgourndBrush") as Brush;
                 TopPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
                 TopPanelDropShadow = GetResource("DefaultDropShadow") as Effect;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = GetResource("TextBrushDark") as Brush;
+                LowerPanelDockMargin = new Thickness(5, 5, 0, 0);
             }
             // Minimal
             else if (currentTheme == "Minimal_01b9013c-0777-46ba-a09e-035bd66a79e2") { }
             // Mythic
             else if (currentTheme == "Mythic_e231056c-4fa7-49d8-ad2b-0a6f1c589eb8")
             {
-                TopPanelHeight = 100;
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 12, Bottom: 31, Right: 190);
+                TopPanelHeight = 98;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 12, Bottom: 29, Right: 190);
                 TopPanelItemHeight = 40;
                 TopPanelSearchBoxWidth = 240;
                 TopPanelProgressBarHeight = 28;
                 TopPanelProgressBarRadius = 10;
+                TopPanelBorderBrush = TransparentBrush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = TextBrush;
+                LowerPanelDockMargin = new Thickness(10, 0, 0, 0);
 
                 // add background setter to theme's TopPanelSearchBox style
                 var style = new Style(typeof(SearchBox), basedOn: GetResource("TopPanelSearchBox") as Style);
@@ -1334,6 +1390,7 @@ namespace NowPlaying.ViewModels
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 10);
                 TopPanelItemHeight = 31;
                 TopPanelBackgroundBrush = GetResource("TopPanelBackgroundBrush") as Brush;
+                TopPanelSearchBoxBgBrush = BrushFromString("#99212124");
                 SelectedListViewItemBrush = null;
             }
             // Nova X
@@ -1352,9 +1409,12 @@ namespace NowPlaying.ViewModels
                 TopPanelMinCenterGap = 15;
                 TopPanelSearchGap = 5;
 
-                TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelBorderBrush = TransparentBrush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = TextBrush;
+                LowerPanelDockMargin = new Thickness(6, 6, 0, 0);
+                ListViewControlsMargin = AdjustMargin(ListViewControlsMargin, Left: 2);
+                InstallBrush = TextBrush;
 
                 // add background + fontweight setters to theme's TopPanelSearchBox style
                 var style = new Style(typeof(SearchBox), basedOn: GetResource("SearchBoxTopPanel") as Style);
@@ -1368,8 +1428,8 @@ namespace NowPlaying.ViewModels
             {
                 TopPanelMargin = AdjustMargin(TopPanelMargin, Bottom: 10);
                 TopPanelItemHeight = 31;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
-                MainPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelSeparatorBrush = TransparentBrush;
+                MainPanelSeparatorBrush = TransparentBrush;
                 TopPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
                 MainPanelBorderBrush = GetResource("PanelSeparatorBrush") as Brush;
             }
@@ -1378,8 +1438,8 @@ namespace NowPlaying.ViewModels
             {
                 PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
                 PopupDarkeningBrush = BrushFromString("#a02f2e30"); // trial-and-error value
-                TopPanelHeight = 74;
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 14, Right: 5);
+                TopPanelHeight = 80;
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 20, Right: 5);
                 TopPanelItemHeight = 45;
                 TopPanelSearchBoxWidth = 200;
                 TopPanelProgressBarHeight = 30;
@@ -1390,10 +1450,12 @@ namespace NowPlaying.ViewModels
                 TopPanelMinCenterGap = 15;
                 TopPanelSearchGap = 2;
 
-                TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelBorderBrush = TransparentBrush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 TopPanelBackgroundBrush = GetResource("TopPanelFadeBackgroundBrush") as Brush;
                 MainPanelDarkeningBrush = BrushFromString("#701f1e20"); // trial-and-error value
+                ListViewMargin = AdjustMargin(ListViewMargin, Left: -0.5);
+                ListViewControlsMargin = AdjustMargin(ListViewControlsMargin, Left: 2);
                 SelectedListViewItemBrush = TextBrush;
 
                 // add background + fontweight setters to theme's SearchBox style
@@ -1407,6 +1469,7 @@ namespace NowPlaying.ViewModels
             else if (currentTheme == "StandardX") 
             {
                 InstallFgBrush = TextBrushDarker;
+                InstallBrush = TextBrush;
             }
             // Stardust
             else if 
@@ -1417,7 +1480,8 @@ namespace NowPlaying.ViewModels
             {
                 PopupBackgroundBrush = GetResource("BackgroundGradientBrush") as Brush;
                 PopupDarkeningBrush = BrushCloneFromResource("PopupBackgroundBrush", Opacity: 0.4);
-                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 0, Right: 5);
+                TopPanelMargin = AdjustMargin(TopPanelMargin, Left: 5, Bottom: 15, Right: 5);
+                TopPanelHeight = 65;
                 TopPanelItemHeight = 35;
                 TopPanelSearchBoxWidth = 120;
                 TopPanelProgressBarHeight = 25;
@@ -1433,9 +1497,10 @@ namespace NowPlaying.ViewModels
                 TopPanelMinCenterGap = 15;
                 TopPanelSearchGap = 5;
                 
-                TopPanelBorderBrush = GetResource("TransparentBrush") as Brush;
-                TopPanelSeparatorBrush = GetResource("TransparentBrush") as Brush;
+                TopPanelBorderBrush = TransparentBrush;
+                TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = TextBrush;
+                ListViewControlsMargin = AdjustMargin(ListViewControlsMargin, Left: 2);
 
                 // add background + fontweight + height setters to theme's SearchBox style
                 var style = new Style(typeof(PluginSearchBox), basedOn: GetResource("SearchBoxTopPanel") as Style);
@@ -1480,9 +1545,11 @@ namespace NowPlaying.ViewModels
             return margin;
         }
 
-        private void TweakFusionXThemeListView(ListView listView)
+        private Dictionary<ListView,RoutedEventHandler> tweakFusionXThemeListViewHandler = new Dictionary<ListView, RoutedEventHandler>();
+
+        public void TweakFusionXThemeListView(ListView listView)
         {
-            if (listView != null && listView.IsLoaded)
+            if (currentThemeIsFusionX && listView != null && listView.IsLoaded)
             {
                 try
                 {
@@ -1491,37 +1558,25 @@ namespace NowPlaying.ViewModels
                     var margin = presenter.Margin; margin.Bottom = 0;
                     presenter.Margin = margin;
                 }
-                catch {}
-                listView.Loaded -= (s, e) => TweakFusionXThemeListView(listView);
-            }
-            else if (listView != null)
-            {
-                listView.Loaded += (s, e) => TweakFusionXThemeListView(listView);
-            }
-        }
-
-        private void TweakFusionXThemeTopPanelItem(UserControl view)
-        {
-            if (view != null && view.IsLoaded)
-            {
-                try
+                finally
                 {
-                    // hack removal of Width=32 limitation
-                    // hack style to replace hover/selected ellispes with radiused rectangles
-                    var topPanelItem = WpfUtils.GetAncestor<TopPanelItem>(view);
-                    topPanelItem.Width = double.NaN;
-                    topPanelItem.Style = GetResource("TopPanelItem_FusionX") as Style;
+                    if (tweakFusionXThemeListViewHandler.ContainsKey(listView))
+                    {
+                        listView.Loaded -= tweakFusionXThemeListViewHandler[listView];
+                        tweakFusionXThemeListViewHandler[listView] = null;
+                    }
                 }
-                catch { }
-                view.Loaded -= (s, e) => TweakFusionXThemeTopPanelItem(view);
             }
-            else if (view != null)
+            else if (currentThemeIsFusionX && listView != null)
             {
-                view.Loaded += (s, e) => TweakFusionXThemeTopPanelItem(view);
+                tweakFusionXThemeListViewHandler.Add(listView, (s, e) => TweakFusionXThemeListView(listView));
+                listView.Loaded += tweakFusionXThemeListViewHandler[listView];
             }
         }
 
-        private static void TweakDazeThemeProgressBar(UserControl view, string targetProgressBarName)
+        private Dictionary<string, RoutedEventHandler> tweakDazeThemeProgressBarHandler = new Dictionary<string, RoutedEventHandler>();
+        
+        private void TweakDazeThemeProgressBar(UserControl view, string targetProgressBarName)
         {
             if (view != null && view.IsLoaded)
             {
@@ -1564,12 +1619,22 @@ namespace NowPlaying.ViewModels
                         }
                     );
                 }
-                catch { }
-                view.Loaded -= (s, e) => TweakDazeThemeProgressBar(view, targetProgressBarName);
+                finally
+                {
+                    if (tweakDazeThemeProgressBarHandler.ContainsKey(targetProgressBarName))
+                    {
+                        view.Loaded -= tweakDazeThemeProgressBarHandler[targetProgressBarName];
+                        tweakDazeThemeProgressBarHandler[targetProgressBarName] = null;
+                    }
+                }
             }
             else if (view != null)
             {
-                view.Loaded += (s, e) => TweakDazeThemeProgressBar(view, targetProgressBarName);
+                tweakDazeThemeProgressBarHandler.Add
+                (
+                    targetProgressBarName, (s, e) => TweakDazeThemeProgressBar(view, targetProgressBarName)
+                );
+                view.Loaded += tweakDazeThemeProgressBarHandler[targetProgressBarName];
             }
         }
 

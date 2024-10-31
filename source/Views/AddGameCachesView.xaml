@@ -75,6 +75,7 @@
                 utils:GridViewUtils.SecondaryAutoSortBy="Title,Ascending"
                 BorderThickness="{Binding Theme.ListViewBorderThickness}"
                 BorderBrush="{Binding Theme.ListViewBorderBrush}"
+                Margin="{Binding Theme.ListViewMargin}"
                 Style="{Binding Theme.ListViewStyle}">
                 <ListView.View>
                     <GridView>
@@ -205,11 +206,11 @@
                 <Button 
                     Content="{DynamicResource LOCNowPlayingAddGamesEnableSelected}" 
                     Command="{Binding EnableSelectedGamesCommand}"
-                    Style="{DynamicResource BottomButton}" MinHeight="35" Padding="10,2,10,2"/>
+                    Style="{Binding Theme.BottomButtonStyle}" MinHeight="35" Padding="10,2,10,2"/>
                 <Button
                     Content="{DynamicResource LOCNowPlayingTermsClose}" 
                     Command="{Binding CloseCommand}"
-                    Style="{DynamicResource BottomButton}" MinHeight="35" Padding="10,2,10,2"/>
+                    Style="{Binding Theme.BottomButtonStyle}" MinHeight="35" Padding="10,2,10,2"/>
             </StackPanel>
         </Grid>
     </Grid>

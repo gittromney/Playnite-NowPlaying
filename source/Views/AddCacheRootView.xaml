@@ -196,7 +196,7 @@
                 Margin="0,20,0,0">
                 <Button 
                     Content="Add" 
-                    Style="{DynamicResource BottomButton}" 
+                    Style="{Binding Theme.BottomButtonStyle}" 
                     Height="{Binding Path=ActualHeight, ElementName=RefButton}"
                     Width="{Binding Path=ActualWidth, ElementName=RefButton}" 
                     Command="{Binding AddCommand}" 
@@ -204,7 +204,7 @@
                 <Button
                     Name="RefButton"
                     Content="Cancel" 
-                    Style="{DynamicResource BottomButton}" MinHeight="35" MinWidth="75"
+                    Style="{Binding Theme.BottomButtonStyle}" MinHeight="35" MinWidth="75"
                     Command="{Binding CancelCommand}"/>
             </StackPanel>
         

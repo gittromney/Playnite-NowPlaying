@@ -19,7 +19,6 @@ using System.Linq;
 using System.Windows.Controls;
 using NowPlaying.Extensions;
 using System.ComponentModel;
-using Newtonsoft.Json.Linq;
 
 namespace NowPlaying.ViewModels
 {
@@ -165,6 +164,9 @@ namespace NowPlaying.ViewModels
 
                     // tweak window to make it captionless (no area reserved for title, min/max/close buttons)
                     view.Loaded += plugin.panelViewModel.MakeWindowCaptionlessOnUserControlLoaded;
+
+                    // tweak list view style parameters (if using FusionX theme)
+                    theme.TweakFusionXThemeListView(view.EligibleGames);
 
                     // Note 1: height may be adjusted if window cannot be made 'captionless'
                     popup.Width = view.MinWidth;
@@ -771,17 +773,26 @@ namespace NowPlaying.ViewModels
             }
         }
 
+        private PropertyChangedEventHandler updateCacheRootsViewHandler = null;
         private void UpdateCacheRootsView(bool showCacheRoots)
         {
             if (showCacheRoots)
             {
                 CacheRootsView = plugin.cacheRootsView;
-                plugin.cacheRootsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(CacheRootsView));
+                if (updateCacheRootsViewHandler == null)
+                {
+                    updateCacheRootsViewHandler = (s, e) => OnPropertyChanged(nameof(CacheRootsView));
+                }
+                plugin.cacheRootsViewModel.PropertyChanged += updateCacheRootsViewHandler;
                 plugin.cacheRootsViewModel.RefreshCacheRoots();
             }
             else
             {
-                plugin.cacheRootsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(CacheRootsView));
+                if (updateCacheRootsViewHandler != null)
+                {
+                    plugin.cacheRootsViewModel.PropertyChanged -= updateCacheRootsViewHandler;
+                    updateCacheRootsViewHandler = null;
+                }
                 CacheRootsView = null;
             }
         }
@@ -813,6 +824,9 @@ namespace NowPlaying.ViewModels
 
         public string SettingsVisibility => ShowSettings ? "Visible" : "Collapsed";
 
+
+        private PropertyChangedEventHandler showSettingsHandler = null;
+
         private bool showSettings;
         public bool ShowSettings
         {
@@ -829,11 +843,19 @@ namespace NowPlaying.ViewModels
                     if (showSettings)
                     {
                         SettingsView = plugin.settingsView;
-                        plugin.settingsViewModel.PropertyChanged += (s, e) => OnPropertyChanged(nameof(SettingsView));
+                        if (showSettingsHandler == null)
+                        {
+                            showSettingsHandler = (s, e) => OnPropertyChanged(nameof(SettingsView));
+                        }
+                        plugin.settingsViewModel.PropertyChanged += showSettingsHandler;
                     }
                     else
                     {
-                        plugin.settingsViewModel.PropertyChanged -= (s, e) => OnPropertyChanged(nameof(SettingsView));
+                        if (showSettingsHandler != null)
+                        {
+                            plugin.settingsViewModel.PropertyChanged -= showSettingsHandler;
+                            showSettingsHandler = null;
+                        }
                         SettingsView = null;
                     }
                 }

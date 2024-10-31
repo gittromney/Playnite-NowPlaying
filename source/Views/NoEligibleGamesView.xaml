@@ -61,7 +61,7 @@
                     <Button 
                         Content="{DynamicResource LOCNowPlayingTermsClose}" 
                         Command="{Binding CloseCommand}"
-                        Style="{DynamicResource BottomButton}" MinHeight="35" MinWidth="75" Margin="0"/>
+                        Style="{Binding Theme.BottomButtonStyle}" MinHeight="35" MinWidth="75" Margin="0"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

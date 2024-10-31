@@ -161,14 +161,14 @@
                         <Button 
                             Content="{DynamicResource LOCNowPlayingTermsSave}" 
                             Command="{Binding SaveSettingsCommand}" 
-                            Style="{DynamicResource BottomButton}"
+                            Style="{Binding Theme.BottomButtonStyle}"
                             Width="{Binding Path=ActualWidth, ElementName=RefButton}"
                             Height="{Binding Path=ActualHeight, ElementName=RefButton}"
                             Margin="0,0,10,0"/>
                         <Button
                             Name="RefButton"
                             Content="{DynamicResource LOCNowPlayingTermsCancel}" 
-                            Style="{DynamicResource BottomButton}" MinWidth="70" MinHeight="35" 
+                            Style="{Binding Theme.BottomButtonStyle}" MinWidth="70" MinHeight="35" 
                             Command="{Binding CancelSettingsCommand}"/>
                     </StackPanel>
                 </StackPanel>
@@ -623,9 +623,10 @@
 
                     <!--game caches control panel, snapped to bottom of listview-->
                     <StackPanel 
-                        Grid.Row="1" Margin="0,5,0,10"
+                        Grid.Row="1" 
                         VerticalAlignment="Top"
                         Orientation="Horizontal" 
+                        Margin="{Binding Theme.ListViewControlsMargin}"
                         Visibility="{Binding GameCachesVisibility}">
                         <Button
                             Content="⟳" Padding="0,0,0,3" FontSize="20"
