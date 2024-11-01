@@ -1337,7 +1337,7 @@ namespace NowPlaying.ViewModels
                 TopPanelSearchGap = 30;
                 TopPanelProgressBarHeight = 24;
                 TopPanelProgressBarRadius = 4;
-                LowerPanelDockMargin = new Thickness(15, 20, 0, 0);
+                LowerPanelDockMargin = new Thickness(20, 20, 0, 0);
             }
             // Helium
             else if (currentTheme == "8b15c46a-90c2-4fe5-9ebb-1ab25ba7fcb1")
@@ -1360,7 +1360,6 @@ namespace NowPlaying.ViewModels
                 TopPanelDropShadow = GetResource("DefaultDropShadow") as Effect;
                 TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = GetResource("TextBrushDark") as Brush;
-                LowerPanelDockMargin = new Thickness(5, 5, 0, 0);
             }
             // Minimal
             else if (currentTheme == "Minimal_01b9013c-0777-46ba-a09e-035bd66a79e2") { }
@@ -1377,6 +1376,7 @@ namespace NowPlaying.ViewModels
                 TopPanelSeparatorBrush = TransparentBrush;
                 SelectedListViewItemBrush = TextBrush;
                 LowerPanelDockMargin = new Thickness(10, 0, 0, 0);
+                InstallBrush = TextBrush;
 
                 // add background setter to theme's TopPanelSearchBox style
                 var style = new Style(typeof(SearchBox), basedOn: GetResource("TopPanelSearchBox") as Style);

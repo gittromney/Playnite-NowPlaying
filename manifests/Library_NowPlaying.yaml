@@ -1,5 +1,16 @@
-AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
+﻿AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.3
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2024-11-01
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.3/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_3.pext
+    Changelog:
+    - Fixes bug that prevented write-back of dirty caches during uninstall. Note, uninstall times could increase with this fix (unless you choose 'Never sync settings/game save data' under Settings -> Sync on uninstall).   
+    - Fixes bug that can cause Playnite -> Exit to hang if a cache is being installed.
+    - Shortens 'Can install?' and 'Install ETA' column names to '⭳ OK?' and '⭳ ETA', resp. 
+    - Applies further theme tweaks and support of larger fonts/font sizes, including with progress bars and column auto/minimum width sizing within the game caches / cache roots list view.
+    - Adds 'Space Available per cache root' info to the Playnite library view menu for enabling game caching/choosing a root (only when multiple cache roots are defined). 
+    - Improves robustness of enable/install/uninstall queue system.
   - Version: 1.4.2
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-10-22
