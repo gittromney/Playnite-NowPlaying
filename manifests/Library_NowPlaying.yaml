@@ -2,7 +2,7 @@
 Packages:
   - Version: 1.4.4
     RequiredApiVersion: 6.9.0
-    ReleaseDate: 2024-11-01
+    ReleaseDate: 2024-11-04
     PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.4/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_4.pext
     Changelog:
     - Same functionality as v1.4.3 but reduces NowPlaying_*.pext file size drastically (was 149MB -> now 0.5MB); sorry about the bloated releases (v1.3.6 to v.1.4.3).

@@ -1,8 +1,16 @@
-param($releaseDir)
+param($releaseDir, $packedReleaseDir)
 
-$leanReleaseDir = $releaseDir.TrimEnd('\') + '_Lean' 
-$packedReleaseDir = "C:\Dev\GitHub\Releases\"
-$Toolbox = "C:\Users\miker\AppData\Local\Playnite\Toolbox.exe"
+# collapse up-level relative paths ('\xyz\..' -> ''), if applicable
+$up1Pattern = '\\[^\\\.]+\\\.\.'
+$packedReleaseDir = $packedReleaseDir -replace $up1Pattern, ''
+$leanReleaseDir = ($releaseDir.TrimEnd('\') -replace $up1Pattern, '') + '_Lean\' 
+$Toolbox = $Env:LOCALAPPDATA + "\Playnite\Toolbox.exe"
+
+echo "PostReleaseBuild.ps1:"
+echo "[-releaseDir: $releaseDir]"
+echo "[lean release dir: $leanReleaseDir]"
+echo "[-packedReleaseDir: $packedReleaseDir]"
+echo "[Toolbox.exe path: $Toolbox]"
 
 if (Test-Path -Path $releaseDir) 
 {
@@ -18,7 +26,6 @@ if (Test-Path -Path $releaseDir)
 	# . extension.yaml
 	# . icon.png
 	# . NowPlaying.dll
-	echo "Release target is '$releaseDir'"
     echo "Creating 'lean' release in '$leanReleaseDir' ..."
 
 	Copy-Item -Path $releaseDir\Localization -Destination $leanReleaseDir -Recurse -Container

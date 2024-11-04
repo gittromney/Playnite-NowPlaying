@@ -236,7 +236,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release (
-  PowerShell -ExecutionPolicy Unrestricted -file $(ProjectDir)\PostReleaseBuild.ps1 -releaseDir $(TargetDir)
+  PowerShell -ExecutionPolicy Unrestricted -file $(ProjectDir)\PostReleaseBuild.ps1 -releaseDir $(TargetDir) -packedReleaseDir $(SolutionDir)..\Releases\
 )
 </PostBuildEvent>
   </PropertyGroup>
