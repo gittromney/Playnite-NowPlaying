@@ -1519,8 +1519,13 @@ namespace NowPlaying.ViewModels
 
         private Brush BrushCloneFromResource(string resourceName, double Opacity = 1)
         {
-            var brush = (GetResource(resourceName) as Brush)?.Clone();
+            var refBrush = GetResource(resourceName) as Brush;
+            var brush = refBrush?.Clone();
             brush.Opacity = Opacity;
+            if (refBrush.IsFrozen)
+            {
+                brush.Freeze();
+            }
             return brush;
         }
 

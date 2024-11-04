@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3D58CFBA-DF59-4F4A-BDD3-6AC48B3A5886}</ProjectGuid>
+    <ProjectGuid>{6DB9C94F-18FE-49BC-9C93-159FE753B986}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NowPlaying</RootNamespace>
@@ -30,9 +30,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Playnite.SDK, Version=6.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PlayniteSDK.6.11.0\lib\net462\Playnite.SDK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -144,6 +150,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="PostReleaseBuild.ps1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\*.xaml">
@@ -221,14 +228,16 @@
       <Project>{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}</Project>
       <Name>Playnite.DesktopApp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Playnite\source\PlayniteSDK\Playnite.SDK.csproj">
-      <Project>{19bc9097-5705-4352-90e2-99f0c63230d0}</Project>
-      <Name>Playnite.SDK</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Playnite\source\Playnite\Playnite.csproj">
       <Project>{ad271e73-8a13-4c4e-bfdc-3076646b59e3}</Project>
       <Name>Playnite</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if $(ConfigurationName) == Release (
+  PowerShell -ExecutionPolicy Unrestricted -file $(ProjectDir)\PostReleaseBuild.ps1 -releaseDir $(TargetDir)
+)
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>
