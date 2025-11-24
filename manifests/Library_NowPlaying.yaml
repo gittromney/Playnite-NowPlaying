@@ -1,5 +1,11 @@
 ﻿AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.5
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2025-11-24
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.5/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_5.pext
+    Changelog:
+    - Fixes issue #18 'Playnite crashes when trying to add game through the extension'
   - Version: 1.4.4
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2024-11-04

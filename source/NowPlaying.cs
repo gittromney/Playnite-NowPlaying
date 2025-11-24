@@ -1641,10 +1641,10 @@ namespace NowPlaying
                     path = action.Path;
                 }
 
-                work = DirectoryUtils.CollapseMultipleSlashes(work);
-                path = DirectoryUtils.CollapseMultipleSlashes(path);
+                work = DirectoryUtils.CollapseMultipleSlashes(work).Trim();
+                path = DirectoryUtils.CollapseMultipleSlashes(path).Trim();
 
-                if (work != null && path != null && work == path.Substring(0, work.Length))
+                if (work != null && path != null && work.Length < path.Length && work == path.Substring(0, work.Length))
                 {
                     return path.Substring(DirectoryUtils.TrimEndingSlash(work).Length + 1);
                 }
@@ -1675,10 +1675,10 @@ namespace NowPlaying
                     path = romPath;
                 }
 
-                work = DirectoryUtils.CollapseMultipleSlashes(work);
-                path = DirectoryUtils.CollapseMultipleSlashes(path);
+                work = DirectoryUtils.CollapseMultipleSlashes(work).Trim();
+                path = DirectoryUtils.CollapseMultipleSlashes(path).Trim();
 
-                if (work != null && path != null && work.Length <= path.Length && work == path.Substring(0, work.Length))
+                if (work != null && path != null && work.Length < path.Length && work == path.Substring(0, work.Length))
                 {
                     return path.Substring(DirectoryUtils.TrimEndingSlash(work).Length + 1);
                 }
