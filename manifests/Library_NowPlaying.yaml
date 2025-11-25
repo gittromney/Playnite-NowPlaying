@@ -1,5 +1,12 @@
 ﻿AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.6
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2025-11-25
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.6/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_6.pext
+    Changelog:
+    - Fixes another bug related to issue 18, which crashed Playnite while checking games for cache eligibility. Previous release made PlayAction Path 
+      vs WorkingDir string comparisons more robust; whereas this release handles games with an empty Platforms list (note, those games are ineligble). 
   - Version: 1.4.5
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2025-11-24

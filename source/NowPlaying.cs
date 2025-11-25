@@ -1133,48 +1133,51 @@ namespace NowPlaying
             // list must include EXACTLY ONE eligible platform; otherwise the game is ineligible
             // for game caching.
             //
-            foreach (var platform in game?.Platforms)
+            if (game?.Platforms != null)
             {
-                var specId = platform?.SpecificationId;
-                if (specId == "pc_windows")
+                foreach (var platform in game.Platforms)
                 {
-                    gcPlatform = GameCachePlatform.WinPC;
-                    hitCount++;
-                }
-                else if (specId == "sony_playstation2")
-                {
-                    gcPlatform = GameCachePlatform.PS2;
-                    hitCount++;
-                }
-                else if (specId == "sony_playstation3")
-                {
-                    gcPlatform = GameCachePlatform.PS3;
-                    hitCount++;
-                }
-                else if (specId == "xbox")
-                {
-                    gcPlatform = GameCachePlatform.Xbox;
-                    hitCount++;
-                }
-                else if (specId == "xbox360")
-                {
-                    gcPlatform = GameCachePlatform.X360;
-                    hitCount++;
-                }
-                else if (specId == "nintendo_gamecube")
-                {
-                    gcPlatform = GameCachePlatform.GameCube;
-                    hitCount++;
-                }
-                else if (specId == "nintendo_wii")
-                {
-                    gcPlatform = GameCachePlatform.Wii;
-                    hitCount++;
-                }
-                else if (specId == "nintendo_switch")
-                {
-                    gcPlatform = GameCachePlatform.Switch;
-                    hitCount++;
+                    var specId = platform?.SpecificationId;
+                    if (specId == "pc_windows")
+                    {
+                        gcPlatform = GameCachePlatform.WinPC;
+                        hitCount++;
+                    }
+                    else if (specId == "sony_playstation2")
+                    {
+                        gcPlatform = GameCachePlatform.PS2;
+                        hitCount++;
+                    }
+                    else if (specId == "sony_playstation3")
+                    {
+                        gcPlatform = GameCachePlatform.PS3;
+                        hitCount++;
+                    }
+                    else if (specId == "xbox")
+                    {
+                        gcPlatform = GameCachePlatform.Xbox;
+                        hitCount++;
+                    }
+                    else if (specId == "xbox360")
+                    {
+                        gcPlatform = GameCachePlatform.X360;
+                        hitCount++;
+                    }
+                    else if (specId == "nintendo_gamecube")
+                    {
+                        gcPlatform = GameCachePlatform.GameCube;
+                        hitCount++;
+                    }
+                    else if (specId == "nintendo_wii")
+                    {
+                        gcPlatform = GameCachePlatform.Wii;
+                        hitCount++;
+                    }
+                    else if (specId == "nintendo_switch")
+                    {
+                        gcPlatform = GameCachePlatform.Switch;
+                        hitCount++;
+                    }
                 }
             }
             return hitCount==1 ? gcPlatform : GameCachePlatform.InEligible;
