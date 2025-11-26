@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace NowPlaying.Models
 {
@@ -39,9 +40,10 @@ namespace NowPlaying.Models
         // Robocopy common output parsing: regular expressions
         private static string regexMarkerFile = @"\.NowPlaying\.(\w+)\s*$";
 
-        // Robocopy standard mode output parsing: regular expressions
-        private static string regexSizeName = @"^\s*(\d+)\s+(.*)$"; // e.g. ' 123 <file path> ' -> $1=123, $2=<file path>
-        private static string regexPercent = @"^\s*([\d\.]+)%.*";   // e.g. ' 12.3%' -> $1=12.3
+		// Robocopy standard mode output parsing: regular expressions
+		// Note 1: robocopy always uses a '.' decimal separator, irrespective of culture settings
+		private static string regexSizeName = @"^\s*(\d+)\s+(.*)$"; // e.g. ' 123 <file path> ' -> $1=123, $2=<file path>
+        private static string regexPercent = @"^\s*([\d\.]+)%.*";   // e.g. ' 12.3%' -> $1=12.3  (see Note 1)
         private static string regexDiskFull = @" ERROR 112 \(0x00000070\) ";
 
         public static LineType GetLineType(string line)
@@ -72,7 +74,8 @@ namespace NowPlaying.Models
 
         public static double GetFilePercentDone(string line)
         {
-            return double.Parse(Regex.Replace(line, regexPercent, "$1"));
+			// Note: robocopy always uses an en-US style '.' decimal separator, irrespective of culture settings
+			return double.Parse(Regex.Replace(line, regexPercent, "$1"), CultureInfo.GetCultureInfo("en-US"));  
         }
 
         // Robocopy analysis (+file class) mode output parsing: regular expressions
