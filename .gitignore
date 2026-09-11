@@ -11,6 +11,8 @@
 /source/bin
 /source/obj
 /source/packages
+/Build
+/Package
 /packages
 /.vs/NowPlaying/v17/.suo
 /.vs/NowPlaying/v17/.suo

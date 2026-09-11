@@ -1,48 +1,53 @@
-param($releaseDir, $packedReleaseDir)
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$leanPackageDir,
 
-# collapse up-level relative paths ('\xyz\..' -> ''), if applicable
-$up1Pattern = '\\[^\\\.]+\\\.\.'
-$packedReleaseDir = $packedReleaseDir -replace $up1Pattern, ''
-$leanReleaseDir = ($releaseDir.TrimEnd('\') -replace $up1Pattern, '') + '_Lean\' 
-$Toolbox = $Env:LOCALAPPDATA + "\Playnite\Toolbox.exe"
+    [Parameter(Mandatory = $true)]
+    [string]$packedReleaseDir
+)
 
-echo "PostReleaseBuild.ps1:"
-echo "[-releaseDir: $releaseDir]"
-echo "[lean release dir: $leanReleaseDir]"
-echo "[-packedReleaseDir: $packedReleaseDir]"
-echo "[Toolbox.exe path: $Toolbox]"
+$leanPackageDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($leanPackageDir)
+$packedReleaseDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($packedReleaseDir)
+$Toolbox = Join-Path $env:LOCALAPPDATA "Playnite\Toolbox.exe"
 
-if (Test-Path -Path $releaseDir) 
-{
-	# clean | create lean release area 
-	if (Test-Path -Path $leanReleaseDir) 
-	{
-		Remove-Item -LiteralPath $leanReleaseDir -Force -Recurse
-	}
-	$null = New-Item -Path $leanReleaseDir -ItemType Directory
+Write-Host "PostReleaseBuild.ps1:"
+Write-Host "[leanPackageDir: $leanPackageDir]"
+Write-Host "[packedReleaseDir: $packedReleaseDir]"
+Write-Host "[Toolbox.exe path: $Toolbox]"
 
-	# copy lean release files/subdirs to the lean release dir:
-	# . Localization\
-	# . extension.yaml
-	# . icon.png
-	# . NowPlaying.dll
-    echo "Creating 'lean' release in '$leanReleaseDir' ..."
-
-	Copy-Item -Path $releaseDir\Localization -Destination $leanReleaseDir -Recurse -Container
-	Copy-Item -Path $releaseDir\extension.yaml -Destination $leanReleaseDir
-	Copy-Item -Path $releaseDir\icon.png -Destination $leanReleaseDir
-	Copy-Item -Path $releaseDir\NowPlaying.dll -Destination $leanReleaseDir
-
-	echo "Done copying files to lean release area"
-
-	# use Playnite's Toolbox.exe to create packed release, .pext
-	$test1 = Test-Path -Path $Toolbox -Type Leaf
-	$test2 = Test-Path -Path $packedReleaseDir
-	if ($test1 -and $test2) 
-	{
-		echo "Packing lean release (w/Toolbox.exe) to '$packedReleaseDir'..."
-		$command = "$Toolbox pack $leanReleaseDir $packedReleaseDir"
-		Invoke-Expression $command
-	}
+if (-not (Test-Path -Path $leanPackageDir)) {
+    Write-Warning "Lean package directory not found: $leanPackageDir"
+    exit 1
 }
-exit 0;
+
+$requiredFiles = @(
+    (Join-Path $leanPackageDir "NowPlaying.dll"),
+    (Join-Path $leanPackageDir "extension.yaml"),
+    (Join-Path $leanPackageDir "icon.png")
+)
+
+foreach ($file in $requiredFiles) {
+    if (-not (Test-Path -Path $file)) {
+        Write-Warning "Required release file not found: $file"
+        exit 1
+    }
+}
+
+$localizationDir = Join-Path $leanPackageDir "Localization"
+if (-not (Test-Path -Path $localizationDir)) {
+    Write-Warning "Required localization directory not found: $localizationDir"
+    exit 1
+}
+
+if (-not (Test-Path -Path $Toolbox -PathType Leaf)) {
+    Write-Warning "Toolbox.exe not found at: $Toolbox"
+    exit 1
+}
+
+if (-not (Test-Path -Path $packedReleaseDir)) {
+    $null = New-Item -Path $packedReleaseDir -ItemType Directory -Force
+}
+
+Write-Host "Packing lean release (w/Toolbox.exe) to '$packedReleaseDir'..."
+& $Toolbox pack $leanPackageDir $packedReleaseDir
+exit $LASTEXITCODE

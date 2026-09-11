@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PlayniteNowPlayingRoot>$(MSBuildThisFileDirectory)</PlayniteNowPlayingRoot>
+    <ExtensionId>NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59</ExtensionId>
+    <OutputPath Condition="'$(Configuration)' == 'Debug'">$(PlayniteNowPlayingRoot)Build\Debug\</OutputPath>
+    <OutputPath Condition="'$(Configuration)' == 'Release'">$(PlayniteNowPlayingRoot)Package\Release\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+    <LeanPackageDir Condition="'$(Configuration)' == 'Release'">$(PlayniteNowPlayingRoot)Package\Pack</LeanPackageDir>
+  </PropertyGroup>
+
+  <!-- Release builds: compile against NuGet refs but do not copy them into the extension output folder. -->
+  <ItemDefinitionGroup Condition="'$(Configuration)' == 'Release'">
+    <Reference>
+      <Private>false</Private>
+    </Reference>
+  </ItemDefinitionGroup>
+</Project>

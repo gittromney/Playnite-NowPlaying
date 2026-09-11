@@ -21,7 +21,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,7 +28,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -255,19 +253,61 @@
     <ProjectReference Include="..\..\Playnite\source\Playnite.DesktopApp\Playnite.DesktopApp.csproj">
       <Project>{26DCC539-E67F-4CB5-970F-F02C1F5C6E00}</Project>
       <Name>Playnite.DesktopApp</Name>
+      <Private>false</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Playnite\source\Playnite\Playnite.csproj">
       <Project>{ad271e73-8a13-4c4e-bfdc-3076646b59e3}</Project>
       <Name>Playnite</Name>
+      <Private>false</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release (
-  PowerShell -ExecutionPolicy Unrestricted -file $(ProjectDir)\PostReleaseBuild.ps1 -releaseDir $(TargetDir) -packedReleaseDir $(SolutionDir)..\Releases\
-)
-</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="PreventReleaseDependencyCopyLocal" BeforeTargets="ResolveAssemblyReferences" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <Reference Update="@(Reference)" Private="false" />
+    </ItemGroup>
+  </Target>
+  <Target Name="CleanupReleaseOutput" AfterTargets="Build" BeforeTargets="PrepareLeanReleasePackage" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <ReleaseOutputToRemove Include="$(TargetDir)*.dll" Exclude="$(TargetPath)" />
+      <ReleaseOutputToRemove Include="$(TargetDir)*.pdb" />
+      <ReleaseOutputToRemove Include="$(TargetDir)*.xml" />
+      <ReleaseOutputToRemove Include="$(TargetDir)*.config" />
+    </ItemGroup>
+    <Delete Files="@(ReleaseOutputToRemove)" ContinueOnError="true" />
+  </Target>
+  <Target Name="DeployExtensionForDebug" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <PropertyGroup>
+      <ExtensionDeployDir>$(TargetDir)Extensions\$(ExtensionId)\</ExtensionDeployDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(ExtensionDeployDir)Localization\" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExtensionDeployDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)extension.yaml" DestinationFolder="$(ExtensionDeployDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)icon.png" DestinationFolder="$(ExtensionDeployDir)" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <ExtensionLocFiles Include="$(TargetDir)Localization\*.xaml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ExtensionLocFiles)" DestinationFolder="$(ExtensionDeployDir)Localization\" SkipUnchangedFiles="true" Condition="'@(ExtensionLocFiles)' != ''" />
+  </Target>
+  <Target Name="PrepareLeanReleasePackage" AfterTargets="CleanupReleaseOutput" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <LeanReleaseLocFiles Include="$(ProjectDir)Localization\*.xaml" />
+    </ItemGroup>
+    <RemoveDir Directories="$(LeanPackageDir)" Condition="Exists('$(LeanPackageDir)')" />
+    <MakeDir Directories="$(LeanPackageDir)\Localization\" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)extension.yaml" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)icon.png" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(LeanReleaseLocFiles)" DestinationFolder="$(LeanPackageDir)\Localization\" SkipUnchangedFiles="true" />
+    <Error Condition="'@(LeanReleaseLocFiles)' == ''" Text="No localization files found under $(ProjectDir)Localization\" />
+  </Target>
+  <Target Name="PackReleaseExtension" AfterTargets="PrepareLeanReleasePackage" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <PackedReleaseDir>$(PlayniteNowPlayingRoot)..\Releases</PackedReleaseDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(PackedReleaseDir)" Condition="!Exists('$(PackedReleaseDir)')" />
+    <Exec Command="PowerShell -ExecutionPolicy Unrestricted -File &quot;$(ProjectDir)PostReleaseBuild.ps1&quot; -leanPackageDir &quot;$(LeanPackageDir)&quot; -packedReleaseDir &quot;$(PackedReleaseDir)&quot;" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
