@@ -1,5 +1,11 @@
 ﻿AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.8
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2026-09-12
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.8/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_8.pext
+    Changelog:
+    - Fixes a Fullscreen mode resource initialization bug - now Fullscreen mode should work properly. (This addresses github issue 20) 
   - Version: 1.4.7
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2025-11-26

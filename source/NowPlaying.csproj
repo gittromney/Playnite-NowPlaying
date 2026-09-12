@@ -294,11 +294,11 @@
       <LeanReleaseLocFiles Include="$(ProjectDir)Localization\*.xaml" />
     </ItemGroup>
     <RemoveDir Directories="$(LeanPackageDir)" Condition="Exists('$(LeanPackageDir)')" />
-    <MakeDir Directories="$(LeanPackageDir)\Localization\" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(ProjectDir)extension.yaml" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(ProjectDir)icon.png" DestinationFolder="$(LeanPackageDir)\" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(LeanReleaseLocFiles)" DestinationFolder="$(LeanPackageDir)\Localization\" SkipUnchangedFiles="true" />
+    <MakeDir Directories="$(LeanPackageDir)\Localization" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(LeanPackageDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)extension.yaml" DestinationFolder="$(LeanPackageDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(ProjectDir)icon.png" DestinationFolder="$(LeanPackageDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(LeanReleaseLocFiles)" DestinationFolder="$(LeanPackageDir)\Localization" SkipUnchangedFiles="true" />
     <Error Condition="'@(LeanReleaseLocFiles)' == ''" Text="No localization files found under $(ProjectDir)Localization\" />
   </Target>
   <Target Name="PackReleaseExtension" AfterTargets="PrepareLeanReleasePackage" Condition="'$(Configuration)' == 'Release'">
