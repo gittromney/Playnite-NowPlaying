@@ -5,6 +5,7 @@ using Brush = System.Windows.Media.Brush;
 using System.Windows.Media;
 using NowPlaying.Controls;
 using Playnite.DesktopApp.Controls;
+using Playnite.SDK;
 using System;
 using NowPlaying.Utils;
 using System.Windows.Controls;
@@ -1174,6 +1175,10 @@ namespace NowPlaying.ViewModels
 
         public void ApplyThemeStylingTweaks()
         {
+            // Desktop mode only
+            if (plugin.PlayniteApi.ApplicationInfo.Mode != ApplicationMode.Desktop) return;
+
+            // make sure the plugin is initialized
             ResetToDefaults();
 
             // apply theme-specific overrides
