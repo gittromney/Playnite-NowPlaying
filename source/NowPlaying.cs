@@ -668,6 +668,7 @@ namespace NowPlaying
 
                 case GameCachePlatform.PS2:
                 case GameCachePlatform.PS3:
+                case GameCachePlatform.PS4:
                 case GameCachePlatform.Xbox:
                 case GameCachePlatform.X360:
                 case GameCachePlatform.GameCube:
@@ -1153,6 +1154,11 @@ namespace NowPlaying
                         gcPlatform = GameCachePlatform.PS3;
                         hitCount++;
                     }
+                    else if (specId == "sony_playstation4")
+                    {
+                        gcPlatform = GameCachePlatform.PS4;
+                        hitCount++;
+                    }
                     else if (specId == "xbox")
                     {
                         gcPlatform = GameCachePlatform.Xbox;
@@ -1327,6 +1333,7 @@ namespace NowPlaying
 
                         case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.PS4:
                         case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
                         case GameCachePlatform.GameCube:
@@ -1487,6 +1494,7 @@ namespace NowPlaying
 
                         case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.PS4:
                         case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
                         case GameCachePlatform.GameCube:
@@ -1549,6 +1557,7 @@ namespace NowPlaying
 
                     case GameCachePlatform.PS2:
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.PS4:
                     case GameCachePlatform.Xbox:
                     case GameCachePlatform.X360:
                     case GameCachePlatform.GameCube:

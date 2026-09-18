@@ -79,6 +79,7 @@ namespace NowPlaying
 
                     case GameCachePlatform.PS2:
                     case GameCachePlatform.PS3:
+                    case GameCachePlatform.PS4:
                     case GameCachePlatform.Xbox:
                     case GameCachePlatform.X360:
                     case GameCachePlatform.GameCube:
@@ -149,6 +150,7 @@ namespace NowPlaying
 
                         case GameCachePlatform.PS2:
                         case GameCachePlatform.PS3:
+                        case GameCachePlatform.PS4:
                         case GameCachePlatform.Xbox:
                         case GameCachePlatform.X360:
                         case GameCachePlatform.GameCube:

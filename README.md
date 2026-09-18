@@ -12,6 +12,7 @@ This extension may be useful if you have a local library of PC Windows and/or [*
 Game caching is now possible for the following emulated platforms (See [here](#emulator-setup) for details):
 - *Sony Playstation 2* (PCSX2)
 - *Sony Playstation 3* (RPCS3)
+- *Sony PlayStation 4* (shadPS4)
 - *Microsoft Xbox* (Xemu)
 - *Microsoft Xbox 360* (Xenia)
 - *Nintendo GameCube* (Dolphin)

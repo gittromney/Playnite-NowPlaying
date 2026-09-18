@@ -1,5 +1,11 @@
 ﻿AddonId: NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59
 Packages:
+  - Version: 1.4.9
+    RequiredApiVersion: 6.9.0
+    ReleaseDate: 2026-09-18
+    PackageUrl: https://github.com/gittromney/Playnite-NowPlaying/releases/download/v1.4.9/NowPlaying_0dbead64-b7ed-47e5-904c-0ccdb5d5ff59_1_4_9.pext
+    Changelog:
+    - Adds support for Sony PlayStation 4 (shadPS4) emulated games.
   - Version: 1.4.8
     RequiredApiVersion: 6.9.0
     ReleaseDate: 2026-09-12
